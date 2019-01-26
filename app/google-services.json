@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "221332577314",
+    "firebase_url": "https://test-667ca.firebaseio.com",
+    "project_id": "test-667ca",
+    "storage_bucket": "test-667ca.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:221332577314:android:acb28f092122eb64",
+        "android_client_info": {
+          "package_name": "at.smartshopper.smartshopper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "221332577314-s875jesfrase013upk7koi349hkpc8nn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "at.smartshopper.smartshopper",
+            "certificate_hash": "5b45cd94564fa6ffa90ed08d38d1ad48dd64681c"
+          }
+        },
+        {
+          "client_id": "221332577314-oo8b4uqtlgj75e7u7o3qt1vc96prfv52.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDz7MzopErZ6paAIaGGJAGY8Lx9kly5q2k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "221332577314-obp1h7tvcl0q0ajkdcrnv7o90v0ssdjd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
