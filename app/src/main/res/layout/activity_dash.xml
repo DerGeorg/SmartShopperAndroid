@@ -9,9 +9,7 @@
     <TabHost
         android:id="@+id/tabHost1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -21,12 +19,14 @@
             <TabWidget
                 android:id="@android:id/tabs"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content">
+
+            </TabWidget>
 
             <FrameLayout
                 android:id="@android:id/tabcontent"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent">x
 
                 <LinearLayout
                     android:id="@+id/tab1"
@@ -40,14 +40,7 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical">
 
-                        <Button
-                            android:id="@+id/logoutBtn"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Logout" />
-
-                        <android.support.v4.widget.SwipeRefreshLayout
-                            xmlns:android="http://schemas.android.com/apk/res/android"
+                        <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
                             android:id="@+id/ownSwipe"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent">
@@ -75,12 +68,6 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical">
 
-                        <Button
-                            android:id="@+id/logoutBtn2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Logout" />
-
                         <android.support.v7.widget.RecyclerView
                             android:id="@+id/sharedrecycler"
                             android:layout_width="match_parent"
@@ -91,6 +78,7 @@
                 </LinearLayout>
 
             </FrameLayout>
+
         </LinearLayout>
     </TabHost>
 

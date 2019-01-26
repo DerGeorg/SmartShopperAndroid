@@ -19,8 +19,8 @@
         </activity>
         <activity
             android:name=".Dash"
-            android:label="@string/title_activity_dash"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:label="SmartShopper"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>
