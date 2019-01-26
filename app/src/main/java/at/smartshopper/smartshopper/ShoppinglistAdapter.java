@@ -1,6 +1,7 @@
 package at.smartshopper.smartshopper;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -33,13 +35,13 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
     public ShoppinglistViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         //inflating and returning our view holder
         LayoutInflater inflater = LayoutInflater.from(mCtx);
-        View view = inflater.inflate(R.layout.cardview, null);
+        View view = inflater.inflate(R.layout.cardview, parent, false);
         return new ShoppinglistViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ShoppinglistViewHolder holder, int position) {
-        //getting the product of the specified position
+        //getting the product of the specified position,
         Shoppinglist shoppinglist = this.shoppinglist.get(position);
 
         //binding the data with the viewholder views
@@ -51,7 +53,9 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
             // Name, email address, and profile photo Url
             String name = user.getDisplayName();
             Uri photoUrl = user.getPhotoUrl();
-            holder.imageView.setImageURI(photoUrl);
+            holder.ownerName.setText(name);
+            Picasso.get().load(photoUrl).resize(250, 250).transform(new RoundCornersTransformation(30, 30, true, true)).into(holder.imageView);
+           // holder.imageView.setImageDrawable(Drawable.createFromPath("@drawable/common_google_signin_btn_icon_dark"));
 
             // Check if user's email is verified
 
@@ -73,7 +77,7 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
 
     class ShoppinglistViewHolder extends RecyclerView.ViewHolder {
 
-        TextView textViewTitle, textViewBeschreibung;
+        TextView textViewTitle, textViewBeschreibung, ownerName;
         ImageView imageView;
 
         public ShoppinglistViewHolder(View itemView) {
@@ -82,6 +86,7 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
             textViewTitle = itemView.findViewById(R.id.shoppinglistName);
             textViewBeschreibung = itemView.findViewById(R.id.shoppinglistBeschreibung);
             imageView = itemView.findViewById(R.id.shoppinglistOwner);
+            ownerName = itemView.findViewById(R.id.ownerName);
         }
     }
 }

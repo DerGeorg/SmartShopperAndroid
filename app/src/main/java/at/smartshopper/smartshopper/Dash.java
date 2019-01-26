@@ -1,11 +1,15 @@
 package at.smartshopper.smartshopper;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TabHost;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,6 +27,12 @@ import java.util.jar.JarInputStream;
 public class Dash extends AppCompatActivity {
 
     private Database db = new Database();
+    private SwipeRefreshLayout ownswiperefresh;
+
+    private void goLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
 
 
     @Override
@@ -31,8 +41,16 @@ public class Dash extends AppCompatActivity {
         setContentView(R.layout.activity_dash);
 
 
-
         tabHoster();
+
+        Button logoutBtn = (Button) findViewById(R.id.logoutBtn);
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                goLogin();
+            }
+        });
 
 
         /*
@@ -44,9 +62,7 @@ public class Dash extends AppCompatActivity {
             String name = user.getDisplayName();
             String email = user.getEmail();
             Uri photoUrl = user.getPhotoUrl();
-            RecyclerView ownRecycleView = (RecyclerView) findViewById(R.id.ownrecycler);
-            ownRecycleView.setHasFixedSize(true);
-            ownRecycleView.setLayoutManager(new LinearLayoutManager(this));
+
 
             // Check if user's email is verified
             boolean emailVerified = user.isEmailVerified();
@@ -54,18 +70,65 @@ public class Dash extends AppCompatActivity {
             // The user's ID, unique to the Firebase project. Do NOT use this value to
             // authenticate with your backend server, if you have one. Use
             // FirebaseUser.getIdToken() instead.
-            String uid = user.getUid();
+            final String uid = user.getUid();
+
 
             try {
-                List<Shoppinglist> ownListsList = db.getMyShoppinglists(uid);
-
-                ShoppinglistAdapter shpAdapter = new ShoppinglistAdapter(Dash.this, ownListsList);
-
-                ownRecycleView.setAdapter(shpAdapter);
-            }catch (JSONException e){
+                showOwnShoppingList(uid);
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
+            ownswiperefresh = (SwipeRefreshLayout) findViewById(R.id.ownSwipe);
+
+            ownswiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    refreshOwnShoppinglist(uid);
+
+                }
+            });
+
+
         }
+    }
+
+    /**
+     * Refreshed die eigene shoppinglist und veranlasst das das refreshen beendet wird
+     * @param uid Von dem benutzer von welchem die Shoppinglists angezeigt werden sollen
+     */
+    private void refreshOwnShoppinglist(String uid){
+        try {
+            showOwnShoppingList(uid);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        refreshOwnShoppinglistFinish();
+    }
+
+    /**
+     * Stoppt das refreshen der OwnShoppinglist
+     */
+    private void refreshOwnShoppinglistFinish() {
+        // Update the adapter and notify data set changed
+        // ...
+
+        // Stop refresh animation
+        ownswiperefresh.setRefreshing(false);
+    }
+
+
+    /**
+     * Macht eine Datenbankverbindung und holt alle Shoppinglists die dem User gehören, diese werden auf dem recycled view angezeigt
+     *
+     * @param uid Die UserId damit von diesem user die shoppinglisten angezeigt werden
+     */
+    private void showOwnShoppingList(String uid) throws JSONException {
+        RecyclerView ownRecycleView = (RecyclerView) findViewById(R.id.ownrecycler);
+        ownRecycleView.setHasFixedSize(true);
+        ownRecycleView.setLayoutManager(new LinearLayoutManager(this));
+        List<Shoppinglist> ownListsList = db.getMyShoppinglists(uid);
+        ShoppinglistAdapter shpAdapter = new ShoppinglistAdapter(Dash.this, ownListsList);
+        ownRecycleView.setAdapter(shpAdapter);
     }
 
     /**
