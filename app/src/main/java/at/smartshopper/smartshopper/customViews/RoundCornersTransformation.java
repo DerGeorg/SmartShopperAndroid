@@ -1,4 +1,4 @@
-package at.smartshopper.smartshopper;
+package at.smartshopper.smartshopper.customViews;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;

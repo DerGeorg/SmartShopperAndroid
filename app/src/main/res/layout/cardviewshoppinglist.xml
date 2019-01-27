@@ -61,6 +61,7 @@
             card_view:layout_constraintBottom_toBottomOf="parent"
             card_view:layout_constraintStart_toStartOf="parent"
             card_view:layout_constraintTop_toBottomOf="@+id/shoppinglistOwner" />
+
     </android.support.constraint.ConstraintLayout>
 
 </android.support.v7.widget.CardView>

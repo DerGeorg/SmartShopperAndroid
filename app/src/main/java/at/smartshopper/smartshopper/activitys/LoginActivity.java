@@ -1,6 +1,7 @@
-package at.smartshopper.smartshopper;
+package at.smartshopper.smartshopper.activitys;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +25,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+
+import at.smartshopper.smartshopper.R;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -58,11 +61,20 @@ public class LoginActivity extends AppCompatActivity {
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
+    /**
+     * Wechselt zu der Dash Activity
+     */
     private void goDash() {
         Intent intent = new Intent(this, Dash.class);
+        finish();
         startActivity(intent);
     }
 
+    /**
+     * Loggt den User per Email ein
+     * @param email Email des Users
+     * @param password Passwort des Users
+     */
     private void signInEmail(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -85,6 +97,12 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+
+    /**
+     * Erstellt einen Account mit Email und Passwort
+     * @param email Email des neuen Users
+     * @param password Passwort des neuen Users
+     */
     private void createAccount(String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -106,10 +124,15 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        if (getIntent().getBooleanExtra("EXIT", false))
+        {
+            finish();
+        }
         mAuth = FirebaseAuth.getInstance();
 
         Button loginEmailBtn = (Button) findViewById(R.id.loginEmailBtn);
@@ -146,6 +169,10 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Loggt den User ein. Bei erfolg wird der Aufruf zur Dash Activity getätigt
+     * @param acct Der Google Account, welcher eingelogt werden soll
+     */
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
 
@@ -171,6 +198,10 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+
+    /**
+     * Prüft ob der User bereits eingelogt ist. Wenn ja, wird er auf die Dash Activity weitergeleitet
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -180,5 +211,32 @@ public class LoginActivity extends AppCompatActivity {
             goDash();
         }
 
+    }
+
+    //Für Double Back press to exit
+    private boolean doubleBackToExitPressedOnce = false;
+
+    /**
+     * 2 Mal Zurück Drücken um die App zu schließen
+     */
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            finish();
+
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
     }
 }

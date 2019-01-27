@@ -1,8 +1,9 @@
-package at.smartshopper.smartshopper;
+package at.smartshopper.smartshopper.shoppinglist;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import at.smartshopper.smartshopper.R;
+import at.smartshopper.smartshopper.activitys.ShoppinglistDetails;
+import at.smartshopper.smartshopper.customViews.RoundCornersTransformation;
 
 public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapter.ShoppinglistViewHolder> {
 
@@ -31,14 +36,25 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
         this.shoppinglist = shoppinglist;
     }
 
+    /**
+     * Erstellt einen Neuen view holder mit aktueller view
+     * @param parent
+     * @param viewType
+     * @return
+     */
     @Override
     public ShoppinglistViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         //inflating and returning our view holder
         LayoutInflater inflater = LayoutInflater.from(mCtx);
-        View view = inflater.inflate(R.layout.cardview, parent, false);
+        View view = inflater.inflate(R.layout.cardviewshoppinglist, parent, false);
         return new ShoppinglistViewHolder(view);
     }
 
+    /**
+     * Setzt alle Daten in die View elemente
+     * @param holder Das View Holder Objekt mit allen elementen
+     * @param position Der Index welcher aus der data list genommen werden soll
+     */
     @Override
     public void onBindViewHolder(ShoppinglistViewHolder holder, int position) {
         //getting the product of the specified position,
@@ -69,12 +85,17 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
     }
 
 
+
+
     @Override
     public int getItemCount() {
         return shoppinglist.size();
     }
 
 
+    /**
+     * Haltet alle elemente. Durch ein Objekt von dem kann jedes Element welches hier drinnen angeführt ist verwendet werden
+     */
     class ShoppinglistViewHolder extends RecyclerView.ViewHolder {
 
         TextView textViewTitle, textViewBeschreibung, ownerName;
@@ -87,6 +108,25 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
             textViewBeschreibung = itemView.findViewById(R.id.shoppinglistBeschreibung);
             imageView = itemView.findViewById(R.id.shoppinglistOwner);
             ownerName = itemView.findViewById(R.id.ownerName);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+
+                    Intent intent = new Intent(v.getContext(), ShoppinglistDetails.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("pos", position);
+                    intent.putExtras(bundle);
+                    v.getContext().startActivity(intent);
+
+
+
+                }
+            });
         }
+
+
+
     }
 }

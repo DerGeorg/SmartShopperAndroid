@@ -1,34 +1,30 @@
-package at.smartshopper.smartshopper;
+package at.smartshopper.smartshopper.activitys;
 
-import android.app.ActionBar;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TabHost;
+import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
 
 import org.json.JSONException;
 
+import java.sql.SQLException;
 import java.util.List;
-import java.util.jar.JarInputStream;
+
+import at.smartshopper.smartshopper.R;
+import at.smartshopper.smartshopper.db.Database;
+import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
+import at.smartshopper.smartshopper.shoppinglist.ShoppinglistAdapter;
 
 
 public class Dash extends AppCompatActivity {
@@ -70,7 +66,11 @@ public class Dash extends AppCompatActivity {
 
 
             try {
-                showOwnShoppingList(uid);
+                try {
+                    showOwnShoppingList(uid);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -79,7 +79,11 @@ public class Dash extends AppCompatActivity {
             ownswiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    refreshOwnShoppinglist(uid);
+                    try {
+                        refreshOwnShoppinglist(uid);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
 
                 }
             });
@@ -92,6 +96,7 @@ public class Dash extends AppCompatActivity {
      * Logt den User aus und geht zur Login Activity
      */
     private void logout(){
+        finish();
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
@@ -102,7 +107,7 @@ public class Dash extends AppCompatActivity {
      *
      * @param uid Von dem benutzer von welchem die Shoppinglists angezeigt werden sollen
      */
-    private void refreshOwnShoppinglist(String uid) {
+    private void refreshOwnShoppinglist(String uid) throws SQLException {
         try {
             showOwnShoppingList(uid);
         } catch (JSONException e) {
@@ -128,7 +133,7 @@ public class Dash extends AppCompatActivity {
      *
      * @param uid Die UserId damit von diesem user die shoppinglisten angezeigt werden
      */
-    private void showOwnShoppingList(String uid) throws JSONException {
+    private void showOwnShoppingList(String uid) throws JSONException, SQLException {
         RecyclerView ownRecycleView = (RecyclerView) findViewById(R.id.ownrecycler);
         ownRecycleView.setHasFixedSize(true);
         ownRecycleView.setLayoutManager(new LinearLayoutManager(this));
@@ -158,6 +163,16 @@ public class Dash extends AppCompatActivity {
         host.addTab(spec);
     }
 
+    /**
+     * Schickt an die Login Activity einen intend mit dem extra EXIT. Um die app zu schließen
+     */
+    private void exit(){
+        Intent intent = new Intent(Dash.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("EXIT", true);
+        startActivity(intent);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -167,13 +182,17 @@ public class Dash extends AppCompatActivity {
     }
 
 
+    /**
+     * Menu item Action listener
+     * @param item Action Item
+     * @return True wenn erfolgreich
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.logoutBtn:
                 logout();
                 return true;
-
 
             default:
                 // If we got here, the user's action was not recognized.
@@ -183,5 +202,32 @@ public class Dash extends AppCompatActivity {
         }
     }
 
+
+    //Für Double Back press to exit
+    private boolean doubleBackToExitPressedOnce = false;
+
+    /**
+     * 2 Mal Zurück Drücken um die App zu schließen
+     */
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            exit();
+
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
+    }
 
 }

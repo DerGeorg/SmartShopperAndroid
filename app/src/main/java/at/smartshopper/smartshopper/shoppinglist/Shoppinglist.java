@@ -1,4 +1,4 @@
-package at.smartshopper.smartshopper;
+package at.smartshopper.smartshopper.shoppinglist;
 
 public class Shoppinglist {
 
@@ -35,5 +35,10 @@ public class Shoppinglist {
     public String getInvitelink(){return this.invitelink;}
 
     public String getcolor(){ return this.color;}
+
+    @Override
+    public String toString(){
+        return "SL_ID: " + sl_id + " name: " + name + " description: " + description + " invitelink: " + invitelink + " color: "+ color;
+    }
 
 }
