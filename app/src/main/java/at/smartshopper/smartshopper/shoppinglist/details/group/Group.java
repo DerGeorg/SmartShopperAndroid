@@ -13,7 +13,13 @@ public class Group {
         this.group_id = group_id;
         this.sl_id = sl_id;
         this.name = name;
-        this.color = color;
+        String colorstring;
+        if(color.contains("#")){
+            colorstring = color;
+        }else{
+            colorstring = "#" + color;
+        }
+        this.color = colorstring;
         this.hidden = hidden;
     }
 

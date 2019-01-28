@@ -14,7 +14,7 @@
     </android.support.v7.widget.RecyclerView>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButton"
+        android:id="@+id/addGroupFab"
         style="@style/Widget.MaterialComponents.FloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

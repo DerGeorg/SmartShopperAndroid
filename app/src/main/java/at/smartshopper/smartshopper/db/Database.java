@@ -51,6 +51,116 @@ public class Database {
     }
 
     /**
+     * Löscht eine Gruppe von der Tabelle Group und alle items dieser group, desswegen wird aucj die tabelle item geleert
+     * @param group_id Die group id welche gelöscht werden soll
+     * @param sl_id Die Shoppingliste auf der sich die group befindet
+     * @throws SQLException
+     */
+    public void deleteGroup(String group_id, String sl_id) throws SQLException {
+        sqlUpdate2Param("DELETE FROM \"Item\" WHERE group_id = ? AND sl_id = ?", group_id, sl_id);
+        sqlUpdate2Param("DELETE FROM \"Group\" WHERE group_id = ? AND sl_id = ?", group_id, sl_id);
+    }
+
+    /**
+     * Fügt ein neues Item der Datenbank hinzu
+     * @param group_id Die group id in der das neue item angezeigt werden soll
+     * @param sl_id Die Shoppingliste in der das neue item nagezeigt werden soll
+     * @param name Der name des Items
+     * @param count Die anzahl des Items
+     * @throws SQLException
+     */
+    public void addItem(String group_id, String sl_id, String name, int count) throws SQLException {
+        sqlUpdate5Param("INSERT INTO \"Item\" VALUES (?,?,?,?,?)", generateItemId(), group_id, sl_id, name, count);
+    }
+
+    /**
+     * Erstellt eine neue Gruppe
+     *
+     * @param sl_id  Shoppinglist id in welcher die Gruppe ist
+     * @param name
+     * @param color
+     * @param hidden
+     */
+    public void addGroup(String sl_id, String name, String color, String hidden) throws SQLException {
+        sqlUpdate4Param("INSERT INTO \"Group\" (group_id, sl_id, name, color, hidden) VALUES (?, ?,?,?, false)", generateGroupId(), sl_id, name, color);
+    }
+
+    /**
+     * Bearbeitet eine Gruppe
+     *
+     * @param sl_id     Die Shoppinglist oid in welcher die gruppe ist
+     * @param group_id  Die Group id der gruppe
+     * @param newname   Der neue Name
+     * @param newcolor  Die neue Farbe
+     * @param newhidden Der neue hidden boolean
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public void editGroup(String sl_id, String group_id, String newname, String newcolor, String newhidden) throws SQLException, JSONException {
+        Group oldgroup = getGroup(group_id, sl_id);
+
+        if (!oldgroup.getName().equals(newname) && newname != null) {
+            sqlUpdate3Param("UPDATE \"Group\" SET name = ? WHERE group_id = ? AND sl_id = ?", newname, group_id, sl_id);
+        }
+
+        /*
+        if (!oldgroup.getHidden().equals(newhidden) && newhidden != null) {
+            sqlUpdate3Param("UPDATE \"Group\" SET hidden = ? WHERE group_id = ? AND sl_id = ?", newhidden, group_id, sl_id);
+        }
+*/
+        if (!oldgroup.getColor().equals(newcolor) && newcolor != null) {
+            sqlUpdate3Param("UPDATE \"Group\" SET color = ? WHERE group_id = ? AND sl_id = ?", newcolor, group_id, sl_id);
+        }
+
+    }
+
+    /**
+     * Hollt ein bestimtes item
+     * @param item_id Die sl_id in der das item ist
+     * @return
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public Item getItem(String item_id) throws SQLException, JSONException {
+        String SQL = "SELECT row_to_json(\"Item\") AS obj FROM \"Item\" JOIN \"Group\" USING (group_id) WHERE item_id = ?";
+
+        connectDatabase();
+
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, item_id);
+        ResultSet rs = pstmt.executeQuery();
+        rs.next();
+        String resultString = rs.getString(1);
+        JSONObject jsonObject = new JSONObject(resultString);
+
+        return new Item(generateItemId(), jsonObject.getString("group_id"), jsonObject.getString("sl_id"), jsonObject.getString("name"), jsonObject.getString("count"));
+    }
+
+    /**
+     * Hollt alle daten einer Bestimmten group und erstellt damit ein Group object
+     *
+     * @param group_id Group id die zu holen ist
+     * @param sl_id    Shoppingliste der group
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public Group getGroup(String group_id, String sl_id) throws SQLException, JSONException {
+        String SQL = "SELECT row_to_json(\"Group\") AS obj FROM \"Group\" WHERE group_id = ? AND sl_id = ?";
+        connectDatabase();
+
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        System.out.println(sl_id);
+        pstmt.setString(1, group_id);
+        pstmt.setString(2, sl_id);
+        ResultSet rs = pstmt.executeQuery();
+        rs.next();
+        String resultString = rs.getString(1);
+        JSONObject jsonObject = new JSONObject(resultString);
+
+        return new Group(jsonObject.getString("group_id"), jsonObject.getString("sl_id"), jsonObject.getString("name"), jsonObject.getString("color"), jsonObject.getString("hidden"));
+    }
+
+    /**
      * Löscht eine Shoppingliste aus der Tabelle:
      * Shoppinglist / - member / -admin
      *
@@ -251,6 +361,24 @@ public class Database {
     }
 
     /**
+     * Generiert eine neue 8 stellige group_id
+     *
+     * @return Neue group_id
+     */
+    private String generateGroupId() {
+        return generateSL_Id();
+    }
+    /**
+     * Generiert eine neue 8 stellige item_id
+     *
+     * @return Neue item_id
+     */
+    public String generateItemId() {
+        return generateSL_Id();
+    }
+
+
+    /**
      * Holt alle Items einer bestimmten shoppingliste, angegeben durch die shoppinglist id
      *
      * @param sl_id
@@ -322,35 +450,119 @@ public class Database {
 
     /**
      * Bearbeitet die Eigenschaften einer Shoppingliste
-     * @param sl_id Shoppinglist Id welche zu bearbeiten ist
-     * @param newname Neuer Shoppinglistname
+     *
+     * @param sl_id          Shoppinglist Id welche zu bearbeiten ist
+     * @param newname        Neuer Shoppinglistname
      * @param newdescription Neue Shoppinglist Beschreibung
-     * @param newColor Neue Shoppinglist Farbe
+     * @param newColor       Neue Shoppinglist Farbe
      * @throws SQLException
      * @throws JSONException
      */
     public void editShoppinglist(String sl_id, String newname, String newdescription, String newColor) throws SQLException, JSONException {
         Shoppinglist oldShoppinglist = getShoppinglist(sl_id);
 
-        if(!oldShoppinglist.getname().equals(newname) && newname != null){
+        if (!oldShoppinglist.getname().equals(newname) && newname != null) {
             sqlUpdate2Param("UPDATE \"Shoppinglist\" SET name = ? WHERE sl_id = ?", newname, sl_id);
         }
 
-        if(!oldShoppinglist.getdescription().equals(newdescription) && newdescription != null){
+        if (!oldShoppinglist.getdescription().equals(newdescription) && newdescription != null) {
             sqlUpdate2Param("UPDATE \"Shoppinglist\" SET description = ? WHERE sl_id = ?", newdescription, sl_id);
         }
 
-        if(!oldShoppinglist.getcolor().equals(newColor) && newColor != null){
+        if (!oldShoppinglist.getcolor().equals(newColor) && newColor != null) {
             sqlUpdate2Param("UPDATE \"Shoppinglist\" SET color = ? WHERE sl_id = ?", newColor, sl_id);
         }
+    }
+
+    /**
+     * Führt einen SQL Befehl durch der keine rückgabe hat.
+     *
+     * @param SQL    Der SQL befehl
+     * @param param  ein Parameter
+     * @param param2 ein 2. Parameter
+     * @param param3 ein 3. parameter
+     * @param param4 ein 4. Parameter
+     * @param param5 ein 5. Parameter
+     * @throws SQLException
+     */
+    private void sqlUpdate5Param(String SQL, String param, String param2, String param3, String param4, String param5) throws SQLException {
+        connectDatabase();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        pstmt.setString(2, param2);
+        pstmt.setString(3, param3);
+        pstmt.setString(4, param4);
+        pstmt.setString(5, param5);
+        pstmt.executeUpdate();
+    }
+
+    /**
+     * Führt einen SQL Befehl durch der keine rückgabe hat.
+     *
+     * @param SQL    Der SQL befehl
+     * @param param  ein Parameter
+     * @param param2 ein 2. Parameter
+     * @param param3 ein 3. parameter
+     * @param param4 ein 4. Parameter
+     * @param param5 ein 5. Parameter
+     * @throws SQLException
+     */
+    private void sqlUpdate5Param(String SQL, String param, String param2, String param3, String param4, int param5) throws SQLException {
+        connectDatabase();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        pstmt.setString(2, param2);
+        pstmt.setString(3, param3);
+        pstmt.setString(4, param4);
+        pstmt.setInt(5, param5);
+        pstmt.executeUpdate();
+    }
+
+    /**
+     * Führt einen SQL Befehl durch der keine rückgabe hat.
+     *
+     * @param SQL    Der SQL befehl
+     * @param param  ein Parameter
+     * @param param2 ein 2. Parameter
+     * @param param3 ein 3. parameter
+     * @param param4 ein 4. Parameter
+     * @throws SQLException
+     */
+    private void sqlUpdate4Param(String SQL, String param, String param2, String param3, String param4) throws SQLException {
+        connectDatabase();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        pstmt.setString(2, param2);
+        pstmt.setString(3, param3);
+        pstmt.setString(4, param4);
+        pstmt.executeUpdate();
+    }
+
+    /**
+     * Führt einen SQL Befehl durch der keine rückgabe hat.
+     *
+     * @param SQL    Der SQL befehl
+     * @param param  ein Parameter
+     * @param param2 ein 2. Parameter
+     * @param param3 ein 3. parameter
+     * @throws SQLException
+     */
+    private void sqlUpdate3Param(String SQL, String param, String param2, String param3) throws SQLException {
+        connectDatabase();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        pstmt.setString(2, param2);
+        pstmt.setString(3, param3);
+
+        pstmt.executeUpdate();
     }
 
 
     /**
      * Führt einen SQL Befehl durch der keine rückgabe hat.
      *
-     * @param SQL   Der SQL befehl
-     * @param param ein Parameter
+     * @param SQL    Der SQL befehl
+     * @param param  ein Parameter
      * @param param2 ein 2. Parameter
      * @throws SQLException
      */
@@ -361,6 +573,7 @@ public class Database {
         pstmt.setString(2, param2);
         pstmt.executeUpdate();
     }
+
     /**
      * Führt einen SQL Befehl durch der keine rückgabe hat.
      *
@@ -377,6 +590,7 @@ public class Database {
 
     /**
      * Hollt eine Shoppingliste vom server
+     *
      * @param sl_id Shoppingliste welche heruntergelanden werden soll
      * @return Ein Shoppinglist Objekt
      * @throws SQLException
