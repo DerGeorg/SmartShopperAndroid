@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".activitys.Colorpicker"></activity>
         <activity android:name=".activitys.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,17 +37,15 @@
         -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorAccent" />
-        <!-- [START firebase_service] -->
+            android:resource="@color/colorAccent" /> <!-- [START firebase_service] -->
         <service android:name=".messaging.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service>
-        <!-- [END firebase_service] -->
+        </service> <!-- [END firebase_service] -->
         <activity
             android:name=".activitys.ShoppinglistDetails"
-            android:label="@string/title_activity_shoppinglist_details"></activity>
+            android:label="@string/title_activity_shoppinglist_details" />
     </application>
 
 </manifest>

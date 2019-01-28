@@ -51,6 +51,116 @@ public class Database {
     }
 
     /**
+     * Löscht eine Shoppingliste aus der Tabelle:
+     * Shoppinglist / - member / -admin
+     *
+     * @param sl_id Shoppinglist Id welche gelöscht werden soll
+     * @throws SQLException
+     */
+    public void delShoppinglist(String sl_id) throws SQLException {
+        sqlUpdate("DELETE FROM \"Shoppinglist_admin\" WHERE sl_id = ?", sl_id);
+        sqlUpdate("DELETE FROM \"Shoppinglist_member\" WHERE sl_id = ?", sl_id);
+        sqlUpdate("DELETE FROM \"Shoppinglist\" WHERE sl_id = ?", sl_id);
+    }
+
+
+    /**
+     * Erstellt eine neue Shoppingliste mit den dazugehörigen Usern
+     *
+     * @param name        Name der Shoppingliste
+     * @param description Beschreibung der Shoppingliste
+     * @param username    Username des erstellers der Shoppingliste
+     * @param color       Farbe der Shoppingliste
+     * @throws SQLException
+     */
+    public void addShoppinglist(String name, String description, String username, String color) throws SQLException {
+        String sl_id = generateSL_Id();
+        if (!checkIfUserExists(username)) {
+            createUser(username);
+        }
+        createShoppinglist(sl_id, name, description, color);
+        createAdmin(sl_id, username);
+
+    }
+
+    /**
+     * Erstellt einen neuen Admin in der Tabelle Shoppinglist_admin
+     *
+     * @param sl_id    Die Shopppinglist Id
+     * @param username Der username des Admins
+     * @throws SQLException
+     */
+    private void createAdmin(String sl_id, String username) throws SQLException {
+        String SQL = "INSERT INTO \"Shoppinglist_admin\" (username, sl_id) VALUES (?, ?)";
+        connectDatabase();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, username);
+        pstmt.setString(2, sl_id);
+        pstmt.executeUpdate();
+    }
+
+    /**
+     * Erstellt einen neue Shoppingliste in der Tabelle Shoppinglist
+     *
+     * @param sl_id       Shopppinglist Id
+     * @param name        Shoppinglist name
+     * @param description Shoppinglist beschriebung
+     * @param color       Shoppinglist Farbe
+     * @throws SQLException
+     */
+    private void createShoppinglist(String sl_id, String name, String description, String color) throws SQLException {
+        String SQL = "INSERT INTO \"Shoppinglist\" (sl_id, name, description, color) VALUES (?, ?, ?, ?)";
+        connectDatabase();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, sl_id);
+        pstmt.setString(2, name);
+        pstmt.setString(3, description);
+        pstmt.setString(4, color);
+        pstmt.executeUpdate();
+    }
+
+    /**
+     * Erstellt einen neuen User, wenn keiner existiert
+     *
+     * @param username Der Username des neuen Users
+     * @throws SQLException
+     */
+    private void createUser(String username) throws SQLException {
+        String SQL = "INSERT INTO \"User\" (username) VALUES (?)";
+        connectDatabase();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, username);
+        pstmt.executeUpdate();
+
+    }
+
+    /**
+     * Prüft ob ein User bereits in der DB vorhanden ist. Wenn ja dann wird true returned
+     *
+     * @param username Der username nach dem geprüft werden soll
+     * @return True wenn User existiert, False wenn nicht
+     * @throws SQLException
+     */
+    private boolean checkIfUserExists(String username) throws SQLException {
+        String SQL = "SELECT username FROM \"User\"";
+        connectDatabase();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        ResultSet rs = pstmt.executeQuery();
+        ArrayList<String> outUserList = new ArrayList<String>();
+        while (rs.next()) {
+            outUserList.add(rs.getString(1));
+        }
+
+        if (outUserList.contains(username)) {
+            return true;
+        } else {
+            return false;
+        }
+
+
+    }
+
+    /**
      * Verbindet sich mit dem Server
      * Holt die eigenen Shoppinglisten vom Server. Und speichert diese in eine List mit Shoppinglist Objekten
      *
@@ -94,6 +204,7 @@ public class Database {
 
     /**
      * Hoolt alle groups und items der list und erstelt ein Detail objekt von jeder group. Die detail objekte kommen in eine List
+     *
      * @param sl_id Shoppinglist Id mit der gearbeitet wird
      * @return Eine List mit Details über jede Shoppinglist
      * @throws SQLException
@@ -119,6 +230,24 @@ public class Database {
         return (List<Details>) detailsArrayList;
 
 
+    }
+
+    /**
+     * Generiert eine neue 8 stellige sl_id
+     *
+     * @return Neue Sl_id
+     */
+    private String generateSL_Id() {
+        String possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        String output = "";
+
+        for (int i = 0; i < 8; i++) {
+            output += possible.charAt((int) Math.floor(Math.random() * possible.length()));
+        }
+
+        System.out.println("Generate SL_ID: " + output);
+
+        return output;
     }
 
     /**
@@ -192,6 +321,84 @@ public class Database {
 
 
     /**
+     * Bearbeitet die Eigenschaften einer Shoppingliste
+     * @param sl_id Shoppinglist Id welche zu bearbeiten ist
+     * @param newname Neuer Shoppinglistname
+     * @param newdescription Neue Shoppinglist Beschreibung
+     * @param newColor Neue Shoppinglist Farbe
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public void editShoppinglist(String sl_id, String newname, String newdescription, String newColor) throws SQLException, JSONException {
+        Shoppinglist oldShoppinglist = getShoppinglist(sl_id);
+
+        if(!oldShoppinglist.getname().equals(newname) && newname != null){
+            sqlUpdate2Param("UPDATE \"Shoppinglist\" SET name = ? WHERE sl_id = ?", newname, sl_id);
+        }
+
+        if(!oldShoppinglist.getdescription().equals(newdescription) && newdescription != null){
+            sqlUpdate2Param("UPDATE \"Shoppinglist\" SET description = ? WHERE sl_id = ?", newdescription, sl_id);
+        }
+
+        if(!oldShoppinglist.getcolor().equals(newColor) && newColor != null){
+            sqlUpdate2Param("UPDATE \"Shoppinglist\" SET color = ? WHERE sl_id = ?", newColor, sl_id);
+        }
+    }
+
+
+    /**
+     * Führt einen SQL Befehl durch der keine rückgabe hat.
+     *
+     * @param SQL   Der SQL befehl
+     * @param param ein Parameter
+     * @param param2 ein 2. Parameter
+     * @throws SQLException
+     */
+    private void sqlUpdate2Param(String SQL, String param, String param2) throws SQLException {
+        connectDatabase();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        pstmt.setString(2, param2);
+        pstmt.executeUpdate();
+    }
+    /**
+     * Führt einen SQL Befehl durch der keine rückgabe hat.
+     *
+     * @param SQL   Der SQL befehl
+     * @param param ein Parameter
+     * @throws SQLException
+     */
+    private void sqlUpdate(String SQL, String param) throws SQLException {
+        connectDatabase();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        pstmt.executeUpdate();
+    }
+
+    /**
+     * Hollt eine Shoppingliste vom server
+     * @param sl_id Shoppingliste welche heruntergelanden werden soll
+     * @return Ein Shoppinglist Objekt
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public Shoppinglist getShoppinglist(String sl_id) throws SQLException, JSONException {
+        String SQL = "SELECT row_to_json(\"Shoppinglist\") AS obj FROM \"Shoppinglist\" JOIN \"Shoppinglist_admin\" USING (sl_id) WHERE sl_id = ?";
+        connectDatabase();
+
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        System.out.println(sl_id);
+        pstmt.setString(1, sl_id);
+        ResultSet rs = pstmt.executeQuery();
+        rs.next();
+        String resultString = rs.getString(1);
+        JSONObject jsonObject = new JSONObject(resultString);
+
+        return new Shoppinglist(sl_id, jsonObject.getString("name"), jsonObject.getString("description"), jsonObject.getString("invitelink"), jsonObject.getString("color"));
+    }
+
+
+    /**
      * NICHT VERWENDEN FUNKTIONIERT NICHT!!
      * <p>
      * <p>
@@ -206,19 +413,15 @@ public class Database {
     private ResultSet databaseRequest(String SQL, String uid) throws SQLException {
         connectDatabase();
 
-        ResultSet rs = null;
-        try (PreparedStatement pstmt = conect.prepareStatement(SQL)) {
-            pstmt.setString(1, uid);
-            rs = pstmt.executeQuery();
-            System.out.println(uid);
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, uid);
+        ResultSet rs = pstmt.executeQuery();
+        System.out.println(uid);
 
-            //HIER
-            //WEITER
-            //PROGRAMMIEREN
+        //HIER
+        //WEITER
+        //PROGRAMMIEREN
 
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-        }
         return rs;
     }
 }
