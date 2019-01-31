@@ -62,6 +62,44 @@ public class Database {
     }
 
     /**
+     * Bearbeitet ein Item in der Datenbank
+     * @param item_id Daqs zu bearbeitende item
+     * @param group_id Die gruppe in dem da sitem ist
+     * @param sl_id die shoppinglist in dem das item ist
+     * @param newname der neue name
+     * @param newcount die neue anzahl
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public void editItem(String item_id, String group_id, String sl_id, String newname, int newcount) throws SQLException, JSONException {
+        Item olditem = getItem(item_id);
+
+        if (!olditem.getName().equals(newname) && newname != null) {
+            sqlUpdate4Param("UPDATE \"Item\" SET name = ? WHERE item_id = ? AND group_id = ? AND sl_id = ?", newname, item_id, group_id, sl_id);
+        }
+
+        /*
+        if (!oldgroup.getHidden().equals(newhidden) && newhidden != null) {
+            sqlUpdate3Param("UPDATE \"Group\" SET hidden = ? WHERE group_id = ? AND sl_id = ?", newhidden, group_id, sl_id);
+        }
+*/
+        if (Integer.parseInt(olditem.getCount()) != newcount) {
+            sqlUpdate4ParamFirstInt("UPDATE \"Item\" SET count = ? WHERE item_id = ? AND group_id = ? AND sl_id = ?", newcount, item_id, group_id, sl_id);
+        }
+    }
+
+
+    /**
+     * Löscht ein item
+     * @param item_id Item id
+     * @param group_id group id
+     * @param sl_id shoppoinglist id
+     */
+    public void deleteItem(String item_id, String group_id, String sl_id) throws SQLException {
+        sqlUpdate3Param("DELETE FROM \"Item\" WHERE item_id = ? AND group_id = ? AND sl_id = ?", item_id, group_id, sl_id);
+    }
+
+    /**
      * Fügt ein neues Item der Datenbank hinzu
      * @param group_id Die group id in der das neue item angezeigt werden soll
      * @param sl_id Die Shoppingliste in der das neue item nagezeigt werden soll
@@ -343,6 +381,28 @@ public class Database {
     }
 
     /**
+     * Holt alle Items einer bestimmten gruppe
+     * @param group_id Gruppe welche geholt werden soll
+     * @param sl_id Die Shoppinglist in der sich die gruppe befindet
+     * @return
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public List<Item> getItemsOfGroup(String group_id, String sl_id) throws SQLException, JSONException {
+        List<Details> details = getListDetails(sl_id);
+        ArrayList<Item> result = new ArrayList<Item>();
+
+        for(Details d : details){
+            String group_idtmp = d.getGroup().getGroup_id();
+            if(group_idtmp.equals(group_id)){
+                result = d.getItems();
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Generiert eine neue 8 stellige sl_id
      *
      * @return Neue Sl_id
@@ -386,7 +446,7 @@ public class Database {
      * @throws SQLException
      * @throws JSONException
      */
-    private List<Item> getItems(String sl_id) throws SQLException, JSONException {
+    public List<Item> getItems(String sl_id) throws SQLException, JSONException {
         String SQL = "SELECT row_to_json(\"Item\") AS obj FROM \"Item\" JOIN \"Group\" USING (group_id) WHERE \"Group\".sl_id = ?";
         connectDatabase();
 
@@ -482,17 +542,15 @@ public class Database {
      * @param param2 ein 2. Parameter
      * @param param3 ein 3. parameter
      * @param param4 ein 4. Parameter
-     * @param param5 ein 5. Parameter
      * @throws SQLException
      */
-    private void sqlUpdate5Param(String SQL, String param, String param2, String param3, String param4, String param5) throws SQLException {
+    private void sqlUpdate4ParamFirstInt(String SQL, int param, String param2, String param3, String param4) throws SQLException {
         connectDatabase();
         PreparedStatement pstmt = conect.prepareStatement(SQL);
-        pstmt.setString(1, param);
+        pstmt.setInt(1, param);
         pstmt.setString(2, param2);
         pstmt.setString(3, param3);
         pstmt.setString(4, param4);
-        pstmt.setString(5, param5);
         pstmt.executeUpdate();
     }
 

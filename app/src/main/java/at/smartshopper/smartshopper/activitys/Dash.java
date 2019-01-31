@@ -187,6 +187,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             }else{
                 colorstring = "#" + dbShoppinglist.getcolor();
             }
+            this.color = colorstring;
             colorBtn.setBackgroundColor(Color.parseColor(colorstring));
             name.setText(dbShoppinglist.getname());
             description.setText(dbShoppinglist.getdescription());
@@ -410,10 +411,8 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
     public void onItemClick(String sl_id) {
         try {
             db.delShoppinglist(sl_id);
-            showOwnShoppingList(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            refreshOwnShoppinglist(FirebaseAuth.getInstance().getCurrentUser().getUid());
         } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
             e.printStackTrace();
         }
     }

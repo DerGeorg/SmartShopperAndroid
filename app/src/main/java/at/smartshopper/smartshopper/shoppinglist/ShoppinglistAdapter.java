@@ -100,7 +100,7 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
             cardcolor = Color.parseColor("#FFFFFF");
         }
 
-        holder.ownList.setCardBackgroundColor(cardcolor);
+        holder.shoppinglistColor.setBackgroundColor(cardcolor);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -172,6 +172,7 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
         ImageView imageView;
         CardView ownList;
         ImageButton bearbeiten, del;
+        View shoppinglistColor;
 
         public ShoppinglistViewHolder(View itemView) {
             super(itemView);
@@ -183,6 +184,7 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
             ownList = itemView.findViewById(R.id.ownLists);
             bearbeiten = itemView.findViewById(R.id.bearbeiteShoppinglist);
             del = itemView.findViewById(R.id.deleteShoppinglist);
+            shoppinglistColor = itemView.findViewById(R.id.shoppinglistColor);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

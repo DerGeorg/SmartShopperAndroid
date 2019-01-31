@@ -12,7 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activitys.Colorpicker"></activity>
+        <activity
+            android:name=".activitys.ItemListActivity"
+            android:label="@string/title_activity_item_list"></activity>
+        <activity android:name=".activitys.Colorpicker" />
         <activity android:name=".activitys.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

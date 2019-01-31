@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
@@ -20,24 +19,23 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.db.Database;
 import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
-import at.smartshopper.smartshopper.shoppinglist.ShoppinglistAdapter;
 import at.smartshopper.smartshopper.shoppinglist.details.Details;
 import at.smartshopper.smartshopper.shoppinglist.details.DetailsAdapter;
 import at.smartshopper.smartshopper.shoppinglist.details.group.Group;
 import at.smartshopper.smartshopper.shoppinglist.details.item.Item;
 
-public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGroupEditClicked, DetailsAdapter.OnGroupDeleteClicked, DetailsAdapter.OnItemAddClicked {
+public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGroupEditClicked, DetailsAdapter.OnGroupDeleteClicked, DetailsAdapter.OnItemAddClicked, DetailsAdapter.OnCardClicked {
 
     private Database db = new Database();
     private FloatingActionButton fab;
@@ -122,9 +120,9 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
         if (fromDB) {
             Group dbgroup = db.getGroup(groupid, sl_id);
             String colorstring;
-            if(dbgroup.getColor().contains("#")){
+            if (dbgroup.getColor().contains("#")) {
                 colorstring = dbgroup.getColor();
-            }else{
+            } else {
                 colorstring = "#" + dbgroup.getColor();
             }
             color.setBackgroundColor(Color.parseColor(colorstring));
@@ -207,9 +205,9 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
                 int color = Integer.parseInt(data.getData().toString());
                 this.colorString = colorToHexString(color);
                 String colorstring;
-                if(this.colorString.contains("#")){
+                if (this.colorString.contains("#")) {
                     colorstring = this.colorString;
-                }else{
+                } else {
                     colorstring = "#" + this.colorString;
                 }
                 int colorint = Color.parseColor(colorstring);
@@ -239,14 +237,17 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
         RecyclerView detailsRecycleView = (RecyclerView) findViewById(R.id.groupRecycle);
         detailsRecycleView.setHasFixedSize(true);
         detailsRecycleView.setLayoutManager(new LinearLayoutManager(this));
-        List<Details> detailsList = db.getListDetails(sl_id);
+        List<Details> detailsList =  db.getListDetails(sl_id);
+
+
         DetailsAdapter detailsAdapter = new DetailsAdapter(detailsList);
         detailsAdapter.setGroupEditClick(this);
         detailsAdapter.setGroupDeleteClick(this);
         detailsAdapter.setItemAddClick(this);
+        detailsAdapter.setCardClick(this);
+
         detailsRecycleView.setAdapter(detailsAdapter);
     }
-
 
 
     private void showPopupItemEdit(final boolean fromDB, final String sl_id, final String group_id, String item_id, View v) throws SQLException, JSONException {
@@ -358,5 +359,14 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void onCardClick(String group_id, String sl_id, View v) {
+        finish();
+        Intent intent = new Intent(this, ItemListActivity.class);
+        intent.putExtra("group_id", group_id);
+        intent.putExtra("sl_id", sl_id);
+        startActivity(intent);
     }
 }
