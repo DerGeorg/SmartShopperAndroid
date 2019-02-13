@@ -77,7 +77,21 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
         //binding the data with the viewholder views
         holder.textViewTitle.setText(shoppinglist.getname());
         System.out.println(shoppinglist.getname());
-        holder.textViewBeschreibung.setText(shoppinglist.getdescription());
+
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(v.getContext(), ShoppinglistDetails.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("sl_id", shoppinglist.getSlId());
+                intent.putExtras(bundle);
+                v.getContext().startActivity(intent);
+
+
+            }
+        });
 
         holder.bearbeiten.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,20 +200,7 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
             del = itemView.findViewById(R.id.deleteShoppinglist);
             shoppinglistColor = itemView.findViewById(R.id.shoppinglistColor);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
 
-                    Intent intent = new Intent(v.getContext(), ShoppinglistDetails.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putInt("pos", position);
-                    intent.putExtras(bundle);
-                    v.getContext().startActivity(intent);
-
-
-                }
-            });
         }
 
 

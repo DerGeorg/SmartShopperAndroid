@@ -52,29 +52,25 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
 
         colorBtn = (Button) findViewById(R.id.groupColor);
         Bundle bundle = getIntent().getExtras();
-        int position = -1; // or other values
+        String sl_id = null; // or other values
         if (bundle != null)
-            position = bundle.getInt("pos");
+            sl_id = bundle.getString("sl_id");
 
-        Toast.makeText(this, "Click detected on item " + position, Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Click detected on item " + position, Toast.LENGTH_LONG).show();
 
-        List<Shoppinglist> shoppinglists = null;
         try {
-            shoppinglists = db.getMyShoppinglists(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        } catch (JSONException e) {
-            e.printStackTrace();
+            Shoppinglist shoppinglist = db.getShoppinglist(sl_id);
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-
-        Shoppinglist aktuelleShopinglist = shoppinglists.get(position);
-
-        final String sl_id = aktuelleShopinglist.getSlId();
+        final String finalSl_id = sl_id;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    showPupupGroupEdit(false, null, sl_id, v);
+                    showPupupGroupEdit(false, null, finalSl_id, v);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {

@@ -2,6 +2,9 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/ocrBtn"
+        android:title="Rechnung Scanen" />
+    <item
         android:id="@+id/logoutBtn"
         android:title="Logout"
         android:enabled="true" />
