@@ -2,8 +2,8 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/ocrBtn"
-        android:title="Rechnung Scanen" />
+        android:id="@+id/addInvite"
+        android:title="Insert Invite" />
     <item
         android:id="@+id/logoutBtn"
         android:title="Logout"

@@ -1,5 +1,8 @@
 package at.smartshopper.smartshopper.activitys;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -7,10 +10,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,12 +50,12 @@ import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
 import at.smartshopper.smartshopper.shoppinglist.ShoppinglistAdapter;
 
 
-public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnItemClicked, ShoppinglistAdapter.OnChangeItemClick {
+public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnItemClicked, ShoppinglistAdapter.OnChangeItemClick, ShoppinglistAdapter.OnShareClick {
 
     private Database db = new Database();
-    private SwipeRefreshLayout ownswiperefresh;
+    private SwipeRefreshLayout ownswiperefresh, sharedswiperefresh;
     private FloatingActionButton addShoppinglistFab;
-    private PopupWindow popupWindowAdd;
+    private PopupWindow popupWindowAdd, popupShare, popupAddShare;
     private String color;
     private Button colorBtn;
 
@@ -116,12 +122,30 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             try {
                 try {
                     showOwnShoppingList(uid);
+                    showSharedShoppingList(uid);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            sharedswiperefresh = (SwipeRefreshLayout) findViewById(R.id.sharedSwipe);
+
+            sharedswiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    try {
+                        showSharedShoppingList(uid);
+                        sharedswiperefresh.setRefreshing(false);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
             ownswiperefresh = (SwipeRefreshLayout) findViewById(R.id.ownSwipe);
 
             ownswiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -187,9 +211,9 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         if (fromDB) {
             Shoppinglist dbShoppinglist = db.getShoppinglist(sl_id);
             String colorstring;
-            if(dbShoppinglist.getcolor().contains("#")){
+            if (dbShoppinglist.getcolor().contains("#")) {
                 colorstring = dbShoppinglist.getcolor();
-            }else{
+            } else {
                 colorstring = "#" + dbShoppinglist.getcolor();
             }
             this.color = colorstring;
@@ -205,7 +229,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             @Override
             public void onClick(View v) {
 
-                if(fromDB){
+                if (fromDB) {
                     try {
                         db.editShoppinglist(sl_idString, name.getText().toString(), description.getText().toString(), color);
                         color = "ffffff";
@@ -216,7 +240,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                }else {
+                } else {
                     try {
                         db.addShoppinglist(name.getText().toString(), description.getText().toString(), username, color);
                         color = "ffffff";
@@ -259,6 +283,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
         popupWindowAdd.setOutsideTouchable(false);
         popupWindowAdd.setFocusable(true);
+        popupWindowAdd.setAnimationStyle(R.style.popup_window_animation_phone);
 
 
         popupWindowAdd.showAtLocation(v, Gravity.CENTER, 0, 0);
@@ -302,6 +327,24 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
 
     /**
+     * Macht eine Datenbankverbindung und holt alle Shoppinglists die mit dem User geteilt werden, diese werden auf dem recycled view angezeigt
+     *
+     * @param uid Die UserId damit von diesem user die shoppinglisten angezeigt werden
+     */
+    private void showSharedShoppingList(String uid) throws JSONException, SQLException {
+        RecyclerView sharedRecycler = (RecyclerView) findViewById(R.id.sharedrecycler);
+        sharedRecycler.setHasFixedSize(true);
+        sharedRecycler.setLayoutManager(new LinearLayoutManager(this));
+        List<Shoppinglist> ownListsList = db.getSharedShoppinglists(uid);
+        ShoppinglistAdapter shpAdapter = new ShoppinglistAdapter(Dash.this, ownListsList);
+        shpAdapter.setOnDelClick(Dash.this);
+        shpAdapter.setOnChangeClick(Dash.this);
+        shpAdapter.setOnShareClick(Dash.this);
+        sharedRecycler.setAdapter(shpAdapter);
+
+    }
+
+    /**
      * Macht eine Datenbankverbindung und holt alle Shoppinglists die dem User gehören, diese werden auf dem recycled view angezeigt
      *
      * @param uid Die UserId damit von diesem user die shoppinglisten angezeigt werden
@@ -314,6 +357,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         ShoppinglistAdapter shpAdapter = new ShoppinglistAdapter(Dash.this, ownListsList);
         shpAdapter.setOnDelClick(Dash.this);
         shpAdapter.setOnChangeClick(Dash.this);
+        shpAdapter.setOnShareClick(Dash.this);
         ownRecycleView.setAdapter(shpAdapter);
 
     }
@@ -371,12 +415,91 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                 logout();
                 return true;
 
+            case R.id.addInvite:
+                popupaddInvite();
+
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    /**
+     * Öffnet ein popup in dem ein invite link eingegeben werden kann. Diese Shoppingliste wird dann hinzugefügt
+     */
+    private void popupaddInvite() {
+        final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupContentView = inflater.inflate(R.layout.add_share_link, null);
+
+        final TextView linkEingabe = (TextView) popupContentView.findViewById(R.id.addShareLinkInput);
+
+        ImageButton exitButton = (ImageButton) popupContentView.findViewById(R.id.addShareExit);
+        Picasso.get().load(R.drawable.close).into(exitButton);
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupAddShare.dismiss();
+            }
+        });
+
+        Button finish = (Button) popupContentView.findViewById(R.id.shareAddFinish);
+        finish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String eingabeLink = linkEingabe.getText().toString();
+
+                String delString = null;
+                if (eingabeLink.contains("https://")) {
+                    delString = "https://www.smartshopper.cf/invite/";
+                } else if (eingabeLink.contains("http://")) {
+                    delString = "http://www.smartshopper.cf/invite/";
+                } else if (eingabeLink.contains("www.smartshopper.cf/invite/")) {
+                    delString = "www.smartshopper.cf/invite/";
+                } else if (!eingabeLink.contains("www.smartshopper.cf/invite/")) {
+                    delString = "";
+                }
+                String invite = eingabeLink.replace(delString, "");
+
+                try {
+                    db.addInviteLink(invite, FirebaseAuth.getInstance().getCurrentUser().getUid());
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                popupAddShare.dismiss();
+
+
+                try {
+                    TabHost tabhost = (TabHost) findViewById(R.id.tabHost1);
+                    tabhost.setCurrentTab(1);
+                    sharedswiperefresh.setRefreshing(true);
+                    showSharedShoppingList(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    sharedswiperefresh.setRefreshing(false);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        popupAddShare = new PopupWindow(popupContentView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupAddShare.setOutsideTouchable(false);
+        popupAddShare.setFocusable(true);
+        // Set an elevation value for popup window
+        // Call requires API level 21
+        if (Build.VERSION.SDK_INT >= 21) {
+            popupAddShare.setElevation(5.0f);
+        }
+        popupAddShare.setAnimationStyle(R.style.popup_window_animation_phone);
+
+
+        popupAddShare.showAtLocation(getWindow().getDecorView().findViewById(android.R.id.content), Gravity.CENTER, 0, 0);
+        popupAddShare.update();
     }
 
 
@@ -436,5 +559,91 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onShareClick(String sl_id, View v) {
+        Log.d("ShareClick test", "Workt sl_id: " + sl_id);
+        String link = null;
+        try {
+            if (db.isShared(sl_id)) {
+                link = db.getInviteLink(sl_id);
+            } else {
+
+                link = db.createInviteLink(sl_id);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupContentView = inflater.inflate(R.layout.add_share, null);
+
+        final TextView linkausgabe = (TextView) popupContentView.findViewById(R.id.shareLink);
+        linkausgabe.setText("www.smartshopper.cf/invite/" + link);
+
+        ImageButton exitButton = (ImageButton) popupContentView.findViewById(R.id.shareExit);
+        Picasso.get().load(R.drawable.close).into(exitButton);
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupShare.dismiss();
+            }
+        });
+
+        Button copyButton = (Button) popupContentView.findViewById(R.id.shareCopy);
+        copyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("SmartShopper", linkausgabe.getText().toString());
+                clipboard.setPrimaryClip(clip);
+                popupShare.dismiss();
+            }
+        });
+
+        Button delShare = (Button) popupContentView.findViewById(R.id.delShare);
+
+        final String finalLink = link;
+        delShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                try {
+                    db.deleteInvite(finalLink);
+
+
+                    TabHost tabhost = (TabHost) findViewById(R.id.tabHost1);
+                    tabhost.setCurrentTab(1);
+                    sharedswiperefresh.setRefreshing(true);
+
+                    showSharedShoppingList(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    sharedswiperefresh.setRefreshing(false);
+                    popupShare.dismiss();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        });
+
+        popupShare = new PopupWindow(popupContentView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupShare.setOutsideTouchable(false);
+        popupShare.setFocusable(true);
+        // Set an elevation value for popup window
+        // Call requires API level 21
+        if (Build.VERSION.SDK_INT >= 21) {
+            popupShare.setElevation(5.0f);
+        }
+        popupShare.setAnimationStyle(R.style.popup_window_animation_phone);
+
+
+        popupShare.showAtLocation(v, Gravity.CENTER, 0, 0);
+        popupShare.update();
     }
 }

@@ -35,7 +35,6 @@ public class Database {
     public Database() {
     }
 
-
     /**
      * Verbindet Sich mit der Datenbank. Auf der Konsole wird "Database connected!" angezeigt, bei erfolgreicher verbindung
      *
@@ -51,9 +50,124 @@ public class Database {
     }
 
     /**
+     * Entfernt einen invitelink anhand des invitelinks
+     * @param invitelink Löscht den invitelink aus der ganzen db
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public void deleteInvite(String invitelink) throws SQLException, JSONException {
+        String sl_id = getSlIdFromInvite(invitelink);
+        sqlUpdate("DELETE FROM \"Shoppinglist_member\" WHERE sl_id = ?", sl_id);
+        sqlUpdate("Update \"Shoppinglist\" set invitelink=null where sl_id=?", sl_id);
+    }
+
+    /**
+     * Gibt den Invite link einer Shoppingliste zurück, wenn keiner vorhanden ist --> null
+     * @param sl_id Die shoppinglist von der der invitelimnk gefragt ist
+     * @return Der invite link
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public String getInviteLink(String sl_id) throws SQLException, JSONException{
+        connectDatabase();
+        String SQL = "Select invitelink from \"Shoppinglist\" WHERE sl_id = ?";
+
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, sl_id);
+        ResultSet rs = pstmt.executeQuery();
+
+        rs.next();
+        String returnLink = rs.getString(1);
+
+
+        return returnLink;
+    }
+
+    /**
+     * Sucht anhand des invitelinks eine Shoppingliste und gibt dessen sl_id zurück
+     * @param invitelink Der invitelink nach dem gesucht werden soll
+     * @return Die sl_id die dem invitelink zugeordnet ist
+     * @throws SQLException
+     * @throws JSONException
+     */
+    private String getSlIdFromInvite(String invitelink) throws SQLException, JSONException{
+        connectDatabase();
+        String SQL = "Select sl_id from \"Shoppinglist\" WHERE invitelink = ?";
+
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, invitelink);
+        ResultSet rs = pstmt.executeQuery();
+
+        rs.next();
+        String returnSl_id = rs.getString(1);
+
+
+        return returnSl_id;
+    }
+
+
+    /**
+     * Fügt einen invite link zu den shoppinglisten hinzu
+     * @param invitelink Der invite link der hinzugefügt werden soll
+     * @param uid Der user zu dem der invitelink hinzugefügt werden soll
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public void addInviteLink(String invitelink, String uid) throws SQLException, JSONException {
+        String sl_id = getSlIdFromInvite(invitelink);
+        if(!sl_id.equals("null")){
+            sqlUpdate2Param("INSERT INTO \"Shoppinglist_member\" (username, sl_id) VALUES (?, ?)", uid, sl_id);
+        }
+    }
+
+    /**
+     * Erstellt einen neuen InviteLink
+     * @param sl_id
+     * @return Der neue InviteLink
+     * @throws SQLException
+     */
+    public String createInviteLink(String sl_id) throws SQLException{
+        String invitelink = generateInviteLink();
+        sqlUpdate2Param("UPDATE \"Shoppinglist\" SET invitelink = ? WHERE sl_id = ?", invitelink, sl_id);
+        return invitelink;
+    }
+
+    /**
+     * Wenn die Shoppingliste bereits geshared ist wird true zurückgegeben
+     * @param sl_id Die Liste die geprüft werden soll
+     * @return True wenn die liste bereits geshared ist
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public boolean isShared(String sl_id) throws SQLException, JSONException {
+        connectDatabase();
+
+        String SQL = "SELECT row_to_json(\"Shoppinglist\") AS obj FROM \"Shoppinglist\" WHERE sl_id = ?";
+
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, sl_id);
+        ResultSet rs = pstmt.executeQuery();
+        boolean returnBoolean = false;
+        while(rs.next()){
+            JSONObject jsonObject = new JSONObject(rs.getString(1));
+
+            Log.d("isShared LOG ", jsonObject.getString("invitelink"));
+
+            if(jsonObject.getString("invitelink").equals("null")){
+                returnBoolean = false;
+            }else{
+                returnBoolean = true;
+            }
+        }
+
+        return returnBoolean;
+    }
+
+    /**
      * Löscht eine Gruppe von der Tabelle Group und alle items dieser group, desswegen wird aucj die tabelle item geleert
+     *
      * @param group_id Die group id welche gelöscht werden soll
-     * @param sl_id Die Shoppingliste auf der sich die group befindet
+     * @param sl_id    Die Shoppingliste auf der sich die group befindet
      * @throws SQLException
      */
     public void deleteGroup(String group_id, String sl_id) throws SQLException {
@@ -62,11 +176,30 @@ public class Database {
     }
 
     /**
+     * Gibt den Besitzer einer Shoppingliste zurück
+     * @param sl_id Shoppingliste von der der Besitzer gefunden werden soll
+     * @return Die uid des Besitzers
+     */
+    public String getShoppinglistOwner(String sl_id) throws SQLException {
+        connectDatabase();
+
+        String SQL = "Select username from \"Shoppinglist_admin\" WHERE sl_id = ?";
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, sl_id);
+        ResultSet rs = pstmt.executeQuery();
+
+        String owner = rs.getString(1);
+
+        return owner;
+    }
+
+    /**
      * Bearbeitet ein Item in der Datenbank
-     * @param item_id Daqs zu bearbeitende item
+     *
+     * @param item_id  Daqs zu bearbeitende item
      * @param group_id Die gruppe in dem da sitem ist
-     * @param sl_id die shoppinglist in dem das item ist
-     * @param newname der neue name
+     * @param sl_id    die shoppinglist in dem das item ist
+     * @param newname  der neue name
      * @param newcount die neue anzahl
      * @throws SQLException
      * @throws JSONException
@@ -91,9 +224,10 @@ public class Database {
 
     /**
      * Löscht ein item
-     * @param item_id Item id
+     *
+     * @param item_id  Item id
      * @param group_id group id
-     * @param sl_id shoppoinglist id
+     * @param sl_id    shoppoinglist id
      */
     public void deleteItem(String item_id, String group_id, String sl_id) throws SQLException {
         sqlUpdate3Param("DELETE FROM \"Item\" WHERE item_id = ? AND group_id = ? AND sl_id = ?", item_id, group_id, sl_id);
@@ -101,10 +235,11 @@ public class Database {
 
     /**
      * Fügt ein neues Item der Datenbank hinzu
+     *
      * @param group_id Die group id in der das neue item angezeigt werden soll
-     * @param sl_id Die Shoppingliste in der das neue item nagezeigt werden soll
-     * @param name Der name des Items
-     * @param count Die anzahl des Items
+     * @param sl_id    Die Shoppingliste in der das neue item nagezeigt werden soll
+     * @param name     Der name des Items
+     * @param count    Die anzahl des Items
      * @throws SQLException
      */
     public void addItem(String group_id, String sl_id, String name, int count) throws SQLException {
@@ -154,6 +289,7 @@ public class Database {
 
     /**
      * Hollt ein bestimtes item
+     *
      * @param item_id Die sl_id in der das item ist
      * @return
      * @throws SQLException
@@ -349,6 +485,35 @@ public class Database {
 
     }
 
+    /**
+     * Verbindet sich mit dem server
+     * Holt alle shared shoppinglists des users
+     * @param uid User von dem die Shared Shoppinglists geholt werden sollen
+     * @return Die Shared Shoppinglisten des Users
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public List<Shoppinglist> getSharedShoppinglists(String uid) throws SQLException, JSONException {
+        connectDatabase();
+        String SQL = "SELECT row_to_json(\"Shoppinglist\") AS obj FROM \"Shoppinglist\" JOIN \"Shoppinglist_member\" USING (sl_id) WHERE username = ?";
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, uid);
+        ResultSet rs = pstmt.executeQuery();
+        System.out.println(uid);
+
+        ArrayList<Shoppinglist> shoppinglistArrayList = new ArrayList<Shoppinglist>();
+
+        while(rs.next()){
+            String shoppinglist = rs.getString(1);
+            JSONObject jsonObject = new JSONObject(shoppinglist);
+
+            shoppinglistArrayList.add(new Shoppinglist(jsonObject.getString("sl_id"), jsonObject.getString("name"), jsonObject.getString("description"), jsonObject.getString("invitelink"), jsonObject.getString("color")));
+        }
+
+
+        return (List<Shoppinglist>) shoppinglistArrayList;
+    }
+
 
     /**
      * Hoolt alle groups und items der list und erstelt ein Detail objekt von jeder group. Die detail objekte kommen in eine List
@@ -382,8 +547,9 @@ public class Database {
 
     /**
      * Holt alle Items einer bestimmten gruppe
+     *
      * @param group_id Gruppe welche geholt werden soll
-     * @param sl_id Die Shoppinglist in der sich die gruppe befindet
+     * @param sl_id    Die Shoppinglist in der sich die gruppe befindet
      * @return
      * @throws SQLException
      * @throws JSONException
@@ -392,9 +558,9 @@ public class Database {
         List<Details> details = getListDetails(sl_id);
         ArrayList<Item> result = new ArrayList<Item>();
 
-        for(Details d : details){
+        for (Details d : details) {
             String group_idtmp = d.getGroup().getGroup_id();
-            if(group_idtmp.equals(group_id)){
+            if (group_idtmp.equals(group_id)) {
                 result = d.getItems();
             }
         }
@@ -428,12 +594,22 @@ public class Database {
     private String generateGroupId() {
         return generateSL_Id();
     }
+
     /**
      * Generiert eine neue 8 stellige item_id
      *
      * @return Neue item_id
      */
     public String generateItemId() {
+        return generateSL_Id();
+    }
+
+    /**
+     * Generiert eine neue 8 stellige inviteLink
+     *
+     * @return Neue intielink
+     */
+    public String generateInviteLink() {
         return generateSL_Id();
     }
 

@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,6 +32,7 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
 
     private OnChangeItemClick onChangeClick;
     private OnItemClicked onClick;
+    private OnShareClick onShareClick;
     private at.smartshopper.smartshopper.db.Database db;
 
     //this context we will use to inflate the layout
@@ -70,6 +72,11 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
     public void onBindViewHolder(ShoppinglistViewHolder holder, final int position) {
         //getting the product of the specified position,
         final Shoppinglist shoppinglist = this.shoppinglist.get(position);
+        ImageButton shareButton = holder.share;
+
+        Picasso.get().load(R.drawable.share).into(shareButton);
+
+
 
         db = new Database();
 
@@ -104,6 +111,15 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
             @Override
             public void onClick(View v) {
                 onClick.onItemClick(shoppinglist.getSlId());
+            }
+        });
+
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String sl_id = shoppinglist.getSlId();
+                Toast.makeText(v.getContext(), "LISTENER im ADAPTER geht: " + sl_id, Toast.LENGTH_LONG);
+                onShareClick.onShareClick(sl_id, v);
             }
         });
 
@@ -176,6 +192,25 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
         this.onClick=onClick;
     }
 
+    /**
+     * Interface damit onoclick in der dash activity ausgeführt werden kann
+     */
+    public interface OnShareClick{
+        void onShareClick(String sl_id, View v);
+    }
+
+    /**
+     * Setzt das OnChangeItemClick event
+     * @param onShareClick Der Click event Listener
+     */
+    public void setOnShareClick(OnShareClick onShareClick){
+        this.onShareClick = onShareClick;
+    }
+
+
+
+
+
 
     /**
      * Haltet alle elemente. Durch ein Objekt von dem kann jedes Element welches hier drinnen angeführt ist verwendet werden
@@ -185,7 +220,7 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
         TextView textViewTitle, textViewBeschreibung, ownerName;
         ImageView imageView;
         CardView ownList;
-        ImageButton bearbeiten, del;
+        ImageButton bearbeiten, del, share;
         View shoppinglistColor;
 
         public ShoppinglistViewHolder(View itemView) {
@@ -199,7 +234,7 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
             bearbeiten = itemView.findViewById(R.id.bearbeiteShoppinglist);
             del = itemView.findViewById(R.id.deleteShoppinglist);
             shoppinglistColor = itemView.findViewById(R.id.shoppinglistColor);
-
+            share = itemView.findViewById(R.id.shareButton);
 
         }
 
