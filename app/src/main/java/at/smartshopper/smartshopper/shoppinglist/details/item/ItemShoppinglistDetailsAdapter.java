@@ -1,10 +1,8 @@
 package at.smartshopper.smartshopper.shoppinglist.details.item;
 
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,13 +21,12 @@ import java.util.List;
 import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.db.Database;
 
-public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MyViewHolder> {
+public class ItemShoppinglistDetailsAdapter extends RecyclerView.Adapter<ItemShoppinglistDetailsAdapter.MyViewHolder> {
 
     private List<at.smartshopper.smartshopper.shoppinglist.details.item.Item> data;
     private OnItemEditClicked onItemEditClick;
-    private OnItemDelClicked onItemDelClicked;
 
-    public ItemAdapter(List<at.smartshopper.smartshopper.shoppinglist.details.item.Item> data) {
+    public ItemShoppinglistDetailsAdapter(List<at.smartshopper.smartshopper.shoppinglist.details.item.Item> data) {
         this.data = data;
     }
 
@@ -44,7 +41,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MyViewHolder> 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cardviewitem, viewGroup, false);
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cardviewitemshoppinglistdetails, viewGroup, false);
 
         MyViewHolder myViewHolder = new MyViewHolder(view);
         return myViewHolder;
@@ -59,64 +56,30 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MyViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, final int i) {
         final TextView itemName = myViewHolder.itemName;
-        final TextView itemAnzahl = myViewHolder.itemAnzahl;
+        TextView itemAnzahl = myViewHolder.itemAnzahl;
         CheckBox itemErledigt = myViewHolder.erledigtItem;
-        ImageView itemDel = myViewHolder.itemDel;
         CardView itemCardView = myViewHolder.itemCardView;
-        //View colorBox = myViewHolder.colorBox;
-
-
-        /*
-        int cardcolor = 0;
-        try {
-            Database db = new Database();
-            cardcolor = Color.parseColor(db.getGroup(data.get(i).getGroup_id(), data.get(i).getSl_id()).getColor());
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            colorBox.setBackgroundColor(cardcolor);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        */
-
-
-        itemName.setText(data.get(i).getName());
-        itemAnzahl.setText(data.get(i).getCount());
-        Picasso.get().load(R.drawable.delete).into(itemDel);
-
 
         itemCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onItemEditClick.onItemEditClicked(data.get(i).getItem_id(), data.get(i).getGroup_id(), data.get(i).getSl_id(), v);
+                try {
+                    onItemEditClick.onItemEditClicked(data.get(i).getItem_id(), data.get(i).getGroup_id(), data.get(i).getSl_id(), new Database().getGroup(data.get(i).getGroup_id(), data.get(i).getSl_id()).getGroupName(), v);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
-        itemDel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onItemDelClicked.onItemDelClicked(data.get(i).getItem_id(), data.get(i).getGroup_id(), data.get(i).getSl_id());
-            }
-        });
-
+        itemName.setText(data.get(i).getName());
+        itemAnzahl.setText(data.get(i).getCount());
     }
 
-    public interface OnItemDelClicked {
-        void onItemDelClicked(String item_id, String group_id, String sl_id);
-    }
-
-    public void setItemDelClick(OnItemDelClicked onItemDelClicked) {
-        this.onItemDelClicked = onItemDelClicked;
-    }
 
     public interface OnItemEditClicked {
-        void onItemEditClicked(String item_id, String group_id, String sl_id, View v);
+        void onItemEditClicked(String item_id, String group_id, String sl_id, String groupName, View v);
     }
 
     public void setOnItemEditClick(OnItemEditClicked onItemEditClick) {
@@ -134,20 +97,16 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MyViewHolder> 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView itemName, itemAnzahl;
-        ImageView itemDel;
         CheckBox erledigtItem;
         CardView itemCardView;
-        //View colorBox;
 
         public MyViewHolder(View itemView) {
             super(itemView);
 
             this.itemName = (TextView) itemView.findViewById(R.id.nameItem);
             this.itemAnzahl = (TextView) itemView.findViewById(R.id.anzahlItem);
-            this.itemDel = (ImageView) itemView.findViewById(R.id.itemDel);
             this.erledigtItem = (CheckBox) itemView.findViewById(R.id.erledigtItem);
             this.itemCardView = (CardView) itemView.findViewById(R.id.itemCardView);
-            //this.colorBox = (View) itemView.findViewById(R.id.itemListColorView);
         }
     }
 }

@@ -1,8 +1,8 @@
 package at.smartshopper.smartshopper.shoppinglist.details;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
-import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,25 +11,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.squareup.picasso.Picasso;
-
 import java.util.List;
-
 import at.smartshopper.smartshopper.R;
+import at.smartshopper.smartshopper.activitys.ItemListActivity;
 import at.smartshopper.smartshopper.activitys.ShoppinglistDetails;
-import at.smartshopper.smartshopper.customViews.RoundCornersTransformation;
 import at.smartshopper.smartshopper.db.Database;
-import at.smartshopper.smartshopper.shoppinglist.ShoppinglistAdapter;
-import at.smartshopper.smartshopper.shoppinglist.details.item.ItemAdapter;
+import at.smartshopper.smartshopper.shoppinglist.details.item.ItemShoppinglistDetailsAdapter;
 
-public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHolder> {
+public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHolder> implements ItemShoppinglistDetailsAdapter.OnItemEditClicked {
 
     private List<Details> details;
     private OnGroupEditClicked onGroupEditClicked;
-    private OnItemAddClicked onItemAddClicked;
     private OnGroupDeleteClicked onGroupDeleteClicked;
     private OnCardClicked onCardClicked;
 
@@ -62,18 +56,17 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
      */
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder viewHolder, final int i) {
-        TextView groupName = viewHolder.groupName;
+        final TextView groupName = viewHolder.groupName;
         ImageButton deleteGroup = viewHolder.deleteGroup;
         RecyclerView itemsrecycle = viewHolder.itemsrecycle;
         View groupColor = viewHolder.grouoColor;
         ImageButton editGroup = viewHolder.editGroup;
-        ImageButton addItem = viewHolder.addItem;
-
 
         itemsrecycle.setHasFixedSize(true);
         itemsrecycle.setLayoutManager(new LinearLayoutManager(new Activity()));
         List<at.smartshopper.smartshopper.shoppinglist.details.item.Item> itemsList = details.get(i).getItems();
-        ItemAdapter itemAdapter = new ItemAdapter(itemsList);
+        ItemShoppinglistDetailsAdapter itemAdapter = new ItemShoppinglistDetailsAdapter(itemsList);
+        itemAdapter.setOnItemEditClick(this);
         itemsrecycle.setAdapter(itemAdapter);
 
 
@@ -88,23 +81,14 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
         }
         groupColor.setBackgroundColor(cardcolor);
 
-        groupName.setText(details.get(i).getGroup().getName());
+        groupName.setText(details.get(i).getGroup().getGroupName());
         Picasso.get().load(R.drawable.delete).into(deleteGroup);
-        Picasso.get().load(R.drawable.add).into(addItem);
         Picasso.get().load(R.drawable.bearbeiten).into(editGroup);
 
         viewHolder.groupCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onCardClicked.onCardClick(details.get(i).getGroup().getGroup_id(), details.get(i).getGroup().getSl_idd(), v);
-            }
-        });
-
-
-        addItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onItemAddClicked.onItemAddClick(details.get(i).getGroup().getSl_idd(), details.get(i).getGroup().getGroup_id(), db.generateItemId(), v);
+                onCardClicked.onCardClick(details.get(i).getGroup().getGroup_id(), details.get(i).getGroup().getSl_idd(), details.get(i).getGroup().getGroupName(), v);
             }
         });
 
@@ -123,11 +107,21 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
         });
     }
 
+    @Override
+    public void onItemEditClicked(String item_id, String group_id, String sl_id, String groupName, View v) {
+        //v.getContext().finish();
+        Intent intent = new Intent(v.getContext(), ItemListActivity.class);
+        intent.putExtra("group_id", group_id);
+        intent.putExtra("sl_id", sl_id);
+        intent.putExtra("groupNameString", groupName);
+        v.getContext().startActivity(intent);
+    }
+
     /**
      * Interface damit onoclick in der Shoppinglistdetails activity ausgeführt werden kann
      */
     public interface OnCardClicked {
-        void onCardClick(String group_id, String sl_id, View v);
+        void onCardClick(String group_id, String sl_id, String groupName, View v);
     }
 
     /**
@@ -136,21 +130,6 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
      */
     public void setCardClick(OnCardClicked onCardClicked){
         this.onCardClicked = onCardClicked;
-    }
-
-    /**
-     * Interface damit onoclick in der Shoppinglistdetails activity ausgeführt werden kann
-     */
-    public interface OnItemAddClicked {
-        void onItemAddClick(String sl_id, String group_id, String item_id, View v);
-    }
-
-    /**
-     * Setzt das OnChangeItemClick event
-     * @param onItemAddClicked Der Click event Listener
-     */
-    public void setItemAddClick(OnItemAddClicked onItemAddClicked){
-        this.onItemAddClicked = onItemAddClicked;
     }
 
     /**
@@ -194,7 +173,7 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView groupName;
-        ImageButton deleteGroup, editGroup, addItem;
+        ImageButton deleteGroup, editGroup;
         RecyclerView itemsrecycle;
         View grouoColor;
         CardView groupCard;
@@ -206,7 +185,6 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
             this.itemsrecycle = (RecyclerView) itemView.findViewById(R.id.itemsRecycle);
             this.grouoColor = (View) itemView.findViewById(R.id.groupColorView);
             this.editGroup = (ImageButton) itemView.findViewById(R.id.editGroup);
-            this.addItem = (ImageButton) itemView.findViewById(R.id.addItem);
             this.groupCard = (CardView) itemView.findViewById(R.id.cardViewGroup);
 
         }

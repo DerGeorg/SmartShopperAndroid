@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
@@ -16,15 +17,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
-
 import org.json.JSONException;
-
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import at.smartshopper.smartshopper.R;
@@ -33,9 +31,8 @@ import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
 import at.smartshopper.smartshopper.shoppinglist.details.Details;
 import at.smartshopper.smartshopper.shoppinglist.details.DetailsAdapter;
 import at.smartshopper.smartshopper.shoppinglist.details.group.Group;
-import at.smartshopper.smartshopper.shoppinglist.details.item.Item;
 
-public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGroupEditClicked, DetailsAdapter.OnGroupDeleteClicked, DetailsAdapter.OnItemAddClicked, DetailsAdapter.OnCardClicked {
+public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGroupEditClicked, DetailsAdapter.OnGroupDeleteClicked, DetailsAdapter.OnCardClicked {
 
     private Database db = new Database();
     private FloatingActionButton fab;
@@ -43,6 +40,7 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
     private PopupWindow popupWindow;
     private PopupWindow popupWindowItem;
     private Button colorBtn;
+    private SwipeRefreshLayout detailsSwiperefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +68,9 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
             @Override
             public void onClick(View v) {
                 try {
-                    showPupupGroupEdit(false, null, finalSl_id, v);
+                    detailsSwiperefresh.setRefreshing(true);
+                    showPupupGroupEdit(false, null, finalSl_id, "Gruppe erstellen", v);
+                    detailsSwiperefresh.setRefreshing(false);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -87,6 +87,22 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
             e.printStackTrace();
         }
 
+        detailsSwiperefresh = (SwipeRefreshLayout) findViewById(R.id.detailsRefreshSwipe);
+        final String finalSl_id1 = sl_id;
+        detailsSwiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                try {
+                    showDetails(finalSl_id1);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                detailsSwiperefresh.setRefreshing(false);
+            }
+        });
+
     }
 
     /**
@@ -97,13 +113,15 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
      * @param groupid Wenn fromDb true ist wird diese id benötigt um das richtige element zu bearbeiten
      * @param v       Der view auf dem das popup platziert werden soll
      */
-    private void showPupupGroupEdit(final boolean fromDB, final String groupid, final String sl_id, View v) throws SQLException, JSONException {
+    private void showPupupGroupEdit(final boolean fromDB, final String groupid, final String sl_id, String title, View v) throws SQLException, JSONException {
         final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 
         final String username = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         View customView = inflater.inflate(R.layout.add_group_dialog, null);
 
+        TextView addGroupTitle = (TextView) customView.findViewById(R.id.addgruppetitle);
+        addGroupTitle.setText(title);
         ImageButton close = (ImageButton) customView.findViewById(R.id.groupClose);
         final EditText name = (EditText) customView.findViewById(R.id.groupName);
         Button color = (Button) customView.findViewById(R.id.groupColor);
@@ -122,7 +140,7 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
                 colorstring = "#" + dbgroup.getColor();
             }
             color.setBackgroundColor(Color.parseColor(colorstring));
-            name.setText(dbgroup.getName());
+            name.setText(dbgroup.getGroupName());
         } else {
             colorString = "ffffff";
         }
@@ -239,92 +257,17 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
         DetailsAdapter detailsAdapter = new DetailsAdapter(detailsList);
         detailsAdapter.setGroupEditClick(this);
         detailsAdapter.setGroupDeleteClick(this);
-        detailsAdapter.setItemAddClick(this);
         detailsAdapter.setCardClick(this);
 
         detailsRecycleView.setAdapter(detailsAdapter);
     }
 
-
-    private void showPopupItemEdit(final boolean fromDB, final String sl_id, final String group_id, String item_id, View v) throws SQLException, JSONException {
-        final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-
-
-        View customView = inflater.inflate(R.layout.add_item_dialog, null);
-
-        ImageButton close = (ImageButton) customView.findViewById(R.id.itemClose);
-        final EditText name = (EditText) customView.findViewById(R.id.itemName);
-        final EditText count = (EditText) customView.findViewById(R.id.itemAnzahl);
-        Button finish = (Button) customView.findViewById(R.id.itemFinish);
-
-
-        Picasso.get().load(R.drawable.close).into(close);
-
-        if (fromDB) {
-            Item dbitem = db.getItem(item_id);
-
-
-            name.setText(dbitem.getName());
-        } else {
-            colorString = "ffffff";
-        }
-
-        finish.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (fromDB) {
-                    try {
-
-                        showDetails(sl_id);
-                        popupWindow.dismiss();
-                        colorString = "ffffff";
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    try {
-                        db.addItem(group_id, sl_id, name.getText().toString(), Integer.parseInt(count.getText().toString()));
-                        showDetails(sl_id);
-                        popupWindowItem.dismiss();
-                        colorString = "ffffff";
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popupWindowItem.dismiss();
-            }
-        });
-
-        popupWindowItem = new PopupWindow(customView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        // Set an elevation value for popup window
-        // Call requires API level 21
-        if (Build.VERSION.SDK_INT >= 21) {
-            popupWindowItem.setElevation(5.0f);
-        }
-
-        popupWindowItem.setOutsideTouchable(false);
-        popupWindowItem.setFocusable(true);
-
-
-        popupWindowItem.showAtLocation(v, Gravity.CENTER, 0, 0);
-        popupWindowItem.update();
-    }
-
     @Override
     public void onGroupEditClick(String sl_id, String group_id, View v) {
         try {
-            showPupupGroupEdit(true, group_id, sl_id, v);
+            detailsSwiperefresh.setRefreshing(true);
+            showPupupGroupEdit(true, group_id, sl_id, "Gruppe bearbeiten", v);
+            detailsSwiperefresh.setRefreshing(false);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (JSONException e) {
@@ -335,8 +278,10 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
     @Override
     public void onGroupDeleteClick(String sl_id, String group_id, View v) {
         try {
+            detailsSwiperefresh.setRefreshing(true);
             db.deleteGroup(group_id, sl_id);
             showDetails(sl_id);
+            detailsSwiperefresh.setRefreshing(false);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (JSONException e) {
@@ -345,24 +290,12 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
     }
 
     @Override
-    public void onItemAddClick(String sl_id, String group_id, String item_id, View v) {
-
-        try {
-            showPopupItemEdit(false, sl_id, group_id, item_id, v);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public void onCardClick(String group_id, String sl_id, View v) {
+    public void onCardClick(String group_id, String sl_id, String groupName, View v) {
         finish();
         Intent intent = new Intent(this, ItemListActivity.class);
         intent.putExtra("group_id", group_id);
         intent.putExtra("sl_id", sl_id);
+        intent.putExtra("groupNameString", groupName);
         startActivity(intent);
     }
 }

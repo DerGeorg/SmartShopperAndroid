@@ -31,12 +31,18 @@ public class Group {
         return this.sl_id;
     }
 
-    public String getName() {
+    public String getGroupName() {
         return this.name;
     }
 
     public String getColor() {
-        return this.color;
+        if(color.isEmpty()){
+            return "#FFFFFF";
+        }else if (!color.contains("#")){
+            return "#" + this.color;
+        }else {
+            return this.color;
+        }
     }
 
     public String getHidden() {

@@ -137,7 +137,7 @@ public class Database {
     public void editGroup(String sl_id, String group_id, String newname, String newcolor, String newhidden) throws SQLException, JSONException {
         Group oldgroup = getGroup(group_id, sl_id);
 
-        if (!oldgroup.getName().equals(newname) && newname != null) {
+        if (!oldgroup.getGroupName().equals(newname) && newname != null) {
             sqlUpdate3Param("UPDATE \"Group\" SET name = ? WHERE group_id = ? AND sl_id = ?", newname, group_id, sl_id);
         }
 

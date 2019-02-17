@@ -25,6 +25,7 @@ import at.smartshopper.smartshopper.R;
 
 import android.widget.PopupWindow;
 import android.widget.TabHost;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +33,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
+import org.w3c.dom.Text;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -140,7 +142,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                 @Override
                 public void onClick(View v) {
                     try {
-                        showShoppinglistEditView(false, null, v);
+                        showShoppinglistEditView(false, null, "Shoppingliste erstellen", v);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     } catch (JSONException e) {
@@ -164,12 +166,15 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
      * @param sl_id  Muss nur eine sl_id drinnen sein wenn fromDB true ist
      * @param v      der View auf dem das Popup sein soll
      */
-    private void showShoppinglistEditView(final boolean fromDB, String sl_id, View v) throws SQLException, JSONException {
+    private void showShoppinglistEditView(final boolean fromDB, String sl_id, String title, View v) throws SQLException, JSONException {
         final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 
         final String username = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         View customView = inflater.inflate(R.layout.add_shoppinglist_dialog, null);
+
+        TextView fensterTitle = (TextView) customView.findViewById(R.id.shoppinglisteAddTitle);
+        fensterTitle.setText(title);
 
         ImageButton addClose = (ImageButton) customView.findViewById(R.id.addClose);
         colorBtn = (Button) customView.findViewById(R.id.addColor);
@@ -425,7 +430,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
     @Override
     public void onChangeItemClick(String sl_id, View v) {
         try {
-            showShoppinglistEditView(true, sl_id, v);
+            showShoppinglistEditView(true, sl_id, "Shoppingliste bearbeiten", v);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (JSONException e) {
