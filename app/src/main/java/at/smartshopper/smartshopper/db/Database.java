@@ -132,6 +132,17 @@ public class Database {
     }
 
     /**
+     * Stopt eine Einladung, indem der Member die liste nichtmehr sehen kann
+     * @param invitelink Der invitelink
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public void stopInvite(String invitelink, String uid) throws SQLException, JSONException {
+        String sl_id = getSlIdFromInvite(invitelink);
+        sqlUpdate2Param("DELETE FROM \"Shoppinglist_member\" WHERE sl_id = ? AND username = ?", sl_id, uid);
+    }
+
+    /**
      * Gibt den Invite link einer Shoppingliste zurück, wenn keiner vorhanden ist --> null
      *
      * @param sl_id Die shoppinglist von der der invitelimnk gefragt ist

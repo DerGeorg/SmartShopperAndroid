@@ -55,14 +55,15 @@ import at.smartshopper.smartshopper.customViews.SpaceItemDecoration;
 import at.smartshopper.smartshopper.db.Database;
 import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
 import at.smartshopper.smartshopper.shoppinglist.ShoppinglistAdapter;
+import at.smartshopper.smartshopper.shoppinglist.ShoppinglistSharedAdapter;
 
 
-public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnItemClicked, ShoppinglistAdapter.OnShoppinglistClick, ShoppinglistAdapter.OnChangeItemClick, ShoppinglistAdapter.OnShareClick {
+public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnItemClicked, ShoppinglistAdapter.OnShoppinglistClick, ShoppinglistAdapter.OnChangeItemClick, ShoppinglistAdapter.OnShareClick, ShoppinglistSharedAdapter.SharedOnItemClicked, ShoppinglistSharedAdapter.SharedOnChangeItemClick, ShoppinglistSharedAdapter.SharedOnShareClick, ShoppinglistSharedAdapter.SharedOnShoppinglistClick {
 
     private final Database db = new Database();
     private SwipeRefreshLayout ownswiperefresh, sharedswiperefresh;
     private FloatingActionButton addShoppinglistFab;
-    private PopupWindow popupWindowAdd, popupShare, popupAddShare;
+    private PopupWindow popupWindowAdd, popupShare, popupAddShare, popupEditShare;
     private String color;
     private Button colorBtn;
 
@@ -343,7 +344,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         sharedRecycler.setHasFixedSize(true);
         sharedRecycler.setLayoutManager(new LinearLayoutManager(this));
         List<Shoppinglist> ownListsList = db.getSharedShoppinglists(uid);
-        ShoppinglistAdapter shpAdapter = new ShoppinglistAdapter(Dash.this, ownListsList, db);
+        ShoppinglistSharedAdapter shpAdapter = new ShoppinglistSharedAdapter(Dash.this, ownListsList, db);
         shpAdapter.setOnDelClick(Dash.this);
         shpAdapter.setOnChangeClick(Dash.this);
         shpAdapter.setOnShareClick(Dash.this);
@@ -545,8 +546,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
      *
      * @param sl_id Die Shoppingliste dieser Id wird gelöscht
      */
-    @Override
-    public void onItemClick(String sl_id) {
+    private void onItemClickContainer(String sl_id){
         try {
             db.delShoppinglist(sl_id);
             refreshOwnShoppinglist(FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -560,8 +560,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
      *
      * @param sl_id Die Shoppinglist die bearbeitet werden soll
      */
-    @Override
-    public void onChangeItemClick(String sl_id, View v) {
+    private void onChangeItemClickContainer(String sl_id, View v){
         try {
             showShoppinglistEditView(true, sl_id, "Shoppingliste bearbeiten", v);
         } catch (SQLException e) {
@@ -571,9 +570,39 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         }
     }
 
+    private void onShoppinglistClickContainer(String sl_id, View v){
+        Intent intent = new Intent(this, ShoppinglistDetails.class);
+        intent.putExtra("sl_id", sl_id);
+
+        startActivity(intent);
+    }
+
+    /**
+     * Das ist der Onclick für die einzelnen shoppinglists. Löscht eine shoppinglist und refreshed alle anderen
+     *
+     * @param sl_id Die Shoppingliste dieser Id wird gelöscht
+     */
     @Override
-    public void onShareClick(String sl_id, View v) {
-        Log.d("ShareClick test", "Workt sl_id: " + sl_id);
+    public void onItemClick(String sl_id) {
+        onItemClickContainer(sl_id);
+    }
+
+    /**
+     * Das ist der oncklick für eine einzelen Shoppinglist. Bearbeitet eine Shoppinglist
+     *
+     * @param sl_id Die Shoppinglist die bearbeitet werden soll
+     */
+    @Override
+    public void onChangeItemClick(String sl_id, View v) {
+        onChangeItemClickContainer(sl_id, v);
+    }
+
+    /**
+     * Holt den Invitelink einer Shoppingliste
+     * @param sl_id Die Shoppingliste von der der invitelink gewünscht ist
+     * @return
+     */
+    private String getInviteLink(String sl_id){
         String link = null;
         try {
             if (db.isShared(sl_id)) {
@@ -587,6 +616,12 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        return link;
+    }
+
+    @Override
+    public void onShareClick(String sl_id, View v) {
+        final String link = getInviteLink(sl_id);
 
         final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupContentView = inflater.inflate(R.layout.add_share, null);
@@ -603,13 +638,11 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             }
         });
 
-        Button copyButton = (Button) popupContentView.findViewById(R.id.shareCopy);
+        final Button copyButton = (Button) popupContentView.findViewById(R.id.shareCopy);
         copyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("SmartShopper", linkausgabe.getText().toString());
-                clipboard.setPrimaryClip(clip);
+                copyText(linkausgabe.getText().toString());
                 popupShare.dismiss();
             }
         });
@@ -657,12 +690,89 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         popupShare.update();
     }
 
-    @Override
-    public void onShoppinglistClick(String sl_id, View v) {
-        Intent intent = new Intent(this, ShoppinglistDetails.class);
-        intent.putExtra("sl_id", sl_id);
-
-        startActivity(intent);
+    /**
+     * Kopiert einen Text in die Zwischenablage
+     * @param text Der Text, welcher zu kopieren ist
+     */
+    private void copyText(String text){
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("SmartShopper", text);
+        clipboard.setPrimaryClip(clip);
     }
 
+    @Override
+    public void onShoppinglistClick(String sl_id, View v) {
+        onShoppinglistClickContainer(sl_id, v);
+    }
+
+    @Override
+    public void sharedOnItemClick(String sl_id) {
+        onItemClickContainer(sl_id);
+    }
+
+    @Override
+    public void sharedOnChangeItemClick(String sl_id, View v) {
+        onChangeItemClickContainer(sl_id, v);
+    }
+
+    @Override
+    public void sharedOnShareClick(String sl_id, View v) {
+        final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupContentView = inflater.inflate(R.layout.edit_share_member, null);
+
+        ImageButton exitBtn = popupContentView.findViewById(R.id.exitButton);
+        Picasso.get().load(R.drawable.close).into(exitBtn);
+        final TextView linkAusgabe = popupContentView.findViewById(R.id.linkausgabe);
+        Button copyBtn = popupContentView.findViewById(R.id.copyButton);
+        Button stopShareBtn = popupContentView.findViewById(R.id.delShare);
+
+
+        linkAusgabe.setText("www.smartshopper.cf/invite/" + getInviteLink(sl_id));
+        exitBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupEditShare.dismiss();
+            }
+        });
+        copyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                copyText(linkAusgabe.getText().toString());
+                popupEditShare.dismiss();
+            }
+        });
+        stopShareBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    db.stopInvite(linkAusgabe.getText().toString(), FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    popupEditShare.dismiss();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+        popupEditShare = new PopupWindow(popupContentView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupEditShare.setOutsideTouchable(false);
+        popupEditShare.setFocusable(true);
+        // Set an elevation value for popup window
+        // Call requires API level 21
+        if (Build.VERSION.SDK_INT >= 21) {
+            popupEditShare.setElevation(5.0f);
+        }
+        popupEditShare.setAnimationStyle(R.style.popup_window_animation_phone);
+
+
+        popupEditShare.showAtLocation(v, Gravity.CENTER, 0, 0);
+        popupEditShare.update();
+    }
+
+    @Override
+    public void sharedOnShoppinglistClick(String sl_id, View v) {
+        onShoppinglistClickContainer(sl_id, v);
+    }
 }
