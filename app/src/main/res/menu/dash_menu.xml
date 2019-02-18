@@ -5,6 +5,9 @@
         android:id="@+id/addInvite"
         android:title="Insert Invite" />
     <item
+        android:id="@+id/doneEinkauf"
+        android:title="Erledigte Einkäufe" />
+    <item
         android:id="@+id/logoutBtn"
         android:title="Logout"
         android:enabled="true" />

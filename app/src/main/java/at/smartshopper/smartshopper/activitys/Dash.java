@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -34,8 +35,12 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.gson.JsonSerializer;
 import com.squareup.picasso.Picasso;
 
@@ -86,6 +91,40 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
 
     /**
+     * Holt den msg token
+     *
+     * SETZT IHN NOCH NED
+     *
+     *
+     * WEITER PROGRAMMIERN
+     *
+     * MIR FEHLT NOCH DIE DB VON LUKAS
+     */
+    private void setMsgId(){
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("SmartShopper", "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+                        Log.d("SmartShopper MSG", token);
+
+                        /* Log and toast
+                        String msg = getString(R.string.msg_token_fmt, token);
+                        Log.d(TAG, msg);
+                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+
+                        */
+                    }
+                });
+    }
+
+    /**
      * Convertiert eine int farbe in eine hexa dezimale Farbe
      *
      * @param color Farbe zum umwandeln in int
@@ -103,6 +142,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         color = "ffffff";
 
 
+        setMsgId();
         // Erstellt die Tabs
         tabHoster();
 
@@ -428,6 +468,10 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
             case R.id.addInvite:
                 popupaddInvite();
+
+            case R.id.doneEinkauf:
+                Intent intent = new Intent(Dash.this, DoneItemActivity.class);
+                startActivity(intent);
 
             default:
                 // If we got here, the user's action was not recognized.

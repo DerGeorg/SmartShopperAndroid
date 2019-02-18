@@ -12,9 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".activitys.DoneItemActivity"></activity>
         <activity
             android:name=".activitys.ItemListActivity"
-            android:label="@string/title_activity_item_list"></activity>
+            android:label="@string/title_activity_item_list" />
         <activity android:name=".activitys.Colorpicker" />
         <activity android:name=".activitys.LoginActivity">
             <intent-filter>
@@ -41,7 +42,9 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" /> <!-- [START firebase_service] -->
-        <service android:name=".messaging.MyFirebaseMessagingService">
+        <service
+            android:name=".messaging.MyFirebaseMessagingService"
+            android:stopWithTask="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
