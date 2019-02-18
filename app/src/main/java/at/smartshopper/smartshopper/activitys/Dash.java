@@ -36,23 +36,30 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.JsonSerializer;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.w3c.dom.Text;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Base64;
 import java.util.List;
 
 
+import at.smartshopper.smartshopper.customViews.SpaceItemDecoration;
 import at.smartshopper.smartshopper.db.Database;
 import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
 import at.smartshopper.smartshopper.shoppinglist.ShoppinglistAdapter;
 
 
-public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnItemClicked, ShoppinglistAdapter.OnChangeItemClick, ShoppinglistAdapter.OnShareClick {
+public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnItemClicked, ShoppinglistAdapter.OnShoppinglistClick, ShoppinglistAdapter.OnChangeItemClick, ShoppinglistAdapter.OnShareClick {
 
-    private Database db = new Database();
+    private final Database db = new Database();
     private SwipeRefreshLayout ownswiperefresh, sharedswiperefresh;
     private FloatingActionButton addShoppinglistFab;
     private PopupWindow popupWindowAdd, popupShare, popupAddShare;
@@ -336,10 +343,11 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         sharedRecycler.setHasFixedSize(true);
         sharedRecycler.setLayoutManager(new LinearLayoutManager(this));
         List<Shoppinglist> ownListsList = db.getSharedShoppinglists(uid);
-        ShoppinglistAdapter shpAdapter = new ShoppinglistAdapter(Dash.this, ownListsList);
+        ShoppinglistAdapter shpAdapter = new ShoppinglistAdapter(Dash.this, ownListsList, db);
         shpAdapter.setOnDelClick(Dash.this);
         shpAdapter.setOnChangeClick(Dash.this);
         shpAdapter.setOnShareClick(Dash.this);
+        shpAdapter.setOnShoppinglistClick(Dash.this);
         sharedRecycler.setAdapter(shpAdapter);
 
     }
@@ -354,10 +362,12 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         ownRecycleView.setHasFixedSize(true);
         ownRecycleView.setLayoutManager(new LinearLayoutManager(this));
         List<Shoppinglist> ownListsList = db.getMyShoppinglists(uid);
-        ShoppinglistAdapter shpAdapter = new ShoppinglistAdapter(Dash.this, ownListsList);
+        ShoppinglistAdapter shpAdapter = new ShoppinglistAdapter(Dash.this, ownListsList, db);
         shpAdapter.setOnDelClick(Dash.this);
         shpAdapter.setOnChangeClick(Dash.this);
         shpAdapter.setOnShareClick(Dash.this);
+        shpAdapter.setOnShoppinglistClick(Dash.this);
+
         ownRecycleView.setAdapter(shpAdapter);
 
     }
@@ -646,4 +656,13 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         popupShare.showAtLocation(v, Gravity.CENTER, 0, 0);
         popupShare.update();
     }
+
+    @Override
+    public void onShoppinglistClick(String sl_id, View v) {
+        Intent intent = new Intent(this, ShoppinglistDetails.class);
+        intent.putExtra("sl_id", sl_id);
+
+        startActivity(intent);
+    }
+
 }

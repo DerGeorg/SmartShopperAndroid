@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="8dp"
     tools:context=".activitys.ItemListActivity">
 
     <android.support.v4.widget.SwipeRefreshLayout
@@ -33,7 +34,8 @@
 
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content"
+                app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"

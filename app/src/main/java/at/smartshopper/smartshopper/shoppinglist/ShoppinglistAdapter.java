@@ -33,18 +33,20 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
     private OnChangeItemClick onChangeClick;
     private OnItemClicked onClick;
     private OnShareClick onShareClick;
-    private at.smartshopper.smartshopper.db.Database db;
+    private Database db;
 
     //this context we will use to inflate the layout
     private Context mCtx;
 
     //we are storing all the products in a list
     private List<Shoppinglist> shoppinglist;
+    private OnShoppinglistClick onShoppinglistClick;
 
     //getting the context and product list with constructor
-    public ShoppinglistAdapter(Context mCtx, List<Shoppinglist> shoppinglist) {
+    public ShoppinglistAdapter(Context mCtx, List<Shoppinglist> shoppinglist, Database db) {
         this.mCtx = mCtx;
         this.shoppinglist = shoppinglist;
+        this.db = db;
     }
 
     /**
@@ -72,48 +74,32 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
     public void onBindViewHolder(ShoppinglistViewHolder holder, final int position) {
         //getting the product of the specified position,
         final Shoppinglist shoppinglist = this.shoppinglist.get(position);
-        ImageButton shareButton = holder.share;
-
+        final ImageButton shareButton = holder.share;
+        TextView beschreibung = holder.textViewBeschreibung;
+        beschreibung.setText(shoppinglist.getdescription());
         Picasso.get().load(R.drawable.share).into(shareButton);
-
-
-
-        db = new Database();
-
 
         //binding the data with the viewholder views
         holder.textViewTitle.setText(shoppinglist.getname());
         System.out.println(shoppinglist.getname());
-
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent intent = new Intent(v.getContext(), ShoppinglistDetails.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("sl_id", shoppinglist.getSlId());
-                intent.putExtras(bundle);
-                v.getContext().startActivity(intent);
-
-
+                onShoppinglistClick.onShoppinglistClick(shoppinglist.getSlId(), v);
             }
         });
-
         holder.bearbeiten.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onChangeClick.onChangeItemClick(shoppinglist.getSlId(), v);
             }
         });
-
         holder.del.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onClick.onItemClick(shoppinglist.getSlId());
             }
         });
-
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -207,7 +193,20 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
         this.onShareClick = onShareClick;
     }
 
+    /**
+     * Interface damit onoclick in der dash activity ausgeführt werden kann
+     */
+    public interface OnShoppinglistClick{
+        void onShoppinglistClick(String sl_id, View v);
+    }
 
+    /**
+     * Setzt das OnChangeItemClick event
+     * @param onShoppinglistClick Der Click event Listener
+     */
+    public void setOnShoppinglistClick(OnShoppinglistClick onShoppinglistClick){
+        this.onShoppinglistClick = onShoppinglistClick;
+    }
 
 
 

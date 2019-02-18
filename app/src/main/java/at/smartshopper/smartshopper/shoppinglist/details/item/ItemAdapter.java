@@ -9,9 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -22,12 +24,14 @@ import java.util.List;
 
 import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.db.Database;
+import at.smartshopper.smartshopper.shoppinglist.ShoppinglistAdapter;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MyViewHolder> {
 
     private List<at.smartshopper.smartshopper.shoppinglist.details.item.Item> data;
     private OnItemEditClicked onItemEditClick;
     private OnItemDelClicked onItemDelClicked;
+    private OnItemCheckClicked onItemCheckClick;
 
     public ItemAdapter(List<at.smartshopper.smartshopper.shoppinglist.details.item.Item> data) {
         this.data = data;
@@ -63,27 +67,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MyViewHolder> 
         CheckBox itemErledigt = myViewHolder.erledigtItem;
         ImageView itemDel = myViewHolder.itemDel;
         CardView itemCardView = myViewHolder.itemCardView;
-        //View colorBox = myViewHolder.colorBox;
 
-
-        /*
-        int cardcolor = 0;
-        try {
-            Database db = new Database();
-            cardcolor = Color.parseColor(db.getGroup(data.get(i).getGroup_id(), data.get(i).getSl_id()).getColor());
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            colorBox.setBackgroundColor(cardcolor);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        */
+        itemErledigt.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                onItemCheckClick.onItemCheckClicked(FirebaseAuth.getInstance().getCurrentUser().getUid(), data.get(i).getName(), data.get(i).getItem_id(), data.get(i).getGroup_id(), data.get(i).getSl_id(), Integer.parseInt(itemAnzahl.getText().toString()));
+            }
+        });
 
 
         itemName.setText(data.get(i).getName());
@@ -121,6 +111,14 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MyViewHolder> 
 
     public void setOnItemEditClick(OnItemEditClicked onItemEditClick) {
         this.onItemEditClick = onItemEditClick;
+    }
+
+    public interface OnItemCheckClicked {
+        void onItemCheckClicked(String uid, String name, String itemId, String groupId, String sl_id, int count);
+    }
+
+    public void setOnItemCheckClick(OnItemCheckClicked onItemCheckClick) {
+        this.onItemCheckClick = onItemCheckClick;
     }
 
     @Override

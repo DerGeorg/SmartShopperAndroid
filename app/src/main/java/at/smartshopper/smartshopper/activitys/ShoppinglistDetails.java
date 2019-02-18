@@ -20,12 +20,19 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.squareup.picasso.Picasso;
+
 import org.json.JSONException;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
 import at.smartshopper.smartshopper.R;
+import at.smartshopper.smartshopper.customViews.SpaceItemDecoration;
 import at.smartshopper.smartshopper.db.Database;
 import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
 import at.smartshopper.smartshopper.shoppinglist.details.Details;
@@ -34,11 +41,10 @@ import at.smartshopper.smartshopper.shoppinglist.details.group.Group;
 
 public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGroupEditClicked, DetailsAdapter.OnGroupDeleteClicked, DetailsAdapter.OnCardClicked {
 
-    private Database db = new Database();
+    private Database db;
     private FloatingActionButton fab;
     private String colorString;
     private PopupWindow popupWindow;
-    private PopupWindow popupWindowItem;
     private Button colorBtn;
     private SwipeRefreshLayout detailsSwiperefresh;
 
@@ -47,14 +53,11 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shoppinglist_details);
         fab = findViewById(R.id.addGroupFab);
-
+        db = new Database();
         colorBtn = (Button) findViewById(R.id.groupColor);
-        Bundle bundle = getIntent().getExtras();
-        String sl_id = null; // or other values
-        if (bundle != null)
-            sl_id = bundle.getString("sl_id");
+        Intent intent = getIntent();
+        String sl_id = intent.getStringExtra("sl_id");
 
-        //Toast.makeText(this, "Click detected on item " + position, Toast.LENGTH_LONG).show();
 
         try {
             Shoppinglist shoppinglist = db.getShoppinglist(sl_id);
@@ -104,6 +107,7 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
         });
 
     }
+
 
     /**
      * Zeigt ein Popup zum bearbeiten und erstellen von groups
@@ -201,6 +205,8 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
         popupWindow.setOutsideTouchable(false);
         popupWindow.setFocusable(true);
 
+        popupWindow.setAnimationStyle(R.style.popup_window_animation_phone);
+
 
         popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
         popupWindow.update();
@@ -249,12 +255,14 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
      */
     private void showDetails(String sl_id) throws SQLException, JSONException {
         RecyclerView detailsRecycleView = (RecyclerView) findViewById(R.id.groupRecycle);
+        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
+        detailsRecycleView.addItemDecoration(new SpaceItemDecoration(spacingInPixels));
         detailsRecycleView.setHasFixedSize(true);
         detailsRecycleView.setLayoutManager(new LinearLayoutManager(this));
-        List<Details> detailsList =  db.getListDetails(sl_id);
+        List<Details> detailsList = db.getListDetails(sl_id);
 
 
-        DetailsAdapter detailsAdapter = new DetailsAdapter(detailsList);
+        DetailsAdapter detailsAdapter = new DetailsAdapter(detailsList, db);
         detailsAdapter.setGroupEditClick(this);
         detailsAdapter.setGroupDeleteClick(this);
         detailsAdapter.setCardClick(this);

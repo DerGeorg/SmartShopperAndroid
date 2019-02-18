@@ -7,9 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -56,8 +58,7 @@ public class ItemShoppinglistDetailsAdapter extends RecyclerView.Adapter<ItemSho
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, final int i) {
         final TextView itemName = myViewHolder.itemName;
-        TextView itemAnzahl = myViewHolder.itemAnzahl;
-        CheckBox itemErledigt = myViewHolder.erledigtItem;
+        final TextView itemAnzahl = myViewHolder.itemAnzahl;
         CardView itemCardView = myViewHolder.itemCardView;
 
         itemCardView.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +98,6 @@ public class ItemShoppinglistDetailsAdapter extends RecyclerView.Adapter<ItemSho
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView itemName, itemAnzahl;
-        CheckBox erledigtItem;
         CardView itemCardView;
 
         public MyViewHolder(View itemView) {
@@ -105,7 +105,6 @@ public class ItemShoppinglistDetailsAdapter extends RecyclerView.Adapter<ItemSho
 
             this.itemName = (TextView) itemView.findViewById(R.id.nameItem);
             this.itemAnzahl = (TextView) itemView.findViewById(R.id.anzahlItem);
-            this.erledigtItem = (CheckBox) itemView.findViewById(R.id.erledigtItem);
             this.itemCardView = (CardView) itemView.findViewById(R.id.itemCardView);
         }
     }

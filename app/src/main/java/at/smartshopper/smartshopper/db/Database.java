@@ -3,17 +3,25 @@ package at.smartshopper.smartshopper.db;
 import android.os.StrictMode;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.JsonSerializer;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import at.smartshopper.smartshopper.shoppinglist.Member;
 import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
 import at.smartshopper.smartshopper.shoppinglist.details.Details;
 import at.smartshopper.smartshopper.shoppinglist.details.group.Group;
@@ -21,18 +29,28 @@ import at.smartshopper.smartshopper.shoppinglist.details.item.Item;
 
 public class Database {
 
-    private Connection conect;
-    final String HOST = "188.166.124.80";
-    final String DB_NAME = "smartshopperdb";
-    final String USERNAME = "smartshopper-user";
-    final String PASSWORD = "jW^v#&LjNY_b3-k*jYj!U4Xz?T??m_D6249XAeWZ#7C^FRbKm!c_Dt+qj@4&a-Hs";
-    final int PORT = 5432;
+    private transient Connection conect;
+    final private String HOST = "188.166.124.80";
+    final private String DB_NAME = "smartshopperdb";
+    final private String USERNAME = "smartshopper-user";
+    final private String PASSWORD = "jW^v#&LjNY_b3-k*jYj!U4Xz?T??m_D6249XAeWZ#7C^FRbKm!c_Dt+qj@4&a-Hs";
+    final private int PORT = 5432;
+    final private int sl_idLength = 10;
+    final private int groupIdLength = 10;
+    final private int itemIdLength = 10;
+    final private int inviteLength = 50;
 
 
     /**
      * Macht nix
      */
     public Database() {
+
+        try {
+            connectDatabase();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -50,7 +68,59 @@ public class Database {
     }
 
     /**
+     * Setzt ein Item auf erledigt indem es in Done items verschoben wird
+     *
+     * @param uid   Die User id, von dem das item geändert werden soll
+     * @param name  Der name des Items
+     * @param count Die Anzahl des Items
+     * @throws SQLException
+     */
+    public void setDoneItem(String uid, String name, String item_id, String groupId, String sl_id, int count) throws SQLException, JSONException {
+        java.sql.Date date = new java.sql.Date(new java.util.Date().getDate());
+        List<Member> members = getMembers(sl_id);
+        Member admin = getAdmin(sl_id);
+        sqlUpdate5ParamLastIsDateAndInt("INSERT INTO \"Done_Purchase\" (purchased_item_id, username, name, count, date) VALUES(?,?,?,?,?)", generateItemId(), admin.getUid(), name, count, date);
+        for (int i = 0; i < members.size(); i++) {
+            sqlUpdate5ParamLastIsDateAndInt("INSERT INTO \"Done_Purchase\" (purchased_item_id, username, name, count, date) VALUES(?,?,?,?,?)", generateItemId(), members.get(i).getUid(), name, count, date);
+        }
+        sqlUpdate3Param("DELETE FROM \"Item\" WHERE item_id = ? AND group_id = ? AND sl_id = ?", item_id, groupId, sl_id);
+    }
+
+
+    /**
+     * Holt den Admin einer Shoppingliste
+     *
+     * @param sl_id Die Shoppingliste von welcher der Admin gewünscht ist
+     * @return Member Objekt das mit den Daten des Admins gefüllt ist
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public Member getAdmin(String sl_id) throws SQLException, JSONException {
+        String SQL = "SELECT row_to_json(\"User\") as obj FROM \"User\" JOIN \"Shoppinglist_member\" USING (username) WHERE sl_id = ?";
+        JSONObject jsonObject = new JSONObject(executeQuery(SQL, sl_id));
+        return new Member(jsonObject.getString("username"), jsonObject.getString("message_id"));
+    }
+
+    /**
+     * Holt alle mitglieder einer Shoppingliste
+     *
+     * @param sl_id Die Shoppingliste von der die Mitglieder gefragt sind
+     * @throws SQLException
+     */
+    public List<Member> getMembers(String sl_id) throws SQLException, JSONException {
+        String SQL = "SELECT row_to_json(\"User\") as obj FROM \"User\" JOIN \"Shoppinglist_member\" USING (username) WHERE sl_id = ?";
+        ArrayList<Member> members = new ArrayList();
+        List<JSONObject> jsonObjects = executeQueryJSONObject(SQL, sl_id);
+        for(int i = 0; i < jsonObjects.size(); i++){
+            JSONObject jsonObject = jsonObjects.get(i);
+            members.add(new Member(jsonObject.getString("username"), jsonObject.getString("message_id")));
+        }
+        return members;
+    }
+
+    /**
      * Entfernt einen invitelink anhand des invitelinks
+     *
      * @param invitelink Löscht den invitelink aus der ganzen db
      * @throws SQLException
      * @throws JSONException
@@ -63,70 +133,56 @@ public class Database {
 
     /**
      * Gibt den Invite link einer Shoppingliste zurück, wenn keiner vorhanden ist --> null
+     *
      * @param sl_id Die shoppinglist von der der invitelimnk gefragt ist
      * @return Der invite link
      * @throws SQLException
      * @throws JSONException
      */
-    public String getInviteLink(String sl_id) throws SQLException, JSONException{
-        connectDatabase();
+    public String getInviteLink(String sl_id) throws SQLException, JSONException {
         String SQL = "Select invitelink from \"Shoppinglist\" WHERE sl_id = ?";
-
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        pstmt.setString(1, sl_id);
-        ResultSet rs = pstmt.executeQuery();
-
-        rs.next();
-        String returnLink = rs.getString(1);
-
-
+        String returnLink = executeQuery(SQL, sl_id);
         return returnLink;
     }
 
     /**
      * Sucht anhand des invitelinks eine Shoppingliste und gibt dessen sl_id zurück
+     *
      * @param invitelink Der invitelink nach dem gesucht werden soll
      * @return Die sl_id die dem invitelink zugeordnet ist
      * @throws SQLException
      * @throws JSONException
      */
-    private String getSlIdFromInvite(String invitelink) throws SQLException, JSONException{
-        connectDatabase();
+    private String getSlIdFromInvite(String invitelink) throws SQLException, JSONException {
         String SQL = "Select sl_id from \"Shoppinglist\" WHERE invitelink = ?";
-
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        pstmt.setString(1, invitelink);
-        ResultSet rs = pstmt.executeQuery();
-
-        rs.next();
-        String returnSl_id = rs.getString(1);
-
-
+        String returnSl_id = executeQuery(SQL, invitelink);
         return returnSl_id;
     }
 
 
     /**
      * Fügt einen invite link zu den shoppinglisten hinzu
+     *
      * @param invitelink Der invite link der hinzugefügt werden soll
-     * @param uid Der user zu dem der invitelink hinzugefügt werden soll
+     * @param uid        Der user zu dem der invitelink hinzugefügt werden soll
      * @throws SQLException
      * @throws JSONException
      */
     public void addInviteLink(String invitelink, String uid) throws SQLException, JSONException {
         String sl_id = getSlIdFromInvite(invitelink);
-        if(!sl_id.equals("null")){
+        if (!sl_id.equals("null")) {
             sqlUpdate2Param("INSERT INTO \"Shoppinglist_member\" (username, sl_id) VALUES (?, ?)", uid, sl_id);
         }
     }
 
     /**
      * Erstellt einen neuen InviteLink
+     *
      * @param sl_id
      * @return Der neue InviteLink
      * @throws SQLException
      */
-    public String createInviteLink(String sl_id) throws SQLException{
+    public String createInviteLink(String sl_id) throws SQLException {
         String invitelink = generateInviteLink();
         sqlUpdate2Param("UPDATE \"Shoppinglist\" SET invitelink = ? WHERE sl_id = ?", invitelink, sl_id);
         return invitelink;
@@ -134,32 +190,24 @@ public class Database {
 
     /**
      * Wenn die Shoppingliste bereits geshared ist wird true zurückgegeben
+     *
      * @param sl_id Die Liste die geprüft werden soll
      * @return True wenn die liste bereits geshared ist
      * @throws SQLException
      * @throws JSONException
      */
     public boolean isShared(String sl_id) throws SQLException, JSONException {
-        connectDatabase();
-
         String SQL = "SELECT row_to_json(\"Shoppinglist\") AS obj FROM \"Shoppinglist\" WHERE sl_id = ?";
-
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        pstmt.setString(1, sl_id);
-        ResultSet rs = pstmt.executeQuery();
         boolean returnBoolean = false;
-        while(rs.next()){
-            JSONObject jsonObject = new JSONObject(rs.getString(1));
-
-            Log.d("isShared LOG ", jsonObject.getString("invitelink"));
-
-            if(jsonObject.getString("invitelink").equals("null")){
+        List<JSONObject> jsonObjects = executeQueryJSONObject(SQL, sl_id);
+        for(int i = 0; i < jsonObjects.size(); i++){
+            JSONObject jsonObject = jsonObjects.get(i);
+            if (jsonObject.getString("invitelink").equals("null")) {
                 returnBoolean = false;
-            }else{
+            } else {
                 returnBoolean = true;
             }
         }
-
         return returnBoolean;
     }
 
@@ -177,19 +225,13 @@ public class Database {
 
     /**
      * Gibt den Besitzer einer Shoppingliste zurück
+     *
      * @param sl_id Shoppingliste von der der Besitzer gefunden werden soll
      * @return Die uid des Besitzers
      */
     public String getShoppinglistOwner(String sl_id) throws SQLException {
-        connectDatabase();
-
         String SQL = "Select username from \"Shoppinglist_admin\" WHERE sl_id = ?";
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        pstmt.setString(1, sl_id);
-        ResultSet rs = pstmt.executeQuery();
-
-        String owner = rs.getString(1);
-
+        String owner = executeQuery(SQL, sl_id);
         return owner;
     }
 
@@ -297,16 +339,7 @@ public class Database {
      */
     public Item getItem(String item_id) throws SQLException, JSONException {
         String SQL = "SELECT row_to_json(\"Item\") AS obj FROM \"Item\" JOIN \"Group\" USING (group_id) WHERE item_id = ?";
-
-        connectDatabase();
-
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        pstmt.setString(1, item_id);
-        ResultSet rs = pstmt.executeQuery();
-        rs.next();
-        String resultString = rs.getString(1);
-        JSONObject jsonObject = new JSONObject(resultString);
-
+        JSONObject jsonObject = new JSONObject(executeQuery(SQL, item_id));
         return new Item(generateItemId(), jsonObject.getString("group_id"), jsonObject.getString("sl_id"), jsonObject.getString("name"), jsonObject.getString("count"));
     }
 
@@ -320,17 +353,7 @@ public class Database {
      */
     public Group getGroup(String group_id, String sl_id) throws SQLException, JSONException {
         String SQL = "SELECT row_to_json(\"Group\") AS obj FROM \"Group\" WHERE group_id = ? AND sl_id = ?";
-        connectDatabase();
-
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        System.out.println(sl_id);
-        pstmt.setString(1, group_id);
-        pstmt.setString(2, sl_id);
-        ResultSet rs = pstmt.executeQuery();
-        rs.next();
-        String resultString = rs.getString(1);
-        JSONObject jsonObject = new JSONObject(resultString);
-
+        JSONObject jsonObject = new JSONObject(executeQuery2Param(SQL, group_id, sl_id));
         return new Group(jsonObject.getString("group_id"), jsonObject.getString("sl_id"), jsonObject.getString("name"), jsonObject.getString("color"), jsonObject.getString("hidden"));
     }
 
@@ -357,8 +380,8 @@ public class Database {
      * @param color       Farbe der Shoppingliste
      * @throws SQLException
      */
-    public void addShoppinglist(String name, String description, String username, String color) throws SQLException {
-        String sl_id = generateSL_Id();
+    public void addShoppinglist(String name, String description, String username, String color) throws SQLException, JSONException {
+        String sl_id = generateSL_Id(sl_idLength);
         if (!checkIfUserExists(username)) {
             createUser(username);
         }
@@ -376,11 +399,7 @@ public class Database {
      */
     private void createAdmin(String sl_id, String username) throws SQLException {
         String SQL = "INSERT INTO \"Shoppinglist_admin\" (username, sl_id) VALUES (?, ?)";
-        connectDatabase();
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        pstmt.setString(1, username);
-        pstmt.setString(2, sl_id);
-        pstmt.executeUpdate();
+        sqlUpdate2Param(SQL, username, sl_id);
     }
 
     /**
@@ -394,13 +413,7 @@ public class Database {
      */
     private void createShoppinglist(String sl_id, String name, String description, String color) throws SQLException {
         String SQL = "INSERT INTO \"Shoppinglist\" (sl_id, name, description, color) VALUES (?, ?, ?, ?)";
-        connectDatabase();
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        pstmt.setString(1, sl_id);
-        pstmt.setString(2, name);
-        pstmt.setString(3, description);
-        pstmt.setString(4, color);
-        pstmt.executeUpdate();
+        sqlUpdate4Param(SQL, sl_id, name, description, color);
     }
 
     /**
@@ -411,11 +424,7 @@ public class Database {
      */
     private void createUser(String username) throws SQLException {
         String SQL = "INSERT INTO \"User\" (username) VALUES (?)";
-        connectDatabase();
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        pstmt.setString(1, username);
-        pstmt.executeUpdate();
-
+        sqlUpdate(SQL, username);
     }
 
     /**
@@ -425,14 +434,14 @@ public class Database {
      * @return True wenn User existiert, False wenn nicht
      * @throws SQLException
      */
-    private boolean checkIfUserExists(String username) throws SQLException {
+    private boolean checkIfUserExists(String username) throws SQLException, JSONException {
         String SQL = "SELECT username FROM \"User\"";
-        connectDatabase();
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        ResultSet rs = pstmt.executeQuery();
+
         ArrayList<String> outUserList = new ArrayList<String>();
-        while (rs.next()) {
-            outUserList.add(rs.getString(1));
+        List<JSONObject> jsonObjects = executeQueryJSONObject(SQL, username);
+        for (int i = 0; i < jsonObjects.size(); i++) {
+            JSONObject jsonObject = jsonObjects.get(i);
+            outUserList.add(jsonObject.getString("username"));
         }
 
         if (outUserList.contains(username)) {
@@ -440,8 +449,6 @@ public class Database {
         } else {
             return false;
         }
-
-
     }
 
     /**
@@ -454,64 +461,36 @@ public class Database {
      * @throws SQLException  Ein PostgreSQL Fehler
      */
     public List<Shoppinglist> getMyShoppinglists(String uid) throws JSONException, SQLException {
-        String SQL = "SELECT row_to_json(\"Shoppinglist\") AS obj FROM \"Shoppinglist\" JOIN \"Shoppinglist_admin\" USING (sl_id) WHERE username = ?";
-
-        connectDatabase();
+        final String SQL = "SELECT row_to_json(\"Shoppinglist\") AS obj FROM \"Shoppinglist\" JOIN \"Shoppinglist_admin\" USING (sl_id) WHERE username = ?";
 
         ArrayList<Shoppinglist> shoppinglistsList = new ArrayList<Shoppinglist>();
-
-        ResultSet rs = null;
-        try (PreparedStatement pstmt = conect.prepareStatement(SQL)) {
-            pstmt.setString(1, uid);
-            rs = pstmt.executeQuery();
-            System.out.println(uid);
-
-
-            while (rs.next()) {
-                String shoppinglist = rs.getString(1);
-                JSONObject jsonObject = new JSONObject(shoppinglist);
-
-                shoppinglistsList.add(new Shoppinglist(jsonObject.getString("sl_id"), jsonObject.getString("name"), jsonObject.getString("description"), jsonObject.getString("invitelink"), jsonObject.getString("color")));
-            }
-
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+        List<JSONObject> jsonObjects = executeQueryJSONObject(SQL, uid);
+        for (int i = 0; i < jsonObjects.size(); i++) {
+            JSONObject jsonObject = jsonObjects.get(i);
+            shoppinglistsList.add(new Shoppinglist(jsonObject.getString("sl_id"), jsonObject.getString("name"), jsonObject.getString("description"), jsonObject.getString("invitelink"), jsonObject.getString("color")));
         }
-
-
-        Log.d("DATABASE SHOPPINGLISTS", shoppinglistsList.toString());
-
-        return (List<Shoppinglist>) shoppinglistsList;
-
+        return shoppinglistsList;
     }
 
     /**
      * Verbindet sich mit dem server
      * Holt alle shared shoppinglists des users
+     *
      * @param uid User von dem die Shared Shoppinglists geholt werden sollen
      * @return Die Shared Shoppinglisten des Users
      * @throws SQLException
      * @throws JSONException
      */
     public List<Shoppinglist> getSharedShoppinglists(String uid) throws SQLException, JSONException {
-        connectDatabase();
-        String SQL = "SELECT row_to_json(\"Shoppinglist\") AS obj FROM \"Shoppinglist\" JOIN \"Shoppinglist_member\" USING (sl_id) WHERE username = ?";
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        pstmt.setString(1, uid);
-        ResultSet rs = pstmt.executeQuery();
-        System.out.println(uid);
+        final String SQL = "SELECT row_to_json(\"Shoppinglist\") AS obj FROM \"Shoppinglist\" JOIN \"Shoppinglist_member\" USING (sl_id) WHERE username = ?";
 
         ArrayList<Shoppinglist> shoppinglistArrayList = new ArrayList<Shoppinglist>();
-
-        while(rs.next()){
-            String shoppinglist = rs.getString(1);
-            JSONObject jsonObject = new JSONObject(shoppinglist);
-
+        List<JSONObject> jsonObjects = executeQueryJSONObject(SQL, uid);
+        for (int i = 0; i < jsonObjects.size(); i++) {
+            JSONObject jsonObject = jsonObjects.get(i);
             shoppinglistArrayList.add(new Shoppinglist(jsonObject.getString("sl_id"), jsonObject.getString("name"), jsonObject.getString("description"), jsonObject.getString("invitelink"), jsonObject.getString("color")));
         }
-
-
-        return (List<Shoppinglist>) shoppinglistArrayList;
+        return shoppinglistArrayList;
     }
 
 
@@ -540,7 +519,7 @@ public class Database {
             detailsArrayList.add(detailsTmp);
         }
 
-        return (List<Details>) detailsArrayList;
+        return detailsArrayList;
 
 
     }
@@ -573,11 +552,11 @@ public class Database {
      *
      * @return Neue Sl_id
      */
-    private String generateSL_Id() {
+    private String generateSL_Id(int length) {
         String possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         String output = "";
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < length; i++) {
             output += possible.charAt((int) Math.floor(Math.random() * possible.length()));
         }
 
@@ -592,7 +571,7 @@ public class Database {
      * @return Neue group_id
      */
     private String generateGroupId() {
-        return generateSL_Id();
+        return generateSL_Id(groupIdLength);
     }
 
     /**
@@ -601,7 +580,7 @@ public class Database {
      * @return Neue item_id
      */
     public String generateItemId() {
-        return generateSL_Id();
+        return generateSL_Id(itemIdLength);
     }
 
     /**
@@ -610,9 +589,32 @@ public class Database {
      * @return Neue intielink
      */
     public String generateInviteLink() {
-        return generateSL_Id();
+        return generateSL_Id(inviteLength);
     }
 
+
+    /**
+     * Holt alle erledigten Items eines Users
+     *
+     * @return Die erledigten Items in eines Users
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public List<Item> getDoneItems() throws SQLException, JSONException {
+        final String SQL = "SELECT row_to_json(\"Done_Purchase\") AS obj FROM \"Done_Purchase\" WHERE username = ?";
+        final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        ArrayList<Item> listItems = new ArrayList<Item>();
+        List<JSONObject> jsonObjects = executeQueryJSONObject(SQL, uid);
+        for (int i = 0; i < jsonObjects.size(); i++) {
+            JSONObject jsonObject = jsonObjects.get(i);
+            String itemId = jsonObject.getString("purchased_item_id");
+            String name = jsonObject.getString("name");
+            String count = jsonObject.getInt("count") + "";
+            listItems.add(new Item(itemId, null, null, name, count));
+        }
+        return listItems;
+    }
 
     /**
      * Holt alle Items einer bestimmten shoppingliste, angegeben durch die shoppinglist id
@@ -624,26 +626,15 @@ public class Database {
      */
     public List<Item> getItems(String sl_id) throws SQLException, JSONException {
         String SQL = "SELECT row_to_json(\"Item\") AS obj FROM \"Item\" JOIN \"Group\" USING (group_id) WHERE \"Group\".sl_id = ?";
-        connectDatabase();
 
         ArrayList<Item> listItems = new ArrayList<Item>();
-        ResultSet rsitems = null;
-        try (PreparedStatement pstmt = conect.prepareStatement(SQL)) {
-            pstmt.setString(1, sl_id);
-            rsitems = pstmt.executeQuery();
-            System.out.println(sl_id);
-            while (rsitems.next()) {
-                String itemsString = rsitems.getString(1);
-                JSONObject jsonObject = new JSONObject(itemsString);
-
-                listItems.add(new Item(jsonObject.getString("item_id"), jsonObject.getString("group_id"), jsonObject.getString("sl_id"), jsonObject.getString("name"), jsonObject.getString("count")));
-            }
-
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+        List<JSONObject> jsonObjects = executeQueryJSONObject(SQL, sl_id);
+        for (int i = 0; i < jsonObjects.size(); i++) {
+            JSONObject jsonObject = jsonObjects.get(i);
+            listItems.add(new Item(jsonObject.getString("item_id"), jsonObject.getString("group_id"), jsonObject.getString("sl_id"), jsonObject.getString("name"), jsonObject.getString("count")));
         }
 
-        return (List<Item>) listItems;
+        return listItems;
 
     }
 
@@ -657,32 +648,114 @@ public class Database {
      */
     private List<Group> getGroups(String sl_id) throws SQLException, JSONException {
         String SQLGroups = "SELECT row_to_json(\"Group\") AS obj FROM \"Group\" JOIN \"Shoppinglist\" USING (sl_id) WHERE sl_id = ?";
-        connectDatabase();
 
-        ResultSet rsgroups = null;
+        List<JSONObject> jsonObjects = executeQueryJSONObject(SQLGroups, sl_id);
         ArrayList<Group> listGroup = new ArrayList<Group>();
-        try (PreparedStatement pstmt = conect.prepareStatement(SQLGroups)) {
-            pstmt.setString(1, sl_id);
-            rsgroups = pstmt.executeQuery();
-            System.out.println(sl_id);
-            while (rsgroups.next()) {
-                String groupString = rsgroups.getString(1);
-                JSONObject jsonObject = new JSONObject(groupString);
-
-
-                listGroup.add(new Group(jsonObject.getString("group_id"), jsonObject.getString("sl_id"), jsonObject.getString("name"), jsonObject.getString("color"), jsonObject.getString("hidden")));
-
-            }
-
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+        for (int i = 0; i < jsonObjects.size(); i++) {
+            JSONObject jsonObject = jsonObjects.get(i);
+            listGroup.add(new Group(jsonObject.getString("group_id"), jsonObject.getString("sl_id"), jsonObject.getString("name"), jsonObject.getString("color"), jsonObject.getString("hidden")));
         }
-
-        return (List<Group>) listGroup;
-
-
+        return listGroup;
     }
 
+    /**
+     * Hollt eine Shoppingliste vom server
+     *
+     * @param sl_id Shoppingliste welche heruntergelanden werden soll
+     * @return Ein Shoppinglist Objekt
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public Shoppinglist getShoppinglist(String sl_id) throws SQLException, JSONException {
+        String SQL = "SELECT row_to_json(\"Shoppinglist\") AS obj FROM \"Shoppinglist\" JOIN \"Shoppinglist_admin\" USING (sl_id) WHERE sl_id = ?";
+        JSONObject jsonObject = new JSONObject(executeQuery(SQL, sl_id));
+
+        return new Shoppinglist(sl_id, jsonObject.getString("name"), jsonObject.getString("description"), jsonObject.getString("invitelink"), jsonObject.getString("color"));
+    }
+
+    /**
+     * Führt ein SQL Befehl aus und gibt die antwort in ein JSONObject List
+     *
+     * @param SQL   Der SQL der auszuführen ist
+     * @param param 1. Param
+     * @param param 2. Param
+     * @return Das ergebnis als JSONObject
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public List<JSONObject> executeQueryJSONObject2Param(String SQL, String param, String param2) throws SQLException, JSONException {
+        ArrayList<JSONObject> jsonObjects = new ArrayList<JSONObject>();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        pstmt.setString(2, param2);
+        ResultSet rsgroups = pstmt.executeQuery();
+        System.out.println(param);
+        while (rsgroups.next()) {
+            String groupString = rsgroups.getString(1);
+            JSONObject jsonObject = new JSONObject(groupString);
+            jsonObjects.add(jsonObject);
+        }
+        return jsonObjects;
+    }
+
+    /**
+     * Führt ein SQL Befehl aus und gibt die antwort in ein JSONObject List
+     *
+     * @param SQL   Der SQL der auszuführen ist
+     * @param param 1. Param
+     * @return Das ergebnis als JSONObject
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public List<JSONObject> executeQueryJSONObject(String SQL, String param) throws SQLException, JSONException {
+        ArrayList<JSONObject> jsonObjects = new ArrayList<JSONObject>();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        ResultSet rsgroups = pstmt.executeQuery();
+        System.out.println(param);
+        while (rsgroups.next()) {
+            String groupString = rsgroups.getString(1);
+            JSONObject jsonObject = new JSONObject(groupString);
+            jsonObjects.add(jsonObject);
+        }
+        return jsonObjects;
+    }
+
+    /**
+     * Führt ein SQL mit einem Parameter aus und liefert den ersten String
+     *
+     * @param SQL   SQL Befehl
+     * @param param 1. Param
+     * @param param 2. Param
+     * @return Erster result String
+     * @throws SQLException
+     */
+    private String executeQuery2Param(String SQL, String param, String param2) throws SQLException {
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        pstmt.setString(2, param2);
+        ResultSet rs = pstmt.executeQuery();
+
+        rs.next();
+        return rs.getString(1);
+    }
+
+    /**
+     * Führt ein SQL mit einem Parameter aus und liefert den ersten String
+     *
+     * @param SQL   SQL Befehl
+     * @param param 1. Param
+     * @return Erster result String
+     * @throws SQLException
+     */
+    private String executeQuery(String SQL, String param) throws SQLException {
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        ResultSet rs = pstmt.executeQuery();
+
+        rs.next();
+        return rs.getString(1);
+    }
 
     /**
      * Bearbeitet die Eigenschaften einer Shoppingliste
@@ -721,7 +794,7 @@ public class Database {
      * @throws SQLException
      */
     private void sqlUpdate4ParamFirstInt(String SQL, int param, String param2, String param3, String param4) throws SQLException {
-        connectDatabase();
+        //connectDatabase();
         PreparedStatement pstmt = conect.prepareStatement(SQL);
         pstmt.setInt(1, param);
         pstmt.setString(2, param2);
@@ -738,11 +811,33 @@ public class Database {
      * @param param2 ein 2. Parameter
      * @param param3 ein 3. parameter
      * @param param4 ein 4. Parameter
+     * @param param5 Ein datum des Typen java.sql.Date
+     * @throws SQLException
+     */
+    private void sqlUpdate5ParamLastIsDateAndInt(String SQL, String param, String param2, String param3, int param4, java.sql.Date param5) throws SQLException {
+        //connectDatabase();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        pstmt.setString(2, param2);
+        pstmt.setString(3, param3);
+        pstmt.setInt(4, param4);
+        pstmt.setDate(5, param5);
+        pstmt.executeUpdate();
+    }
+
+    /**
+     * Führt einen SQL Befehl durch der keine rückgabe hat.
+     *
+     * @param SQL    Der SQL befehl
+     * @param param  ein Parameter
+     * @param param2 ein 2. Parameter
+     * @param param3 ein 3. parameter
+     * @param param4 ein 4. Parameter
      * @param param5 ein 5. Parameter
      * @throws SQLException
      */
     private void sqlUpdate5Param(String SQL, String param, String param2, String param3, String param4, int param5) throws SQLException {
-        connectDatabase();
+        //connectDatabase();
         PreparedStatement pstmt = conect.prepareStatement(SQL);
         pstmt.setString(1, param);
         pstmt.setString(2, param2);
@@ -763,7 +858,7 @@ public class Database {
      * @throws SQLException
      */
     private void sqlUpdate4Param(String SQL, String param, String param2, String param3, String param4) throws SQLException {
-        connectDatabase();
+        //connectDatabase();
         PreparedStatement pstmt = conect.prepareStatement(SQL);
         pstmt.setString(1, param);
         pstmt.setString(2, param2);
@@ -782,7 +877,7 @@ public class Database {
      * @throws SQLException
      */
     private void sqlUpdate3Param(String SQL, String param, String param2, String param3) throws SQLException {
-        connectDatabase();
+        //connectDatabase();
         PreparedStatement pstmt = conect.prepareStatement(SQL);
         pstmt.setString(1, param);
         pstmt.setString(2, param2);
@@ -801,7 +896,7 @@ public class Database {
      * @throws SQLException
      */
     private void sqlUpdate2Param(String SQL, String param, String param2) throws SQLException {
-        connectDatabase();
+        //connectDatabase();
         PreparedStatement pstmt = conect.prepareStatement(SQL);
         pstmt.setString(1, param);
         pstmt.setString(2, param2);
@@ -816,60 +911,10 @@ public class Database {
      * @throws SQLException
      */
     private void sqlUpdate(String SQL, String param) throws SQLException {
-        connectDatabase();
+        //connectDatabase();
         PreparedStatement pstmt = conect.prepareStatement(SQL);
         pstmt.setString(1, param);
         pstmt.executeUpdate();
     }
 
-    /**
-     * Hollt eine Shoppingliste vom server
-     *
-     * @param sl_id Shoppingliste welche heruntergelanden werden soll
-     * @return Ein Shoppinglist Objekt
-     * @throws SQLException
-     * @throws JSONException
-     */
-    public Shoppinglist getShoppinglist(String sl_id) throws SQLException, JSONException {
-        String SQL = "SELECT row_to_json(\"Shoppinglist\") AS obj FROM \"Shoppinglist\" JOIN \"Shoppinglist_admin\" USING (sl_id) WHERE sl_id = ?";
-        connectDatabase();
-
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        System.out.println(sl_id);
-        pstmt.setString(1, sl_id);
-        ResultSet rs = pstmt.executeQuery();
-        rs.next();
-        String resultString = rs.getString(1);
-        JSONObject jsonObject = new JSONObject(resultString);
-
-        return new Shoppinglist(sl_id, jsonObject.getString("name"), jsonObject.getString("description"), jsonObject.getString("invitelink"), jsonObject.getString("color"));
-    }
-
-
-    /**
-     * NICHT VERWENDEN FUNKTIONIERT NICHT!!
-     * <p>
-     * <p>
-     * NUR EIN KOPIE SAMPLE
-     * <p>
-     * Beim Start wird die Verbindung zum Server hergesetellt. Dann wird das resultSet von dem SQL reqest zurückgegeben
-     *
-     * @param SQL Der zumachende SQL Request
-     * @param uid Die UID des Benutzers, für den die Abfrage gemacht wird
-     * @return Das entstandene Result set, mit der Antwort des Servers
-     */
-    private ResultSet databaseRequest(String SQL, String uid) throws SQLException {
-        connectDatabase();
-
-        PreparedStatement pstmt = conect.prepareStatement(SQL);
-        pstmt.setString(1, uid);
-        ResultSet rs = pstmt.executeQuery();
-        System.out.println(uid);
-
-        //HIER
-        //WEITER
-        //PROGRAMMIEREN
-
-        return rs;
-    }
 }

@@ -16,7 +16,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.activitys.ItemListActivity;
-import at.smartshopper.smartshopper.activitys.ShoppinglistDetails;
+import at.smartshopper.smartshopper.customViews.SpaceItemDecoration;
 import at.smartshopper.smartshopper.db.Database;
 import at.smartshopper.smartshopper.shoppinglist.details.item.ItemShoppinglistDetailsAdapter;
 
@@ -26,9 +26,11 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
     private OnGroupEditClicked onGroupEditClicked;
     private OnGroupDeleteClicked onGroupDeleteClicked;
     private OnCardClicked onCardClicked;
+    private Database db;
 
-    public DetailsAdapter(List<Details> details) {
+    public DetailsAdapter(List<Details> details, Database db) {
         this.details = details;
+        this.db = db;
     }
 
     /**
@@ -62,6 +64,9 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
         View groupColor = viewHolder.grouoColor;
         ImageButton editGroup = viewHolder.editGroup;
 
+        int spacingInPixels = viewHolder.itemView.getContext().getResources().getDimensionPixelSize(R.dimen.item_spacing);
+        itemsrecycle.addItemDecoration(new SpaceItemDecoration(spacingInPixels));
+
         itemsrecycle.setHasFixedSize(true);
         itemsrecycle.setLayoutManager(new LinearLayoutManager(new Activity()));
         List<at.smartshopper.smartshopper.shoppinglist.details.item.Item> itemsList = details.get(i).getItems();
@@ -70,7 +75,7 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
         itemsrecycle.setAdapter(itemAdapter);
 
 
-        final Database db = new Database();
+
 
 
         int cardcolor;

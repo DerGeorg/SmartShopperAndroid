@@ -27,18 +27,20 @@ import java.sql.SQLException;
 import java.util.List;
 
 import at.smartshopper.smartshopper.R;
+import at.smartshopper.smartshopper.customViews.SpaceItemDecoration;
 import at.smartshopper.smartshopper.db.Database;
 import at.smartshopper.smartshopper.shoppinglist.details.item.Item;
 import at.smartshopper.smartshopper.shoppinglist.details.item.ItemAdapter;
 
-public class ItemListActivity extends Activity implements ItemAdapter.OnItemEditClicked, ItemAdapter.OnItemDelClicked {
+public class ItemListActivity extends Activity implements ItemAdapter.OnItemEditClicked, ItemAdapter.OnItemDelClicked, ItemAdapter.OnItemCheckClicked {
     private String group_id, groupNameString;
     private String sl_id;
     private PopupWindow popupWindowItem;
     private FloatingActionButton fabAddItem;
     private TextView groupName;
     private String colorString;
-    private Database db = new Database();
+    private Database db;
+
     private View colorView;
     private SwipeRefreshLayout swipeRefreshLayoutItem;
 
@@ -52,6 +54,7 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
         this.group_id = myIntent.getStringExtra("group_id"); // will return "FirstKeyValue"
         this.sl_id = myIntent.getStringExtra("sl_id"); // will return "SecondKeyValue"
         this.groupNameString = myIntent.getStringExtra("groupNameString"); // will return "SecondKeyValue"
+        this.db = new Database();
 
         this.groupName = (TextView)findViewById(R.id.groupViewName);
         this.groupName.setText(groupNameString);
@@ -110,14 +113,16 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
 
     private void showItems(String group_id, String sl_id) throws SQLException, JSONException {
         RecyclerView itemsListRecycler = findViewById(R.id.itemsListRecycler);
+        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
+        itemsListRecycler.addItemDecoration(new SpaceItemDecoration(spacingInPixels));
         itemsListRecycler.setHasFixedSize(true);
         itemsListRecycler.setLayoutManager(new LinearLayoutManager(this));
-        List<Item> itemList = new Database().getItemsOfGroup(group_id, sl_id);
-
+        List<Item> itemList = db.getItemsOfGroup(group_id, sl_id);
 
         ItemAdapter itemAdapter = new ItemAdapter(itemList);
         itemAdapter.setOnItemEditClick(this);
         itemAdapter.setItemDelClick(this);
+        itemAdapter.setOnItemCheckClick(this);
 
         itemsListRecycler.setAdapter(itemAdapter);
     }
@@ -229,9 +234,24 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
         popupWindowItem.setOutsideTouchable(false);
         popupWindowItem.setFocusable(true);
 
+        popupWindowItem.setAnimationStyle(R.style.popup_window_animation_phone);
+
 
         popupWindowItem.showAtLocation(v, Gravity.CENTER, 0, 0);
         popupWindowItem.update();
     }
 
+    @Override
+    public void onItemCheckClicked(String uid, String name, String itemId, String groupId, String sl_id, int count) {
+        try {
+            swipeRefreshLayoutItem.setRefreshing(true);
+            db.setDoneItem(uid, name, itemId, groupId, sl_id, count);
+            showItems(group_id, sl_id);
+            swipeRefreshLayoutItem.setRefreshing(false);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }
