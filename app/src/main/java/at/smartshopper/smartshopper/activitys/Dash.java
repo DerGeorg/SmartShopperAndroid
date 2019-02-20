@@ -47,6 +47,7 @@ import java.util.List;
 
 import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.db.Database;
+import at.smartshopper.smartshopper.messaging.MyFirebaseSender;
 import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
 import at.smartshopper.smartshopper.shoppinglist.ShoppinglistAdapter;
 import at.smartshopper.smartshopper.shoppinglist.ShoppinglistSharedAdapter;
@@ -783,6 +784,13 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
     @Override
     public void sharedOnChangeItemClick(String sl_id, View v) {
         onChangeItemClickContainer(sl_id, v);
+        try {
+            new MyFirebaseSender(db.getMembers(sl_id)).sendMessage("Eine ihrer Shoppinglisten wurde geändert", "MY_ACTION");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
