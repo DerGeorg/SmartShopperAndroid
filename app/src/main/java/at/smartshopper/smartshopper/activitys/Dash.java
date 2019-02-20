@@ -834,8 +834,11 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             @Override
             public void onClick(View v) {
                 try {
+                    ownswiperefresh.setRefreshing(true);
                     db.stopInvite(linkAusgabe.getText().toString(), FirebaseAuth.getInstance().getCurrentUser().getUid());
                     popupEditShare.dismiss();
+                    showSharedShoppingList(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    ownswiperefresh.setRefreshing(false);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
