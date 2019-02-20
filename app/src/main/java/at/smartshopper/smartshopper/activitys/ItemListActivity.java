@@ -9,6 +9,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -178,7 +180,7 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
         ImageButton close = (ImageButton) customView.findViewById(R.id.itemClose);
         final EditText name = (EditText) customView.findViewById(R.id.itemName);
         final EditText count = (EditText) customView.findViewById(R.id.itemAnzahl);
-        Button finish = (Button) customView.findViewById(R.id.itemFinish);
+        final Button finish = (Button) customView.findViewById(R.id.itemFinish);
 
 
         Picasso.get().load(R.drawable.close).into(close);
@@ -192,6 +194,34 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
         } else {
             colorString = "ffffff";
         }
+
+        if(!name.getText().toString().isEmpty()){
+            finish.setEnabled(true);
+        }else{
+            finish.setEnabled(false);
+        }
+        TextWatcher tw = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!name.getText().toString().isEmpty() && !count.getText().toString().isEmpty()){
+                    finish.setEnabled(true);
+                }else{
+                    finish.setEnabled(false);
+                }
+            }
+        };
+        count.addTextChangedListener(tw);
+        name.addTextChangedListener(tw);
 
         finish.setOnClickListener(new View.OnClickListener() {
             @Override

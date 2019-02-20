@@ -17,6 +17,8 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -250,11 +252,37 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
         ImageButton addClose = (ImageButton) customView.findViewById(R.id.addClose);
         colorBtn = (Button) customView.findViewById(R.id.addColor);
-        Button addFertig = (Button) customView.findViewById(R.id.addFertig);
+        final Button addFertig = (Button) customView.findViewById(R.id.addFertig);
         final EditText name = (EditText) customView.findViewById(R.id.addName);
         final EditText description = (EditText) customView.findViewById(R.id.addDescription);
 
         Picasso.get().load(R.drawable.close).into(addClose);
+
+        if(!name.getText().toString().isEmpty()){
+            addFertig.setEnabled(true);
+        }else{
+            addFertig.setEnabled(false);
+        }
+        name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!name.getText().toString().isEmpty()){
+                    addFertig.setEnabled(true);
+                }else{
+                    addFertig.setEnabled(false);
+                }
+            }
+        });
 
         if (fromDB) {
             Shoppinglist dbShoppinglist = db.getShoppinglist(sl_id);
@@ -498,8 +526,35 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                 popupAddShare.dismiss();
             }
         });
+        final Button finish = (Button) popupContentView.findViewById(R.id.shareAddFinish);
 
-        Button finish = (Button) popupContentView.findViewById(R.id.shareAddFinish);
+        if(!linkEingabe.getText().toString().isEmpty()){
+            finish.setEnabled(true);
+        }else{
+            finish.setEnabled(false);
+        }
+        linkEingabe.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!linkEingabe.getText().toString().isEmpty()){
+                    finish.setEnabled(true);
+                }else{
+                    finish.setEnabled(false);
+                }
+            }
+        });
+
+
         finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

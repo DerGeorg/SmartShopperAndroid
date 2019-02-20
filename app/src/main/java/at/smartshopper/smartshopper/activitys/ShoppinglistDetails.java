@@ -9,6 +9,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -129,7 +131,7 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
         ImageButton close = (ImageButton) customView.findViewById(R.id.groupClose);
         final EditText name = (EditText) customView.findViewById(R.id.groupName);
         Button color = (Button) customView.findViewById(R.id.groupColor);
-        Button finish = (Button) customView.findViewById(R.id.groupFinish);
+        final Button finish = (Button) customView.findViewById(R.id.groupFinish);
 
         this.colorBtn = color;
 
@@ -148,6 +150,32 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
         } else {
             colorString = "ffffff";
         }
+
+        if(!name.getText().toString().isEmpty()){
+            finish.setEnabled(true);
+        }else{
+            finish.setEnabled(false);
+        }
+        name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!name.getText().toString().isEmpty()){
+                    finish.setEnabled(true);
+                }else{
+                    finish.setEnabled(false);
+                }
+            }
+        });
 
         finish.setOnClickListener(new View.OnClickListener() {
             @Override
