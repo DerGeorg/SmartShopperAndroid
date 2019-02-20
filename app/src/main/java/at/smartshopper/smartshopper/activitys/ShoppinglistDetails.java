@@ -256,6 +256,12 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
     private void showDetails(String sl_id) throws SQLException, JSONException {
         RecyclerView detailsRecycleView = (RecyclerView) findViewById(R.id.groupRecycle);
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
+        RecyclerView.ItemDecoration itemDecoration;
+
+        while (detailsRecycleView.getItemDecorationCount() > 0
+                &&(itemDecoration = detailsRecycleView.getItemDecorationAt(0)) != null) {
+            detailsRecycleView.removeItemDecoration(itemDecoration);
+        }
         detailsRecycleView.addItemDecoration(new SpaceItemDecoration(spacingInPixels));
         detailsRecycleView.setHasFixedSize(true);
         detailsRecycleView.setLayoutManager(new LinearLayoutManager(this));

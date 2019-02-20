@@ -114,6 +114,12 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
     private void showItems(String group_id, String sl_id) throws SQLException, JSONException {
         RecyclerView itemsListRecycler = findViewById(R.id.itemsListRecycler);
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
+        RecyclerView.ItemDecoration itemDecoration;
+
+        while (itemsListRecycler.getItemDecorationCount() > 0
+                &&(itemDecoration = itemsListRecycler.getItemDecorationAt(0)) != null) {
+            itemsListRecycler.removeItemDecoration(itemDecoration);
+        }
         itemsListRecycler.addItemDecoration(new SpaceItemDecoration(spacingInPixels));
         itemsListRecycler.setHasFixedSize(true);
         itemsListRecycler.setLayoutManager(new LinearLayoutManager(this));

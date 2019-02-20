@@ -65,6 +65,12 @@ public class DoneItemActivity extends AppCompatActivity {
         RecyclerView doneRecycle = (RecyclerView) findViewById(R.id.doneitemsrecycle);
         doneRecycle.setHasFixedSize(true);
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.item_spacing);
+        RecyclerView.ItemDecoration itemDecoration;
+
+        while (doneRecycle.getItemDecorationCount() > 0
+                &&(itemDecoration = doneRecycle.getItemDecorationAt(0)) != null) {
+            doneRecycle.removeItemDecoration(itemDecoration);
+        }
         doneRecycle.addItemDecoration(new SpaceItemDecoration(spacingInPixels));
         doneRecycle.setLayoutManager(new LinearLayoutManager(this));
         List<Item> doneItems = db.getDoneItems();

@@ -468,11 +468,11 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
             case R.id.addInvite:
                 popupaddInvite();
-
+                return true;
             case R.id.doneEinkauf:
                 Intent intent = new Intent(Dash.this, DoneItemActivity.class);
                 startActivity(intent);
-
+                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
