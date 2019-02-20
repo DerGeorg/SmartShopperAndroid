@@ -35,7 +35,7 @@ public class Database {
     final private String USERNAME = "smartshopper-user";
     final private String PASSWORD = "jW^v#&LjNY_b3-k*jYj!U4Xz?T??m_D6249XAeWZ#7C^FRbKm!c_Dt+qj@4&a-Hs";
     final private int PORT = 5432;
-    final private int sl_idLength = 10;
+    final private int sl_idLength = 8;
     final private int groupIdLength = 10;
     final private int itemIdLength = 10;
     final private int inviteLength = 50;
