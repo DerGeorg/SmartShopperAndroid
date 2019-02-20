@@ -96,7 +96,7 @@ public class Database {
      * @throws JSONException
      */
     public Member getAdmin(String sl_id) throws SQLException, JSONException {
-        String SQL = "SELECT row_to_json(\"User\") as obj FROM \"User\" JOIN \"Shoppinglist_member\" USING (username) WHERE sl_id = ?";
+        String SQL = "SELECT row_to_json(\"User\") as obj FROM \"User\" JOIN \"Shoppinglist_admin\" USING (username) WHERE sl_id = ?";
         JSONObject jsonObject = new JSONObject(executeQuery(SQL, sl_id));
         return new Member(jsonObject.getString("username"), jsonObject.getString("message_id"));
     }
@@ -296,7 +296,7 @@ public class Database {
      * @throws SQLException
      */
     public void addItem(String group_id, String sl_id, String name, int count) throws SQLException {
-        sqlUpdate5Param("INSERT INTO \"Item\" VALUES (?,?,?,?,?)", generateItemId(), group_id, sl_id, name, count);
+        sqlUpdate5ParamLastInt("INSERT INTO \"Item\" VALUES (?,?,?,?,?)", generateItemId(), group_id, sl_id, name, count);
     }
 
     /**
@@ -393,9 +393,6 @@ public class Database {
      */
     public void addShoppinglist(String name, String description, String username, String color) throws SQLException, JSONException {
         String sl_id = generateSL_Id(sl_idLength);
-        if (!checkIfUserExists(username)) {
-            createUser(username);
-        }
         createShoppinglist(sl_id, name, description, color);
         createAdmin(sl_id, username);
 
@@ -433,9 +430,9 @@ public class Database {
      * @param username Der Username des neuen Users
      * @throws SQLException
      */
-    private void createUser(String username) throws SQLException {
-        String SQL = "INSERT INTO \"User\" (username) VALUES (?)";
-        sqlUpdate(SQL, username);
+    public void createUser(String username, String message_id, String name, String picture, String email) throws SQLException {
+        String SQL = "INSERT INTO \"User\" (username, message_id, name, picture, email) VALUES (?, ?, ?, ?, ?)";
+        sqlUpdate5Param(SQL, username, message_id, name, picture, email);
     }
 
     /**
@@ -445,14 +442,18 @@ public class Database {
      * @return True wenn User existiert, False wenn nicht
      * @throws SQLException
      */
-    private boolean checkIfUserExists(String username) throws SQLException, JSONException {
+    public boolean checkIfUserExists(String username) {
         String SQL = "SELECT username FROM \"User\"";
 
-        ArrayList<String> outUserList = new ArrayList<String>();
-        List<JSONObject> jsonObjects = executeQueryJSONObject(SQL, username);
-        for (int i = 0; i < jsonObjects.size(); i++) {
-            JSONObject jsonObject = jsonObjects.get(i);
-            outUserList.add(jsonObject.getString("username"));
+        ArrayList<String> outUserList = null;
+        try {
+            outUserList = executeQueryString(SQL);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
         }
 
         if (outUserList.contains(username)) {
@@ -713,6 +714,26 @@ public class Database {
      * Führt ein SQL Befehl aus und gibt die antwort in ein JSONObject List
      *
      * @param SQL   Der SQL der auszuführen ist
+     * @return Das ergebnis als JSONObject
+     * @throws SQLException
+     * @throws JSONException
+     */
+
+    public ArrayList<String> executeQueryString(String SQL) throws SQLException, JSONException {
+        ArrayList<String> stringArrayList = new ArrayList<>();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        ResultSet rsgroups = pstmt.executeQuery();
+        while (rsgroups.next()) {
+            String groupString = rsgroups.getString(1);
+            stringArrayList.add(groupString);
+        }
+        return stringArrayList;
+    }
+
+    /**
+     * Führt ein SQL Befehl aus und gibt die antwort in ein JSONObject List
+     *
+     * @param SQL   Der SQL der auszuführen ist
      * @param param 1. Param
      * @return Das ergebnis als JSONObject
      * @throws SQLException
@@ -847,7 +868,7 @@ public class Database {
      * @param param5 ein 5. Parameter
      * @throws SQLException
      */
-    private void sqlUpdate5Param(String SQL, String param, String param2, String param3, String param4, int param5) throws SQLException {
+    private void sqlUpdate5ParamLastInt(String SQL, String param, String param2, String param3, String param4, int param5) throws SQLException {
         //connectDatabase();
         PreparedStatement pstmt = conect.prepareStatement(SQL);
         pstmt.setString(1, param);
@@ -855,6 +876,28 @@ public class Database {
         pstmt.setString(3, param3);
         pstmt.setString(4, param4);
         pstmt.setInt(5, param5);
+        pstmt.executeUpdate();
+    }
+
+    /**
+     * Führt einen SQL Befehl durch der keine rückgabe hat.
+     *
+     * @param SQL    Der SQL befehl
+     * @param param  ein Parameter
+     * @param param2 ein 2. Parameter
+     * @param param3 ein 3. parameter
+     * @param param4 ein 4. Parameter
+     * @param param5 ein 5. Parameter
+     * @throws SQLException
+     */
+    private void sqlUpdate5Param(String SQL, String param, String param2, String param3, String param4, String param5) throws SQLException {
+        //connectDatabase();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        pstmt.setString(2, param2);
+        pstmt.setString(3, param3);
+        pstmt.setString(4, param4);
+        pstmt.setString(5, param5);
         pstmt.executeUpdate();
     }
 

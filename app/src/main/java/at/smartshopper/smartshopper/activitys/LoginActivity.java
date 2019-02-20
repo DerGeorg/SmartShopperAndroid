@@ -25,14 +25,23 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import org.json.JSONException;
+
+import java.sql.SQLException;
 
 import at.smartshopper.smartshopper.R;
+import at.smartshopper.smartshopper.db.Database;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "SMASH";
     private static final int RC_SIGN_IN = 1;
     private FirebaseAuth mAuth;
+    private Database db;
 
     SignInButton button;
     GoogleSignInClient mGoogleSignInClient;
@@ -65,6 +74,34 @@ public class LoginActivity extends AppCompatActivity {
      * Wechselt zu der Dash Activity
      */
     private void goDash() {
+            if (!db.checkIfUserExists(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                FirebaseInstanceId.getInstance().getInstanceId()
+                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                                if (!task.isSuccessful()) {
+                                    Log.w(TAG, "getInstanceId failed", task.getException());
+                                    return;
+                                }
+
+                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                String uid = user.getUid();
+                                String name = user.getDisplayName();
+                                String email = user.getEmail();
+                                String picture = user.getPhotoUrl().toString();
+
+                                // Get new Instance ID token
+                                String token = task.getResult().getToken();
+                                try {
+                                    db.createUser(uid, token, name, email, picture);
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+            }
+
+
         Intent intent = new Intent(this, Dash.class);
         finish();
         startActivity(intent);
@@ -72,7 +109,8 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Loggt den User per Email ein
-     * @param email Email des Users
+     *
+     * @param email    Email des Users
      * @param password Passwort des Users
      */
     private void signInEmail(String email, String password) {
@@ -100,7 +138,8 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Erstellt einen Account mit Email und Passwort
-     * @param email Email des neuen Users
+     *
+     * @param email    Email des neuen Users
      * @param password Passwort des neuen Users
      */
     private void createAccount(String email, String password) {
@@ -129,17 +168,16 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        if (getIntent().getBooleanExtra("EXIT", false))
-        {
+        if (getIntent().getBooleanExtra("EXIT", false)) {
             finish();
         }
         mAuth = FirebaseAuth.getInstance();
+        db = new Database();
 
         Button loginEmailBtn = (Button) findViewById(R.id.loginEmailBtn);
         final TextView email = (TextView) findViewById(R.id.email);
         final TextView passwort = (TextView) findViewById(R.id.password);
         button = (SignInButton) findViewById(R.id.loginGoogleBtn);
-
 
 
         loginEmailBtn.setOnClickListener(new View.OnClickListener() {
@@ -171,6 +209,7 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Loggt den User ein. Bei erfolg wird der Aufruf zur Dash Activity getätigt
+     *
      * @param acct Der Google Account, welcher eingelogt werden soll
      */
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
@@ -207,7 +246,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
 
 
-        if(null != mAuth.getCurrentUser()){
+        if (null != mAuth.getCurrentUser()) {
             goDash();
         }
 
@@ -235,7 +274,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void run() {
-                doubleBackToExitPressedOnce=false;
+                doubleBackToExitPressedOnce = false;
             }
         }, 2000);
     }
