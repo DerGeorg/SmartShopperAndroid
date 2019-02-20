@@ -558,19 +558,9 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String eingabeLink = linkEingabe.getText().toString();
+                String invite = linkEingabe.getText().toString();
 
-                String delString = null;
-                if (eingabeLink.contains("https://")) {
-                    delString = "https://www.smartshopper.cf/invite/";
-                } else if (eingabeLink.contains("http://")) {
-                    delString = "http://www.smartshopper.cf/invite/";
-                } else if (eingabeLink.contains("www.smartshopper.cf/invite/")) {
-                    delString = "www.smartshopper.cf/invite/";
-                } else if (!eingabeLink.contains("www.smartshopper.cf/invite/")) {
-                    delString = "";
-                }
-                String invite = eingabeLink.replace(delString, "");
+
 
                 try {
                     db.addInviteLink(invite, FirebaseAuth.getInstance().getCurrentUser().getUid());

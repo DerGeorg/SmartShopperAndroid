@@ -142,6 +142,22 @@ public class Database {
         sqlUpdate2Param("DELETE FROM \"Shoppinglist_member\" WHERE sl_id = ? AND username = ?", sl_id, uid);
     }
 
+
+    private String getinviteFromLink(String eingabeLink){
+        String delString = null;
+        if (eingabeLink.contains("https://")) {
+            delString = "https://www.smartshopper.cf/invite/";
+        } else if (eingabeLink.contains("http://")) {
+            delString = "http://www.smartshopper.cf/invite/";
+        } else if (eingabeLink.contains("www.smartshopper.cf/invite/")) {
+            delString = "www.smartshopper.cf/invite/";
+        } else if (!eingabeLink.contains("www.smartshopper.cf/invite/")) {
+            delString = "";
+        }
+        String invite = eingabeLink.replace(delString, "");
+
+        return invite;
+    }
     /**
      * Gibt den Invite link einer Shoppingliste zurück, wenn keiner vorhanden ist --> null
      *
@@ -166,7 +182,7 @@ public class Database {
      */
     private String getSlIdFromInvite(String invitelink) throws SQLException, JSONException {
         String SQL = "Select sl_id from \"Shoppinglist\" WHERE invitelink = ?";
-        String returnSl_id = executeQuery(SQL, invitelink);
+        String returnSl_id = executeQuery(SQL, getinviteFromLink(invitelink));
         return returnSl_id;
     }
 
@@ -708,6 +724,24 @@ public class Database {
             jsonObjects.add(jsonObject);
         }
         return jsonObjects;
+    }
+
+    /**
+     * Führt ein SQL Befehl aus und gibt die antwort in ein JSONObject List
+     *
+     * @param SQL   Der SQL der auszuführen ist
+     * @return Das ergebnis als JSONObject
+     * @throws SQLException
+     * @throws JSONException
+     */
+
+    public String executeQueryString1Param(String SQL, String param) throws SQLException, JSONException {
+        ArrayList<String> stringArrayList = new ArrayList<>();
+        PreparedStatement pstmt = conect.prepareStatement(SQL);
+        pstmt.setString(1, param);
+        ResultSet rsgroups = pstmt.executeQuery();
+        String result = rsgroups.getString(1);
+        return result;
     }
 
     /**
