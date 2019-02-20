@@ -452,6 +452,17 @@ public class Database {
     }
 
     /**
+     * Erstellt einen neuen User, wenn keiner existiert
+     *
+     * @param username Der Username des neuen Users
+     * @throws SQLException
+     */
+    public void updateUser(String username, String message_id, String name, String picture, String email) throws SQLException {
+        String SQL = "Update \"User\" set message_id = ?, name = ?, picture = ?, email = ? WHERE username = ?";
+        sqlUpdate5Param(SQL, message_id, name, picture, email, username);
+    }
+
+    /**
      * Prüft ob ein User bereits in der DB vorhanden ist. Wenn ja dann wird true returned
      *
      * @param username Der username nach dem geprüft werden soll

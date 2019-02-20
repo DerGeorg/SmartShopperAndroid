@@ -74,32 +74,39 @@ public class LoginActivity extends AppCompatActivity {
      * Wechselt zu der Dash Activity
      */
     private void goDash() {
-            if (!db.checkIfUserExists(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                FirebaseInstanceId.getInstance().getInstanceId()
-                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                                if (!task.isSuccessful()) {
-                                    Log.w(TAG, "getInstanceId failed", task.getException());
-                                    return;
-                                }
 
-                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                                String uid = user.getUid();
-                                String name = user.getDisplayName();
-                                String email = user.getEmail();
-                                String picture = user.getPhotoUrl().toString();
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
 
-                                // Get new Instance ID token
-                                String token = task.getResult().getToken();
-                                try {
-                                    db.createUser(uid, token, name, email, picture);
-                                } catch (SQLException e) {
-                                    e.printStackTrace();
-                                }
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        String uid = user.getUid();
+                        String name = user.getDisplayName();
+                        String email = user.getEmail();
+                        String picture = user.getPhotoUrl().toString();
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+
+                        try {
+                            if (!db.checkIfUserExists(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+
+                                db.createUser(uid, token, name, picture, email);
+
+                            } else {
+                                db.updateUser(uid, token, name, picture, email);
                             }
-                        });
-            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
 
 
         Intent intent = new Intent(this, Dash.class);
