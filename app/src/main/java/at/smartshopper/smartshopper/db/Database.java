@@ -98,7 +98,7 @@ public class Database {
     public Member getAdmin(String sl_id) throws SQLException, JSONException {
         String SQL = "SELECT row_to_json(\"User\") as obj FROM \"User\" JOIN \"Shoppinglist_admin\" USING (username) WHERE sl_id = ?";
         JSONObject jsonObject = new JSONObject(executeQuery(SQL, sl_id));
-        return new Member(jsonObject.getString("username"), jsonObject.getString("message_id"));
+        return new Member(jsonObject.getString("username"), jsonObject.getString("message_id"), jsonObject.getString("name"), jsonObject.getString("picture"), jsonObject.getString("email"));
     }
 
     /**
@@ -113,7 +113,7 @@ public class Database {
         List<JSONObject> jsonObjects = executeQueryJSONObject(SQL, sl_id);
         for(int i = 0; i < jsonObjects.size(); i++){
             JSONObject jsonObject = jsonObjects.get(i);
-            members.add(new Member(jsonObject.getString("username"), jsonObject.getString("message_id")));
+            members.add(new Member(jsonObject.getString("username"), jsonObject.getString("message_id"), jsonObject.getString("name"), jsonObject.getString("picture"), jsonObject.getString("email")));
         }
         return members;
     }

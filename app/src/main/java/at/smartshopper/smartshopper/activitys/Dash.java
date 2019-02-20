@@ -748,7 +748,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
 
                     TabHost tabhost = (TabHost) findViewById(R.id.tabHost1);
-                    tabhost.setCurrentTab(1);
+                    tabhost.setCurrentTab(0);
                     sharedswiperefresh.setRefreshing(true);
 
                     showSharedShoppingList(FirebaseAuth.getInstance().getCurrentUser().getUid());
