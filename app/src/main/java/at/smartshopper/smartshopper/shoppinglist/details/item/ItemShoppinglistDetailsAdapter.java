@@ -6,19 +6,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
 import java.sql.SQLException;
 import java.util.List;
-
 
 import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.db.Database;
@@ -78,11 +71,6 @@ public class ItemShoppinglistDetailsAdapter extends RecyclerView.Adapter<ItemSho
         itemAnzahl.setText(data.get(i).getCount());
     }
 
-
-    public interface OnItemEditClicked {
-        void onItemEditClicked(String item_id, String group_id, String sl_id, String groupName, View v);
-    }
-
     public void setOnItemEditClick(OnItemEditClicked onItemEditClick) {
         this.onItemEditClick = onItemEditClick;
     }
@@ -90,6 +78,10 @@ public class ItemShoppinglistDetailsAdapter extends RecyclerView.Adapter<ItemSho
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    public interface OnItemEditClicked {
+        void onItemEditClicked(String item_id, String group_id, String sl_id, String groupName, View v);
     }
 
     /**

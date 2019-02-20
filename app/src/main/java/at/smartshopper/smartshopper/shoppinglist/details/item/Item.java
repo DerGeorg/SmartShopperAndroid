@@ -8,7 +8,7 @@ public class Item {
     private String name;
     private String count;
 
-    public Item(String item_id, String group_id, String sl_id, String name, String count){
+    public Item(String item_id, String group_id, String sl_id, String name, String count) {
         this.item_id = item_id;
         this.group_id = group_id;
         this.sl_id = sl_id;

@@ -1,24 +1,18 @@
 package at.smartshopper.smartshopper.db;
 
 import android.os.StrictMode;
-import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.gson.JsonSerializer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import at.smartshopper.smartshopper.shoppinglist.Member;
@@ -29,7 +23,6 @@ import at.smartshopper.smartshopper.shoppinglist.details.item.Item;
 
 public class Database {
 
-    private transient Connection conect;
     final private String HOST = "188.166.124.80";
     final private String DB_NAME = "smartshopperdb";
     final private String USERNAME = "smartshopper-user";
@@ -39,6 +32,7 @@ public class Database {
     final private int groupIdLength = 10;
     final private int itemIdLength = 10;
     final private int inviteLength = 50;
+    private transient Connection conect;
 
 
     /**
@@ -111,7 +105,7 @@ public class Database {
         String SQL = "SELECT row_to_json(\"User\") as obj FROM \"User\" JOIN \"Shoppinglist_member\" USING (username) WHERE sl_id = ?";
         ArrayList<Member> members = new ArrayList();
         List<JSONObject> jsonObjects = executeQueryJSONObject(SQL, sl_id);
-        for(int i = 0; i < jsonObjects.size(); i++){
+        for (int i = 0; i < jsonObjects.size(); i++) {
             JSONObject jsonObject = jsonObjects.get(i);
             members.add(new Member(jsonObject.getString("username"), jsonObject.getString("message_id"), jsonObject.getString("name"), jsonObject.getString("picture"), jsonObject.getString("email")));
         }
@@ -133,6 +127,7 @@ public class Database {
 
     /**
      * Stopt eine Einladung, indem der Member die liste nichtmehr sehen kann
+     *
      * @param invitelink Der invitelink
      * @throws SQLException
      * @throws JSONException
@@ -143,7 +138,7 @@ public class Database {
     }
 
 
-    private String getinviteFromLink(String eingabeLink){
+    private String getinviteFromLink(String eingabeLink) {
         String delString = null;
         if (eingabeLink.contains("https://")) {
             delString = "https://www.smartshopper.cf/invite/";
@@ -158,6 +153,7 @@ public class Database {
 
         return invite;
     }
+
     /**
      * Gibt den Invite link einer Shoppingliste zurück, wenn keiner vorhanden ist --> null
      *
@@ -227,7 +223,7 @@ public class Database {
         String SQL = "SELECT row_to_json(\"Shoppinglist\") AS obj FROM \"Shoppinglist\" WHERE sl_id = ?";
         boolean returnBoolean = false;
         List<JSONObject> jsonObjects = executeQueryJSONObject(SQL, sl_id);
-        for(int i = 0; i < jsonObjects.size(); i++){
+        for (int i = 0; i < jsonObjects.size(); i++) {
             JSONObject jsonObject = jsonObjects.get(i);
             if (jsonObject.getString("invitelink").equals("null")) {
                 returnBoolean = false;
@@ -740,7 +736,7 @@ public class Database {
     /**
      * Führt ein SQL Befehl aus und gibt die antwort in ein JSONObject List
      *
-     * @param SQL   Der SQL der auszuführen ist
+     * @param SQL Der SQL der auszuführen ist
      * @return Das ergebnis als JSONObject
      * @throws SQLException
      * @throws JSONException
@@ -758,7 +754,7 @@ public class Database {
     /**
      * Führt ein SQL Befehl aus und gibt die antwort in ein JSONObject List
      *
-     * @param SQL   Der SQL der auszuführen ist
+     * @param SQL Der SQL der auszuführen ist
      * @return Das ergebnis als JSONObject
      * @throws SQLException
      * @throws JSONException

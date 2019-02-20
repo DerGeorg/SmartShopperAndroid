@@ -8,12 +8,12 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-
-import at.smartshopper.smartshopper.activitys.Dash;
 import at.smartshopper.smartshopper.R;
+import at.smartshopper.smartshopper.activitys.Dash;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -48,7 +48,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     /**
      * Persist token to third-party servers.
-     *
+     * <p>
      * Modify this method to associate the user's FCM InstanceID token with any server-side account
      * maintained by your application.
      *
@@ -88,8 +88,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         //    NotificationChannel channel = new NotificationChannel(channelId,
         //            "Channel human readable title",
-         //           NotificationManager.IMPORTANCE_DEFAULT);
-         //   notificationManager.createNotificationChannel(channel);
+        //           NotificationManager.IMPORTANCE_DEFAULT);
+        //   notificationManager.createNotificationChannel(channel);
         //}
 
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());

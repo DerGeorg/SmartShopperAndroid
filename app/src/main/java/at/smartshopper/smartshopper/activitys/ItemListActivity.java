@@ -58,7 +58,7 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
         this.groupNameString = myIntent.getStringExtra("groupNameString"); // will return "SecondKeyValue"
         this.db = new Database();
 
-        this.groupName = (TextView)findViewById(R.id.groupViewName);
+        this.groupName = (TextView) findViewById(R.id.groupViewName);
         this.groupName.setText(groupNameString);
 
         this.colorView = (View) findViewById(R.id.itemListColorView);
@@ -86,7 +86,7 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
             }
         });
 
-        this.fabAddItem = (FloatingActionButton)findViewById(R.id.fabItemAdd);
+        this.fabAddItem = (FloatingActionButton) findViewById(R.id.fabItemAdd);
 
         fabAddItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,7 +119,7 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
         RecyclerView.ItemDecoration itemDecoration;
 
         while (itemsListRecycler.getItemDecorationCount() > 0
-                &&(itemDecoration = itemsListRecycler.getItemDecorationAt(0)) != null) {
+                && (itemDecoration = itemsListRecycler.getItemDecorationAt(0)) != null) {
             itemsListRecycler.removeItemDecoration(itemDecoration);
         }
         itemsListRecycler.addItemDecoration(new SpaceItemDecoration(spacingInPixels));
@@ -195,9 +195,9 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
             colorString = "ffffff";
         }
 
-        if(!name.getText().toString().isEmpty()){
+        if (!name.getText().toString().isEmpty()) {
             finish.setEnabled(true);
-        }else{
+        } else {
             finish.setEnabled(false);
         }
         TextWatcher tw = new TextWatcher() {
@@ -213,9 +213,9 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(!name.getText().toString().isEmpty() && !count.getText().toString().isEmpty()){
+                if (!name.getText().toString().isEmpty() && !count.getText().toString().isEmpty()) {
                     finish.setEnabled(true);
-                }else{
+                } else {
                     finish.setEnabled(false);
                 }
             }

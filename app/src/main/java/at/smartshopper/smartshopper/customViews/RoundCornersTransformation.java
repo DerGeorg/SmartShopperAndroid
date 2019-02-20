@@ -37,9 +37,9 @@ public class RoundCornersTransformation implements com.squareup.picasso.Transfor
     /**
      * Creates rounded transformation for top or bottom corners.
      *
-     * @param radius radius is corner radii in dp
-     * @param margin margin is the board in dp
-     * @param topCornersOnly Rounded corner for top corners only.
+     * @param radius            radius is corner radii in dp
+     * @param margin            margin is the board in dp
+     * @param topCornersOnly    Rounded corner for top corners only.
      * @param bottomCornersOnly Rounded corner for bottom corners only.
      */
     public RoundCornersTransformation(final int radius, final int margin, boolean topCornersOnly,
@@ -50,49 +50,16 @@ public class RoundCornersTransformation implements com.squareup.picasso.Transfor
         KEY = "rounded_" + radius + margin + topCorners + bottomCorners;
     }
 
-    @Override
-    public Bitmap transform(final Bitmap source) {
-        final Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setShader(new BitmapShader(source, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
-
-        Bitmap output = Bitmap.createBitmap(source.getWidth(), source.getHeight(), Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
-        if(topCorners && bottomCorners) {
-            // Uses native method to draw symmetric rounded corners
-            canvas.drawRoundRect(new RectF(margin, margin, source.getWidth() - margin,
-                    source.getHeight() - margin), radius, radius, paint);
-        } else {
-            // Uses custom path to generate rounded corner individually
-            canvas.drawPath(RoundedRect(margin, margin, source.getWidth() - margin,
-                    source.getHeight() - margin, radius, radius, topCorners, topCorners,
-                    bottomCorners, bottomCorners), paint);
-        }
-
-
-        if (source != output) {
-            source.recycle();
-        }
-
-        return output;
-    }
-
-
-    @Override
-    public String key() {
-        return "rounded_" + radius + margin;
-//        return KEY;
-    }
-
     /**
      * Prepares a path for rounded corner selectively.
      * Source taken from http://stackoverflow.com/a/35668889/6635889
-     * @param leftX The X coordinate of the left side of the rectangle
-     * @param topY The Y coordinate of the top of the rectangle
-     * @param rightX The X coordinate of the right side of the rectangle
-     * @param bottomY The Y coordinate of the bottom of the rectangle
-     * @param rx The x-radius of the oval used to round the corners
-     * @param ry The y-radius of the oval used to round the corners
+     *
+     * @param leftX       The X coordinate of the left side of the rectangle
+     * @param topY        The Y coordinate of the top of the rectangle
+     * @param rightX      The X coordinate of the right side of the rectangle
+     * @param bottomY     The Y coordinate of the bottom of the rectangle
+     * @param rx          The x-radius of the oval used to round the corners
+     * @param ry          The y-radius of the oval used to round the corners
      * @param topLeft
      * @param topRight
      * @param bottomRight
@@ -115,31 +82,31 @@ public class RoundCornersTransformation implements com.squareup.picasso.Transfor
         path.moveTo(rightX, topY + ry);
         if (topRight)
             path.rQuadTo(0, -ry, -rx, -ry);//top-right corner
-        else{
+        else {
             path.rLineTo(0, -ry);
-            path.rLineTo(-rx,0);
+            path.rLineTo(-rx, 0);
         }
         path.rLineTo(-widthMinusCorners, 0);
         if (topLeft)
             path.rQuadTo(-rx, 0, -rx, ry); //top-left corner
-        else{
+        else {
             path.rLineTo(-rx, 0);
-            path.rLineTo(0,ry);
+            path.rLineTo(0, ry);
         }
         path.rLineTo(0, heightMinusCorners);
 
         if (bottomLeft)
             path.rQuadTo(0, ry, rx, ry);//bottom-left corner
-        else{
+        else {
             path.rLineTo(0, ry);
-            path.rLineTo(rx,0);
+            path.rLineTo(rx, 0);
         }
 
         path.rLineTo(widthMinusCorners, 0);
         if (bottomRight)
             path.rQuadTo(rx, 0, rx, -ry); //bottom-right corner
-        else{
-            path.rLineTo(rx,0);
+        else {
+            path.rLineTo(rx, 0);
             path.rLineTo(0, -ry);
         }
 
@@ -148,5 +115,38 @@ public class RoundCornersTransformation implements com.squareup.picasso.Transfor
         path.close();//Given close, last lineto can be removed.
 
         return path;
+    }
+
+    @Override
+    public Bitmap transform(final Bitmap source) {
+        final Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setShader(new BitmapShader(source, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
+
+        Bitmap output = Bitmap.createBitmap(source.getWidth(), source.getHeight(), Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+        if (topCorners && bottomCorners) {
+            // Uses native method to draw symmetric rounded corners
+            canvas.drawRoundRect(new RectF(margin, margin, source.getWidth() - margin,
+                    source.getHeight() - margin), radius, radius, paint);
+        } else {
+            // Uses custom path to generate rounded corner individually
+            canvas.drawPath(RoundedRect(margin, margin, source.getWidth() - margin,
+                    source.getHeight() - margin, radius, radius, topCorners, topCorners,
+                    bottomCorners, bottomCorners), paint);
+        }
+
+
+        if (source != output) {
+            source.recycle();
+        }
+
+        return output;
+    }
+
+    @Override
+    public String key() {
+        return "rounded_" + radius + margin;
+//        return KEY;
     }
 }

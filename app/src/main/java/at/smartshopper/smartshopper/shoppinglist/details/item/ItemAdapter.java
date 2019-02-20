@@ -1,10 +1,8 @@
 package at.smartshopper.smartshopper.shoppinglist.details.item;
 
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,15 +14,9 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONException;
-
-import java.sql.SQLException;
 import java.util.List;
 
-
 import at.smartshopper.smartshopper.R;
-import at.smartshopper.smartshopper.db.Database;
-import at.smartshopper.smartshopper.shoppinglist.ShoppinglistAdapter;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MyViewHolder> {
 
@@ -97,24 +89,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MyViewHolder> 
 
     }
 
-    public interface OnItemDelClicked {
-        void onItemDelClicked(String item_id, String group_id, String sl_id);
-    }
-
     public void setItemDelClick(OnItemDelClicked onItemDelClicked) {
         this.onItemDelClicked = onItemDelClicked;
     }
 
-    public interface OnItemEditClicked {
-        void onItemEditClicked(String item_id, String group_id, String sl_id, View v);
-    }
-
     public void setOnItemEditClick(OnItemEditClicked onItemEditClick) {
         this.onItemEditClick = onItemEditClick;
-    }
-
-    public interface OnItemCheckClicked {
-        void onItemCheckClicked(String uid, String name, String itemId, String groupId, String sl_id, int count);
     }
 
     public void setOnItemCheckClick(OnItemCheckClicked onItemCheckClick) {
@@ -124,6 +104,18 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.MyViewHolder> 
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    public interface OnItemDelClicked {
+        void onItemDelClicked(String item_id, String group_id, String sl_id);
+    }
+
+    public interface OnItemEditClicked {
+        void onItemEditClicked(String item_id, String group_id, String sl_id, View v);
+    }
+
+    public interface OnItemCheckClicked {
+        void onItemCheckClicked(String uid, String name, String itemId, String groupId, String sl_id, int count);
     }
 
     /**

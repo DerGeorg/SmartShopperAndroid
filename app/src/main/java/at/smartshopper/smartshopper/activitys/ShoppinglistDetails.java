@@ -1,10 +1,10 @@
 package at.smartshopper.smartshopper.activitys;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.app.Activity;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,14 +22,10 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -49,6 +45,16 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
     private PopupWindow popupWindow;
     private Button colorBtn;
     private SwipeRefreshLayout detailsSwiperefresh;
+
+    /**
+     * Convertiert eine int farbe in eine hexa dezimale Farbe
+     *
+     * @param color Farbe zum umwandeln in int
+     * @return farbe als hex im string
+     */
+    private static String colorToHexString(int color) {
+        return String.format("#%06X", 0xFFFFFFFF & color);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +116,6 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
 
     }
 
-
     /**
      * Zeigt ein Popup zum bearbeiten und erstellen von groups
      * Wenn from db true ist wird die groupid benötigt
@@ -151,9 +156,9 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
             colorString = "ffffff";
         }
 
-        if(!name.getText().toString().isEmpty()){
+        if (!name.getText().toString().isEmpty()) {
             finish.setEnabled(true);
-        }else{
+        } else {
             finish.setEnabled(false);
         }
         name.addTextChangedListener(new TextWatcher() {
@@ -169,9 +174,9 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(!name.getText().toString().isEmpty()){
+                if (!name.getText().toString().isEmpty()) {
                     finish.setEnabled(true);
-                }else{
+                } else {
                     finish.setEnabled(false);
                 }
             }
@@ -265,16 +270,6 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
     }
 
     /**
-     * Convertiert eine int farbe in eine hexa dezimale Farbe
-     *
-     * @param color Farbe zum umwandeln in int
-     * @return farbe als hex im string
-     */
-    private static String colorToHexString(int color) {
-        return String.format("#%06X", 0xFFFFFFFF & color);
-    }
-
-    /**
      * Zeigt das Card View der Shoppinglist Details an
      *
      * @param sl_id Shoppinglist welche angezeigt werden soll
@@ -287,7 +282,7 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
         RecyclerView.ItemDecoration itemDecoration;
 
         while (detailsRecycleView.getItemDecorationCount() > 0
-                &&(itemDecoration = detailsRecycleView.getItemDecorationAt(0)) != null) {
+                && (itemDecoration = detailsRecycleView.getItemDecorationAt(0)) != null) {
             detailsRecycleView.removeItemDecoration(itemDecoration);
         }
         detailsRecycleView.addItemDecoration(new SpaceItemDecoration(spacingInPixels));

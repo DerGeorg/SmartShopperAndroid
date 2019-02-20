@@ -2,7 +2,6 @@ package at.smartshopper.smartshopper.shoppinglist;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,8 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -121,19 +118,53 @@ public class ShoppinglistSharedAdapter extends RecyclerView.Adapter<Shoppinglist
         }
 
 
-
-
-
     }
 
 
     /**
      * Holt die anzahl der items in dem Adapter
+     *
      * @return Anzahl der Items in dem Adapter
      */
     @Override
     public int getItemCount() {
         return shoppinglist.size();
+    }
+
+    /**
+     * Setzt das OnChangeItemClick event
+     *
+     * @param onChangeClick Der Click event Listener
+     */
+    public void setOnChangeClick(SharedOnChangeItemClick onChangeClick) {
+        this.sharedOnChangeClick = onChangeClick;
+    }
+
+    /**
+     * Setzt das OnItemClicked event
+     *
+     * @param onClick Der Click Listener
+     */
+    public void setOnDelClick(SharedOnItemClicked onClick) {
+        this.sharedOnClick = onClick;
+    }
+
+    /**
+     * Setzt das OnChangeItemClick event
+     *
+     * @param onShareClick Der Click event Listener
+     */
+    public void setOnShareClick(SharedOnShareClick onShareClick) {
+        this.sharedOnShareClick = onShareClick;
+    }
+
+    /**
+     * Setzt das OnChangeItemClick event
+     *
+     * @param onShoppinglistClick Der Click event Listener
+     */
+    public void setOnShoppinglistClick(SharedOnShoppinglistClick onShoppinglistClick) {
+        this.sharedOnShoppinglistClick = onShoppinglistClick;
     }
 
     /**
@@ -146,59 +177,23 @@ public class ShoppinglistSharedAdapter extends RecyclerView.Adapter<Shoppinglist
     /**
      * Interface damit onoclick in der dash activity ausgeführt werden kann
      */
-    public interface SharedOnChangeItemClick{
+    public interface SharedOnChangeItemClick {
         void sharedOnChangeItemClick(String sl_id, View v);
     }
 
     /**
-     * Setzt das OnChangeItemClick event
-     * @param onChangeClick Der Click event Listener
-     */
-    public void setOnChangeClick(SharedOnChangeItemClick onChangeClick){
-        this.sharedOnChangeClick = onChangeClick;
-    }
-
-    /**
-     * Setzt das OnItemClicked event
-     * @param onClick Der Click Listener
-     */
-    public void setOnDelClick(SharedOnItemClicked onClick)
-    {
-        this.sharedOnClick=onClick;
-    }
-
-    /**
      * Interface damit onoclick in der dash activity ausgeführt werden kann
      */
-    public interface SharedOnShareClick{
+    public interface SharedOnShareClick {
         void sharedOnShareClick(String sl_id, View v);
     }
 
     /**
-     * Setzt das OnChangeItemClick event
-     * @param onShareClick Der Click event Listener
-     */
-    public void setOnShareClick(SharedOnShareClick onShareClick){
-        this.sharedOnShareClick = onShareClick;
-    }
-
-    /**
      * Interface damit onoclick in der dash activity ausgeführt werden kann
      */
-    public interface SharedOnShoppinglistClick{
+    public interface SharedOnShoppinglistClick {
         void sharedOnShoppinglistClick(String sl_id, View v);
     }
-
-    /**
-     * Setzt das OnChangeItemClick event
-     * @param onShoppinglistClick Der Click event Listener
-     */
-    public void setOnShoppinglistClick(SharedOnShoppinglistClick onShoppinglistClick){
-        this.sharedOnShoppinglistClick = onShoppinglistClick;
-    }
-
-
-
 
     /**
      * Haltet alle elemente. Durch ein Objekt von dem kann jedes Element welches hier drinnen angeführt ist verwendet werden

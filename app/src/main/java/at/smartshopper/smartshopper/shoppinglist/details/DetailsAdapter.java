@@ -12,8 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import com.squareup.picasso.Picasso;
+
 import java.util.List;
+
 import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.activitys.ItemListActivity;
 import at.smartshopper.smartshopper.customViews.SpaceItemDecoration;
@@ -75,9 +78,6 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
         itemsrecycle.setAdapter(itemAdapter);
 
 
-
-
-
         int cardcolor;
         try {
             cardcolor = Color.parseColor(details.get(i).getGroup().getColor());
@@ -123,18 +123,42 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
     }
 
     /**
-     * Interface damit onoclick in der Shoppinglistdetails activity ausgeführt werden kann
+     * Setzt das OnChangeItemClick event
+     *
+     * @param onCardClicked Der Click event Listener
      */
-    public interface OnCardClicked {
-        void onCardClick(String group_id, String sl_id, String groupName, View v);
+    public void setCardClick(OnCardClicked onCardClicked) {
+        this.onCardClicked = onCardClicked;
     }
 
     /**
      * Setzt das OnChangeItemClick event
-     * @param onCardClicked Der Click event Listener
+     *
+     * @param onGroupDeleteClicked Der Click event Listener
      */
-    public void setCardClick(OnCardClicked onCardClicked){
-        this.onCardClicked = onCardClicked;
+    public void setGroupDeleteClick(OnGroupDeleteClicked onGroupDeleteClicked) {
+        this.onGroupDeleteClicked = onGroupDeleteClicked;
+    }
+
+    /**
+     * Setzt das OnChangeItemClick event
+     *
+     * @param onGroupEditClicked Der Click event Listener
+     */
+    public void setGroupEditClick(OnGroupEditClicked onGroupEditClicked) {
+        this.onGroupEditClicked = onGroupEditClicked;
+    }
+
+    @Override
+    public int getItemCount() {
+        return details.size();
+    }
+
+    /**
+     * Interface damit onoclick in der Shoppinglistdetails activity ausgeführt werden kann
+     */
+    public interface OnCardClicked {
+        void onCardClick(String group_id, String sl_id, String groupName, View v);
     }
 
     /**
@@ -145,31 +169,10 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
     }
 
     /**
-     * Setzt das OnChangeItemClick event
-     * @param onGroupDeleteClicked Der Click event Listener
-     */
-    public void setGroupDeleteClick(OnGroupDeleteClicked onGroupDeleteClicked){
-        this.onGroupDeleteClicked = onGroupDeleteClicked;
-    }
-
-    /**
      * Interface damit onoclick in der Shoppinglistdetails activity ausgeführt werden kann
      */
     public interface OnGroupEditClicked {
         void onGroupEditClick(String sl_id, String group_id, View v);
-    }
-
-    /**
-     * Setzt das OnChangeItemClick event
-     * @param onGroupEditClicked Der Click event Listener
-     */
-    public void setGroupEditClick(OnGroupEditClicked onGroupEditClicked){
-        this.onGroupEditClicked = onGroupEditClicked;
-    }
-
-    @Override
-    public int getItemCount() {
-        return details.size();
     }
 
     /**

@@ -3,7 +3,7 @@ package at.smartshopper.smartshopper.shoppinglist;
 public class Member {
     private String uid, msid, name, pic, email;
 
-    public Member(String uid, String msid, String name, String pic, String email){
+    public Member(String uid, String msid, String name, String pic, String email) {
         this.uid = uid;
         this.msid = msid;
         this.name = name;

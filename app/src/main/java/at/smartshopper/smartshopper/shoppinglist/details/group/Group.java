@@ -14,9 +14,9 @@ public class Group {
         this.sl_id = sl_id;
         this.name = name;
         String colorstring;
-        if(color.contains("#")){
+        if (color.contains("#")) {
             colorstring = color;
-        }else{
+        } else {
             colorstring = "#" + color;
         }
         this.color = colorstring;
@@ -36,11 +36,11 @@ public class Group {
     }
 
     public String getColor() {
-        if(color.isEmpty()){
+        if (color.isEmpty()) {
             return "#FFFFFF";
-        }else if (!color.contains("#")){
+        } else if (!color.contains("#")) {
             return "#" + this.color;
-        }else {
+        } else {
             return this.color;
         }
     }

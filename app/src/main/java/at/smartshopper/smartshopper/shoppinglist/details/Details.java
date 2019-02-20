@@ -23,7 +23,7 @@ public class Details {
         return items;
     }
 
-    public void addItem(Item item){
+    public void addItem(Item item) {
         this.items.add(item);
     }
 

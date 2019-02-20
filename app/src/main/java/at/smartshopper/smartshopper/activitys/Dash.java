@@ -11,8 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -29,9 +27,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-
-import at.smartshopper.smartshopper.R;
-
 import android.widget.PopupWindow;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -43,22 +38,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
-import com.google.gson.JsonSerializer;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
-import org.w3c.dom.Text;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.Base64;
 import java.util.List;
 
-
-import at.smartshopper.smartshopper.customViews.SpaceItemDecoration;
+import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.db.Database;
 import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
 import at.smartshopper.smartshopper.shoppinglist.ShoppinglistAdapter;
@@ -73,6 +60,18 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
     private PopupWindow popupWindowAdd, popupShare, popupAddShare, popupEditShare;
     private String color;
     private Button colorBtn;
+    //Für Double Back press to exit
+    private boolean doubleBackToExitPressedOnce = false;
+
+    /**
+     * Convertiert eine int farbe in eine hexa dezimale Farbe
+     *
+     * @param color Farbe zum umwandeln in int
+     * @return farbe als hex im string
+     */
+    private static String colorToHexString(int color) {
+        return String.format("#%06X", 0xFFFFFFFF & color);
+    }
 
     /**
      * Setzt das atribut color wenn die activity colorpicker beendet wird
@@ -91,18 +90,17 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         }
     }
 
-
     /**
      * Holt den msg token
-     *
+     * <p>
      * SETZT IHN NOCH NED
-     *
-     *
+     * <p>
+     * <p>
      * WEITER PROGRAMMIERN
-     *
+     * <p>
      * MIR FEHLT NOCH DIE DB VON LUKAS
      */
-    private void setMsgId(){
+    private void setMsgId() {
         FirebaseInstanceId.getInstance().getInstanceId()
                 .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
                     @Override
@@ -125,17 +123,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                     }
                 });
     }
-
-    /**
-     * Convertiert eine int farbe in eine hexa dezimale Farbe
-     *
-     * @param color Farbe zum umwandeln in int
-     * @return farbe als hex im string
-     */
-    private static String colorToHexString(int color) {
-        return String.format("#%06X", 0xFFFFFFFF & color);
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -258,9 +245,9 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
         Picasso.get().load(R.drawable.close).into(addClose);
 
-        if(!name.getText().toString().isEmpty()){
+        if (!name.getText().toString().isEmpty()) {
             addFertig.setEnabled(true);
-        }else{
+        } else {
             addFertig.setEnabled(false);
         }
         name.addTextChangedListener(new TextWatcher() {
@@ -276,9 +263,9 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(!name.getText().toString().isEmpty()){
+                if (!name.getText().toString().isEmpty()) {
                     addFertig.setEnabled(true);
-                }else{
+                } else {
                     addFertig.setEnabled(false);
                 }
             }
@@ -401,7 +388,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         ownswiperefresh.setRefreshing(false);
     }
 
-
     /**
      * Macht eine Datenbankverbindung und holt alle Shoppinglists die mit dem User geteilt werden, diese werden auf dem recycled view angezeigt
      *
@@ -472,14 +458,12 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         startActivity(intent);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.dash_menu, menu);
         return true;
     }
-
 
     /**
      * Menu item Action listener
@@ -528,9 +512,9 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         });
         final Button finish = (Button) popupContentView.findViewById(R.id.shareAddFinish);
 
-        if(!linkEingabe.getText().toString().isEmpty()){
+        if (!linkEingabe.getText().toString().isEmpty()) {
             finish.setEnabled(true);
-        }else{
+        } else {
             finish.setEnabled(false);
         }
         linkEingabe.addTextChangedListener(new TextWatcher() {
@@ -546,9 +530,9 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(!linkEingabe.getText().toString().isEmpty()){
+                if (!linkEingabe.getText().toString().isEmpty()) {
                     finish.setEnabled(true);
-                }else{
+                } else {
                     finish.setEnabled(false);
                 }
             }
@@ -559,7 +543,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             @Override
             public void onClick(View v) {
                 String invite = linkEingabe.getText().toString();
-
 
 
                 try {
@@ -602,10 +585,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         popupAddShare.update();
     }
 
-
-    //Für Double Back press to exit
-    private boolean doubleBackToExitPressedOnce = false;
-
     /**
      * 2 Mal Zurück Drücken um die App zu schließen
      */
@@ -635,7 +614,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
      *
      * @param sl_id Die Shoppingliste dieser Id wird gelöscht
      */
-    private void onItemClickContainer(String sl_id){
+    private void onItemClickContainer(String sl_id) {
         try {
             db.delShoppinglist(sl_id);
             refreshOwnShoppinglist(FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -649,7 +628,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
      *
      * @param sl_id Die Shoppinglist die bearbeitet werden soll
      */
-    private void onChangeItemClickContainer(String sl_id, View v){
+    private void onChangeItemClickContainer(String sl_id, View v) {
         try {
             showShoppinglistEditView(true, sl_id, "Shoppingliste bearbeiten", v);
         } catch (SQLException e) {
@@ -659,7 +638,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         }
     }
 
-    private void onShoppinglistClickContainer(String sl_id, View v){
+    private void onShoppinglistClickContainer(String sl_id, View v) {
         Intent intent = new Intent(this, ShoppinglistDetails.class);
         intent.putExtra("sl_id", sl_id);
 
@@ -688,10 +667,11 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
     /**
      * Holt den Invitelink einer Shoppingliste
+     *
      * @param sl_id Die Shoppingliste von der der invitelink gewünscht ist
      * @return
      */
-    private String getInviteLink(String sl_id){
+    private String getInviteLink(String sl_id) {
         String link = null;
         try {
             if (db.isShared(sl_id)) {
@@ -781,9 +761,10 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
     /**
      * Kopiert einen Text in die Zwischenablage
+     *
      * @param text Der Text, welcher zu kopieren ist
      */
-    private void copyText(String text){
+    private void copyText(String text) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("SmartShopper", text);
         clipboard.setPrimaryClip(clip);

@@ -1,8 +1,8 @@
 package at.smartshopper.smartshopper.activitys;
 
+import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
@@ -14,8 +14,6 @@ import java.util.List;
 import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.customViews.SpaceItemDecoration;
 import at.smartshopper.smartshopper.db.Database;
-import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
-import at.smartshopper.smartshopper.shoppinglist.ShoppinglistSharedAdapter;
 import at.smartshopper.smartshopper.shoppinglist.details.item.Item;
 import at.smartshopper.smartshopper.shoppinglist.details.item.ItemShoppinglistDetailsAdapter;
 
@@ -58,6 +56,7 @@ public class DoneItemActivity extends AppCompatActivity {
 
     /**
      * Zeigt alle erledigten Items an
+     *
      * @throws SQLException
      * @throws JSONException
      */
@@ -68,7 +67,7 @@ public class DoneItemActivity extends AppCompatActivity {
         RecyclerView.ItemDecoration itemDecoration;
 
         while (doneRecycle.getItemDecorationCount() > 0
-                &&(itemDecoration = doneRecycle.getItemDecorationAt(0)) != null) {
+                && (itemDecoration = doneRecycle.getItemDecorationAt(0)) != null) {
             doneRecycle.removeItemDecoration(itemDecoration);
         }
         doneRecycle.addItemDecoration(new SpaceItemDecoration(spacingInPixels));
