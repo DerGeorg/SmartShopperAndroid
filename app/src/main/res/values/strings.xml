@@ -5,4 +5,5 @@
     <string name="title_activity_shoppinglist_details">ShoppinglistDetails</string>
     <string name="title_activity_item_list">ItemListActivity</string>
     <string name="firebase_sender_id">221332577314</string>
+    <string name="StringTag">SmartShopper</string>
 </resources>
