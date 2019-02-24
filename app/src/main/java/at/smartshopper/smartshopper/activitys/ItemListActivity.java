@@ -162,7 +162,7 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
         try {
             MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
             myFirebaseSender.addMember(db.getAdmin(sl_id));
-            myFirebaseSender.sendMessage(item.getName()  + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " gelöscht!","Item: " + item.getName() + " wurde gelöscht!");
+            myFirebaseSender.sendMessage(item.getName() + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " gelöscht!", "Item: " + item.getName() + " wurde gelöscht!");
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (JSONException e) {
@@ -268,7 +268,7 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
                 try {
                     MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
                     myFirebaseSender.addMember(db.getAdmin(sl_id));
-                    myFirebaseSender.sendMessage(name.getText().toString() + pushEndSting + " Von: " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName(),"Item: " + name.getText().toString() + pushEndSting);
+                    myFirebaseSender.sendMessage(name.getText().toString() + pushEndSting + " Von: " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName(), "Item: " + name.getText().toString() + pushEndSting);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -320,7 +320,7 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
         try {
             MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
             myFirebaseSender.addMember(db.getAdmin(sl_id));
-            myFirebaseSender.sendMessage(item.getName()  + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " gekauft!","Item Erledigt: " + item.getName() + "!");
+            myFirebaseSender.sendMessage(item.getName() + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " gekauft!", "Item Erledigt: " + item.getName() + "!");
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (JSONException e) {

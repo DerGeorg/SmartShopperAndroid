@@ -322,7 +322,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                 try {
                     MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_idString));
                     myFirebaseSender.addMember(db.getAdmin(sl_idString));
-                    myFirebaseSender.sendMessage(name.getText().toString() + pushEndString +" Von " + db.getUser(username).getName(),name.getText().toString() + pushEndString);
+                    myFirebaseSender.sendMessage(name.getText().toString() + pushEndString + " Von " + db.getUser(username).getName(), name.getText().toString() + pushEndString);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -745,7 +745,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                 try {
                     MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
                     myFirebaseSender.addMember(db.getAdmin(sl_id));
-                    myFirebaseSender.sendMessage("Das Sharing von " + spl.getname() + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " aufgehoben!",spl.getname() + " sharing wurde geändert!");
+                    myFirebaseSender.sendMessage("Das Sharing von " + spl.getname() + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " aufgehoben!", spl.getname() + " sharing wurde geändert!");
                 } catch (SQLException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {

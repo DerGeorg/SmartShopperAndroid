@@ -88,8 +88,8 @@ public class LoginActivity extends AppCompatActivity {
                         String email = user.getEmail();
                         String picture = " ";
                         try {
-                             picture = user.getPhotoUrl().toString();
-                        }catch (Exception e){
+                            picture = user.getPhotoUrl().toString();
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                         // Get new Instance ID token

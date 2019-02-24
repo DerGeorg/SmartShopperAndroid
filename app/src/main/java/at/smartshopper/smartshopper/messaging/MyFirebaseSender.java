@@ -23,8 +23,8 @@ public class MyFirebaseSender {
         messageIds = tmp;
     }
 
-    public void addMember(Member member){
-        if(!messageIds.contains(member.getMsid())){
+    public void addMember(Member member) {
+        if (!messageIds.contains(member.getMsid())) {
             messageIds.add(member.getMsid());
         }
     }
@@ -34,7 +34,7 @@ public class MyFirebaseSender {
      * Sendet die Firebase Messages zum server
      *
      * @param message Push Nachricht
-     * @param title  Push title
+     * @param title   Push title
      */
     public void sendMessage(String message, String title) {
         message = message.replace(" ", "%20");
@@ -55,10 +55,10 @@ public class MyFirebaseSender {
                 HttpClient httpclient = new DefaultHttpClient();
                 HttpGet httpGet = new HttpGet("https://www.smartshopper.cf/push/" + messageIds.get(i) + "/" + message + "/" + title);
 
-                    // Execute HTTP Post Request
-                    HttpResponse response = httpclient.execute(httpGet);
-                    Log.d("SmartShopper", "Message ID: " + messageIds.get(i));
-                    Log.d("SmartShopper", "Response Push Post: " + response);
+                // Execute HTTP Post Request
+                HttpResponse response = httpclient.execute(httpGet);
+                Log.d("SmartShopper", "Message ID: " + messageIds.get(i));
+                Log.d("SmartShopper", "Response Push Post: " + response);
 
             } catch (Exception e) {
                 e.printStackTrace();

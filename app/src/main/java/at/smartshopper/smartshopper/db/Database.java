@@ -3,7 +3,6 @@ package at.smartshopper.smartshopper.db;
 import android.os.StrictMode;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -104,32 +103,32 @@ public class Database {
 
     private Member generateNewSecureMember(String username, String message_id, String name, String picture, String email) throws SQLException {
         String newusername = "", newmessage_id = "", newname = "", newpicture = "", newemail = "";
-        if(username.isEmpty()){
+        if (username.isEmpty()) {
             newusername = "EMPTY";
-        }else {
+        } else {
             newusername = username;
         }
-        if(message_id.isEmpty()){
+        if (message_id.isEmpty()) {
             newmessage_id = "EMPTY";
-        }else {
+        } else {
             newmessage_id = message_id;
         }
-        if(name.isEmpty()){
+        if (name.isEmpty()) {
             newname = "EMPTY";
-        }else {
+        } else {
             newname = name;
         }
-        if(picture.isEmpty() || picture.equals(" ")){
+        if (picture.isEmpty() || picture.equals(" ")) {
             newpicture = "https://i0.wp.com/www.windowspower.de/wp-content/uploads/2015/10/profilbilde-windows-10.jpg?fit=610%2C340&ssl=1";
-        }else {
+        } else {
             newpicture = picture;
         }
-        if(email.isEmpty()){
+        if (email.isEmpty()) {
             newemail = "EMPTY";
-        }else {
+        } else {
             newemail = email;
         }
-        if(username.equals(newusername)) {
+        if (username.equals(newusername)) {
             if (!name.equals(newname) || !message_id.equals(newmessage_id) || !picture.equals(newpicture) || !email.equals(newemail)) {
                 updateUser(username, newmessage_id, newname, newpicture, newemail);
             }
