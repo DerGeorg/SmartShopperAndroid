@@ -21,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -31,6 +32,7 @@ import java.util.List;
 import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.customViews.SpaceItemDecoration;
 import at.smartshopper.smartshopper.db.Database;
+import at.smartshopper.smartshopper.messaging.MyFirebaseSender;
 import at.smartshopper.smartshopper.shoppinglist.details.item.Item;
 import at.smartshopper.smartshopper.shoppinglist.details.item.ItemAdapter;
 
@@ -145,11 +147,22 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
 
     @Override
     public void onItemDelClicked(String item_id, String group_id, String sl_id) {
+        Item item = null;
         try {
+            item = db.getItem(item_id);
             swipeRefreshLayoutItem.setRefreshing(true);
             db.deleteItem(item_id, group_id, sl_id);
             showItems(group_id, sl_id);
             swipeRefreshLayoutItem.setRefreshing(false);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
+            myFirebaseSender.addMember(db.getAdmin(sl_id));
+            myFirebaseSender.sendMessage(item.getName()  + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " gelöscht!","Item: " + item.getName() + " wurde gelöscht!");
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (JSONException e) {
@@ -226,6 +239,7 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
         finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String pushEndSting;
                 if (fromDB) {
                     try {
                         db.editItem(item_id, group_id, sl_id, name.getText().toString(), Integer.parseInt(count.getText().toString()));
@@ -237,6 +251,7 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    pushEndSting = " wurde geändert!";
                 } else {
                     try {
                         db.addItem(group_id, sl_id, name.getText().toString(), Integer.parseInt(count.getText().toString()));
@@ -248,6 +263,16 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    pushEndSting = " wurde erstellt!";
+                }
+                try {
+                    MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
+                    myFirebaseSender.addMember(db.getAdmin(sl_id));
+                    myFirebaseSender.sendMessage(name.getText().toString() + pushEndSting + " Von: " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName(),"Item: " + name.getText().toString() + pushEndSting);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -279,11 +304,23 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
 
     @Override
     public void onItemCheckClicked(String uid, String name, String itemId, String groupId, String sl_id, int count) {
+        Item item = null;
         try {
+            item = db.getItem(itemId);
             swipeRefreshLayoutItem.setRefreshing(true);
             db.setDoneItem(uid, name, itemId, groupId, sl_id, count);
             showItems(group_id, sl_id);
             swipeRefreshLayoutItem.setRefreshing(false);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
+            myFirebaseSender.addMember(db.getAdmin(sl_id));
+            myFirebaseSender.sendMessage(item.getName()  + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " gekauft!","Item Erledigt: " + item.getName() + "!");
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (JSONException e) {

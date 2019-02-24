@@ -86,8 +86,12 @@ public class LoginActivity extends AppCompatActivity {
                         String uid = user.getUid();
                         String name = user.getDisplayName();
                         String email = user.getEmail();
-                        String picture = user.getPhotoUrl().toString();
-
+                        String picture = " ";
+                        try {
+                             picture = user.getPhotoUrl().toString();
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                         // Get new Instance ID token
                         String token = task.getResult().getToken();
 

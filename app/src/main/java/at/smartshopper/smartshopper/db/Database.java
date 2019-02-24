@@ -3,6 +3,7 @@ package at.smartshopper.smartshopper.db;
 import android.os.StrictMode;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -92,7 +93,48 @@ public class Database {
     public Member getAdmin(String sl_id) throws SQLException, JSONException {
         String SQL = "SELECT row_to_json(\"User\") as obj FROM \"User\" JOIN \"Shoppinglist_admin\" USING (username) WHERE sl_id = ?";
         JSONObject jsonObject = new JSONObject(executeQuery(SQL, sl_id));
-        return new Member(jsonObject.getString("username"), jsonObject.getString("message_id"), jsonObject.getString("name"), jsonObject.getString("picture"), jsonObject.getString("email"));
+        return generateNewSecureMember(jsonObject.getString("username"), jsonObject.getString("message_id"), jsonObject.getString("name"), jsonObject.getString("picture"), jsonObject.getString("email"));
+    }
+
+    public Member getUser(String uid) throws SQLException, JSONException {
+        String SQL = "SELECT row_to_json(\"User\") FROM \"User\"  WHERE username =  ?";
+        JSONObject jsonObject = new JSONObject(executeQuery(SQL, uid));
+        return generateNewSecureMember(jsonObject.getString("username"), jsonObject.getString("message_id"), jsonObject.getString("name"), jsonObject.getString("picture"), jsonObject.getString("email"));
+    }
+
+    private Member generateNewSecureMember(String username, String message_id, String name, String picture, String email) throws SQLException {
+        String newusername = "", newmessage_id = "", newname = "", newpicture = "", newemail = "";
+        if(username.isEmpty()){
+            newusername = "EMPTY";
+        }else {
+            newusername = username;
+        }
+        if(message_id.isEmpty()){
+            newmessage_id = "EMPTY";
+        }else {
+            newmessage_id = message_id;
+        }
+        if(name.isEmpty()){
+            newname = "EMPTY";
+        }else {
+            newname = name;
+        }
+        if(picture.isEmpty() || picture.equals(" ")){
+            newpicture = "https://i0.wp.com/www.windowspower.de/wp-content/uploads/2015/10/profilbilde-windows-10.jpg?fit=610%2C340&ssl=1";
+        }else {
+            newpicture = picture;
+        }
+        if(email.isEmpty()){
+            newemail = "EMPTY";
+        }else {
+            newemail = email;
+        }
+        if(username.equals(newusername)) {
+            if (!name.equals(newname) || !message_id.equals(newmessage_id) || !picture.equals(newpicture) || !email.equals(newemail)) {
+                updateUser(username, newmessage_id, newname, newpicture, newemail);
+            }
+        }
+        return new Member(newusername, newmessage_id, newname, newpicture, newemail);
     }
 
     /**
@@ -176,7 +218,7 @@ public class Database {
      * @throws SQLException
      * @throws JSONException
      */
-    private String getSlIdFromInvite(String invitelink) throws SQLException, JSONException {
+    public String getSlIdFromInvite(String invitelink) throws SQLException, JSONException {
         String SQL = "Select sl_id from \"Shoppinglist\" WHERE invitelink = ?";
         String returnSl_id = executeQuery(SQL, getinviteFromLink(invitelink));
         return returnSl_id;

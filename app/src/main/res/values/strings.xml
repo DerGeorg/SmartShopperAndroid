@@ -1,4 +1,5 @@
 <resources>
+
     <string name="app_name">SmartShopper</string>
     <string name="title_activity_dash">Dash</string>
     <string name="title_activity_shoppinglist_detail">ShoppinglistDetail</string>
@@ -6,4 +7,6 @@
     <string name="title_activity_item_list">ItemListActivity</string>
     <string name="firebase_sender_id">221332577314</string>
     <string name="StringTag">SmartShopper</string>
+
 </resources>
+

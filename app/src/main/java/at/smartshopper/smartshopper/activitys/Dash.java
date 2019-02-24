@@ -292,7 +292,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         addFertig.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                String pushEndString;
                 if (fromDB) {
                     try {
                         db.editShoppinglist(sl_idString, name.getText().toString(), description.getText().toString(), color);
@@ -304,6 +304,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    pushEndString = " wurde geändert!";
                 } else {
                     try {
                         db.addShoppinglist(name.getText().toString(), description.getText().toString(), username, color);
@@ -315,8 +316,18 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    pushEndString = " wurde erstellt!";
                 }
 
+                try {
+                    MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_idString));
+                    myFirebaseSender.addMember(db.getAdmin(sl_idString));
+                    myFirebaseSender.sendMessage(name.getText().toString() + pushEndString +" Von " + db.getUser(username).getName(),name.getText().toString() + pushEndString);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
         });
@@ -690,7 +701,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
     }
 
     @Override
-    public void onShareClick(String sl_id, View v) {
+    public void onShareClick(final String sl_id, View v) {
         final String link = getInviteLink(sl_id);
 
         final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -723,6 +734,23 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         delShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Shoppinglist spl = null;
+                try {
+                    spl = db.getShoppinglist(db.getSlIdFromInvite(finalLink));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
+                    myFirebaseSender.addMember(db.getAdmin(sl_id));
+                    myFirebaseSender.sendMessage("Das Sharing von " + spl.getname() + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " aufgehoben!",spl.getname() + " sharing wurde geändert!");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 try {
                     db.deleteInvite(finalLink);
@@ -784,13 +812,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
     @Override
     public void sharedOnChangeItemClick(String sl_id, View v) {
         onChangeItemClickContainer(sl_id, v);
-        try {
-            new MyFirebaseSender(db.getMembers(sl_id)).sendMessage("Eine ihrer Shoppinglisten wurde geändert", "MY_ACTION");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

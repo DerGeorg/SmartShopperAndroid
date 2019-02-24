@@ -2,22 +2,14 @@ package at.smartshopper.smartshopper.messaging;
 
 import android.util.Log;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
-
-
 import java.util.ArrayList;
 import java.util.List;
 
-import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.shoppinglist.Member;
 import cz.msebera.android.httpclient.HttpResponse;
-import cz.msebera.android.httpclient.NameValuePair;
 import cz.msebera.android.httpclient.client.HttpClient;
-import cz.msebera.android.httpclient.client.entity.UrlEncodedFormEntity;
-import cz.msebera.android.httpclient.client.methods.HttpPost;
+import cz.msebera.android.httpclient.client.methods.HttpGet;
 import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
-import cz.msebera.android.httpclient.message.BasicNameValuePair;
 
 public class MyFirebaseSender {
 
@@ -31,31 +23,42 @@ public class MyFirebaseSender {
         messageIds = tmp;
     }
 
+    public void addMember(Member member){
+        if(!messageIds.contains(member.getMsid())){
+            messageIds.add(member.getMsid());
+        }
+    }
+
 
     /**
      * Sendet die Firebase Messages zum server
      *
      * @param message Push Nachricht
-     * @param action  Push action
+     * @param title  Push title
      */
-    public void sendMessage(String message, String action) {
-        FirebaseMessaging firebaseMessaging = FirebaseMessaging.getInstance();
+    public void sendMessage(String message, String title) {
+        message = message.replace(" ", "%20");
+        title = title.replace(" ", "%20");
+        //FirebaseMessaging firebaseMessaging = FirebaseMessaging.getInstance();
         for (int i = 0; messageIds.size() > i; i++) {
 
             try {
+                /*
                 firebaseMessaging.send(new RemoteMessage.Builder(R.string.firebase_sender_id + "@fcm.googleapis.com/fcm/")
                         .setMessageId(messageIds.get(i))
                         .addData("my_message", message)
                         .addData("LoginActivity", action)
                         .build());
+                        */
 
                 // Create a new HttpClient and Post Header
                 HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httppost = new HttpPost("https://www.smartshopper.cf/push/" + messageIds.get(i));
+                HttpGet httpGet = new HttpGet("https://www.smartshopper.cf/push/" + messageIds.get(i) + "/" + message + "/" + title);
 
                     // Execute HTTP Post Request
-                    HttpResponse response = httpclient.execute(httppost);
-                    Log.d(R.string.StringTag + "", "Response Push Post" + response);
+                    HttpResponse response = httpclient.execute(httpGet);
+                    Log.d("SmartShopper", "Message ID: " + messageIds.get(i));
+                    Log.d("SmartShopper", "Response Push Post: " + response);
 
             } catch (Exception e) {
                 e.printStackTrace();

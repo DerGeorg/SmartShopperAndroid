@@ -32,6 +32,7 @@ import java.util.List;
 import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.customViews.SpaceItemDecoration;
 import at.smartshopper.smartshopper.db.Database;
+import at.smartshopper.smartshopper.messaging.MyFirebaseSender;
 import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
 import at.smartshopper.smartshopper.shoppinglist.details.Details;
 import at.smartshopper.smartshopper.shoppinglist.details.DetailsAdapter;
@@ -185,6 +186,7 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
         finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String pushEndString;
                 if (fromDB) {
                     try {
                         db.editGroup(sl_id, groupid, name.getText().toString(), colorString, "");
@@ -196,17 +198,30 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    pushEndString = " wurde geändert!";
                 } else {
                     try {
                         db.addGroup(sl_id, name.getText().toString(), colorString, "");
                         showDetails(sl_id);
                         popupWindow.dismiss();
                         colorString = "ffffff";
+
                     } catch (SQLException e) {
                         e.printStackTrace();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    pushEndString = " wurde erstellt!";
+                }
+
+                try {
+                    MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
+                    myFirebaseSender.addMember(db.getAdmin(sl_id));
+                    myFirebaseSender.sendMessage(name.getText().toString() + pushEndString + " Von: " + db.getUser(username).getName(),"Gruppe: " + name.getText().toString() + pushEndString);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -314,11 +329,22 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
 
     @Override
     public void onGroupDeleteClick(String sl_id, String group_id, View v) {
+        Group group = null;
         try {
+            group = db.getGroup(group_id, sl_id);
             detailsSwiperefresh.setRefreshing(true);
             db.deleteGroup(group_id, sl_id);
             showDetails(sl_id);
             detailsSwiperefresh.setRefreshing(false);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
+            myFirebaseSender.addMember(db.getAdmin(sl_id));
+            myFirebaseSender.sendMessage(group.getGroupName()  + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " gelöscht!","Gruppe: " + group.getGroupName() + " wurde gelöscht!");
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (JSONException e) {
