@@ -134,8 +134,8 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
 
         setMsgId();
-        // Erstellt die Tabs
-        tabHoster();
+
+
 
 
         /*
@@ -156,7 +156,8 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             // authenticate with your backend server, if you have one. Use
             // FirebaseUser.getIdToken() instead.
             final String uid = user.getUid();
-
+            // Erstellt die Tabs
+            tabHoster(uid);
 
             try {
                 try {
@@ -524,8 +525,8 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
      * Ist dafür Zuständig das es Tabs in der App gibt. Ohne dieser Funktion werden die Tabs nichtmehr Angezeigt.
      * Hier wird auch der Name der Tabs gesetzt
      */
-    private void tabHoster() {
-        TabHost host = (TabHost) findViewById(R.id.tabHost1);
+    private void tabHoster(final String uid) {
+        final TabHost host = (TabHost) findViewById(R.id.tabHost1);
         host.setup();
 
         //Tab 1
@@ -539,6 +540,34 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         spec.setContent(R.id.tab2);
         spec.setIndicator("Geteilte Einkaufslisten");
         host.addTab(spec);
+
+        host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+
+            @Override
+            public void onTabChanged(String tabId) {
+
+                int i = host.getCurrentTab();
+
+                if (i == 0) {
+                    try {
+                        refreshOwnShoppinglist(uid);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                else if (i ==1) {
+                    try {
+                        showSharedShoppingList(uid);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        });
     }
 
     /**
