@@ -154,6 +154,7 @@ public class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.MyViewHo
         return details.size();
     }
 
+
     /**
      * Interface damit onoclick in der Shoppinglistdetails activity ausgeführt werden kann
      */

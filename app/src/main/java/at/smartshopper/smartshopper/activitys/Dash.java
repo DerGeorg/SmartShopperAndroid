@@ -43,6 +43,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import at.smartshopper.smartshopper.R;
@@ -409,13 +410,54 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         RecyclerView sharedRecycler = (RecyclerView) findViewById(R.id.sharedrecycler);
         sharedRecycler.setHasFixedSize(true);
         sharedRecycler.setLayoutManager(new LinearLayoutManager(this));
-        List<Shoppinglist> ownListsList = db.getSharedShoppinglists(uid);
-        ShoppinglistSharedAdapter shpAdapter = new ShoppinglistSharedAdapter(Dash.this, ownListsList, db);
-        shpAdapter.setOnDelClick(Dash.this);
-        shpAdapter.setOnChangeClick(Dash.this);
-        shpAdapter.setOnShareClick(Dash.this);
-        shpAdapter.setOnShoppinglistClick(Dash.this);
+        List<Shoppinglist> sharedListsList = db.getSharedShoppinglists(uid);
+        ArrayList<Shoppinglist> sharedListsArrayListTmp = new ArrayList<>();
+        List<Shoppinglist> sharedListsListTmp;
+
+        if(sharedListsList.isEmpty()){
+            sharedListsArrayListTmp.add(new Shoppinglist("empty","Keine Shoppingliste geteilt!","Um einen Invite Link hinzuzufügen, fügen Sie diesen im Menü ein.","empty","#8B0000"));
+            sharedListsListTmp = sharedListsArrayListTmp;
+        }else{
+            sharedListsListTmp = sharedListsList;
+            findViewById(R.id.pfeilnachunten3).setVisibility(View.GONE);
+        }
+        ShoppinglistSharedAdapter shpAdapter = new ShoppinglistSharedAdapter(Dash.this, sharedListsListTmp, db);
+        if(sharedListsList.isEmpty()){
+            shpAdapter.setOnDelClick(new ShoppinglistSharedAdapter.SharedOnItemClicked() {
+                @Override
+                public void sharedOnItemClick(String sl_id) {
+
+                }
+            });
+            shpAdapter.setOnChangeClick(new ShoppinglistSharedAdapter.SharedOnChangeItemClick() {
+                @Override
+                public void sharedOnChangeItemClick(String sl_id, View v) {
+
+                }
+            });
+            shpAdapter.setOnShareClick(new ShoppinglistSharedAdapter.SharedOnShareClick() {
+                @Override
+                public void sharedOnShareClick(String sl_id, View v) {
+
+                }
+            });
+            shpAdapter.setOnShoppinglistClick(new ShoppinglistSharedAdapter.SharedOnShoppinglistClick() {
+                @Override
+                public void sharedOnShoppinglistClick(String sl_id, View v) {
+
+                }
+            });
+        }else {
+            shpAdapter.setOnDelClick(Dash.this);
+            shpAdapter.setOnChangeClick(Dash.this);
+            shpAdapter.setOnShareClick(Dash.this);
+            shpAdapter.setOnShoppinglistClick(Dash.this);
+        }
         sharedRecycler.setAdapter(shpAdapter);
+
+    }
+
+    private void onEmptyClick(){
 
     }
 
@@ -429,12 +471,51 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         ownRecycleView.setHasFixedSize(true);
         ownRecycleView.setLayoutManager(new LinearLayoutManager(this));
         List<Shoppinglist> ownListsList = db.getMyShoppinglists(uid);
-        ShoppinglistAdapter shpAdapter = new ShoppinglistAdapter(Dash.this, ownListsList, db);
-        shpAdapter.setOnDelClick(Dash.this);
-        shpAdapter.setOnChangeClick(Dash.this);
-        shpAdapter.setOnShareClick(Dash.this);
-        shpAdapter.setOnShoppinglistClick(Dash.this);
+        ArrayList<Shoppinglist> ownListsArrayListTmp = new ArrayList<>();
+        List<Shoppinglist> ownListsListTmp;
+        View pfeil = findViewById(R.id.pfeilnachunten3);
 
+        if(ownListsList.isEmpty()){
+            ownListsArrayListTmp.add(new Shoppinglist("empty","Keine Shoppingliste vorhanden!","Bitte eine Shoppingliste hinzufügen!","empty","#8B0000"));
+            pfeil.setVisibility(View.VISIBLE);
+            ownListsListTmp = ownListsArrayListTmp;
+        }else{
+            ownListsListTmp = ownListsList;
+            pfeil.setVisibility(View.GONE);
+        }
+
+        ShoppinglistAdapter shpAdapter = new ShoppinglistAdapter(Dash.this, ownListsListTmp, db);
+        if(!ownListsList.isEmpty()) {
+            shpAdapter.setOnDelClick(Dash.this);
+            shpAdapter.setOnChangeClick(Dash.this);
+            shpAdapter.setOnShareClick(Dash.this);
+            shpAdapter.setOnShoppinglistClick(Dash.this);
+        }else{
+            shpAdapter.setOnDelClick(new ShoppinglistAdapter.OnItemClicked() {
+                @Override
+                public void onItemClick(String sl_id) {
+
+                }
+            });
+            shpAdapter.setOnChangeClick(new ShoppinglistAdapter.OnChangeItemClick() {
+                @Override
+                public void onChangeItemClick(String sl_id, View v) {
+
+                }
+            });
+            shpAdapter.setOnShareClick(new ShoppinglistAdapter.OnShareClick() {
+                @Override
+                public void onShareClick(String sl_id, View v) {
+
+                }
+            });
+            shpAdapter.setOnShoppinglistClick(new ShoppinglistAdapter.OnShoppinglistClick() {
+                @Override
+                public void onShoppinglistClick(String sl_id, View v) {
+
+                }
+            });
+        }
         ownRecycleView.setAdapter(shpAdapter);
 
     }

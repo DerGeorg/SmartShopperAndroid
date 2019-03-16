@@ -2,6 +2,7 @@ package at.smartshopper.smartshopper.shoppinglist;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -107,6 +110,23 @@ public class ShoppinglistSharedAdapter extends RecyclerView.Adapter<Shoppinglist
 
         holder.shoppinglistColor.setBackgroundColor(cardcolor);
 
+        if(shoppinglist.getSlId().equals("empty")){
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) {
+                // Name, email address, and profile photo Url
+                String name = user.getDisplayName();
+                Uri photoUrl = user.getPhotoUrl();
+                holder.ownerName.setText(name);
+                Picasso.get().load(photoUrl).resize(250, 250).transform(new RoundCornersTransformation(30, 30, true, true)).into(holder.imageView);
+                // holder.imageView.setImageDrawable(Drawable.createFromPath("@drawable/common_google_signin_btn_icon_dark"));
+
+                // Check if user's email is verified
+
+                // The user's ID, unique to the Firebase project. Do NOT use this value to
+                // authenticate with your backend server, if you have one. Use
+                // FirebaseUser.getIdToken() instead.
+            }
+        }
         try {
             Member admin = db.getAdmin(shoppinglist.getSlId());
             Picasso.get().load(admin.getPic()).resize(250, 250).transform(new RoundCornersTransformation(30, 30, true, true)).into(holder.imageView);

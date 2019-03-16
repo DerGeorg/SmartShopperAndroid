@@ -27,6 +27,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import at.smartshopper.smartshopper.R;
@@ -129,11 +130,43 @@ public class ItemListActivity extends Activity implements ItemAdapter.OnItemEdit
         itemsListRecycler.setLayoutManager(new LinearLayoutManager(this));
         List<Item> itemList = db.getItemsOfGroup(group_id, sl_id);
 
-        ItemAdapter itemAdapter = new ItemAdapter(itemList);
-        itemAdapter.setOnItemEditClick(this);
-        itemAdapter.setItemDelClick(this);
-        itemAdapter.setOnItemCheckClick(this);
+        ArrayList<Item> itemArrayListTmp = new ArrayList<>();
+        List itemListTmp;
+        View pfeil = findViewById(R.id.pfeilnachunten2);
+        if(itemList.isEmpty()){
+            itemArrayListTmp.add(new Item("empty", "empty", "empty", "Bitte ein Item Hinzufügen!", ""));
+            itemListTmp = itemArrayListTmp;
+            pfeil.setVisibility(View.VISIBLE);
+        }else{
+            itemListTmp = itemList;
+            pfeil.setVisibility(View.GONE);
+        }
 
+        ItemAdapter itemAdapter = new ItemAdapter(itemListTmp);
+        if(itemList.isEmpty()){
+            itemAdapter.setOnItemEditClick(new ItemAdapter.OnItemEditClicked() {
+                @Override
+                public void onItemEditClicked(String item_id, String group_id, String sl_id, View v) {
+
+                }
+            });
+            itemAdapter.setItemDelClick(new ItemAdapter.OnItemDelClicked() {
+                @Override
+                public void onItemDelClicked(String item_id, String group_id, String sl_id) {
+
+                }
+            });
+            itemAdapter.setOnItemCheckClick(new ItemAdapter.OnItemCheckClicked() {
+                @Override
+                public void onItemCheckClicked(String uid, String name, String itemId, String groupId, String sl_id, int count) {
+
+                }
+            });
+        }else {
+            itemAdapter.setOnItemEditClick(this);
+            itemAdapter.setItemDelClick(this);
+            itemAdapter.setOnItemCheckClick(this);
+        }
         itemsListRecycler.setAdapter(itemAdapter);
     }
 

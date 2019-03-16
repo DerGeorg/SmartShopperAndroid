@@ -27,6 +27,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import at.smartshopper.smartshopper.R;
@@ -37,6 +38,7 @@ import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
 import at.smartshopper.smartshopper.shoppinglist.details.Details;
 import at.smartshopper.smartshopper.shoppinglist.details.DetailsAdapter;
 import at.smartshopper.smartshopper.shoppinglist.details.group.Group;
+import at.smartshopper.smartshopper.shoppinglist.details.item.Item;
 
 public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGroupEditClicked, DetailsAdapter.OnGroupDeleteClicked, DetailsAdapter.OnCardClicked {
 
@@ -305,12 +307,46 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
         detailsRecycleView.setLayoutManager(new LinearLayoutManager(this));
         List<Details> detailsList = db.getListDetails(sl_id);
 
+        ArrayList<Details> detailsArrayListTmp = new ArrayList<>();
+        List<Details> detailsListTmp;
+        View pfeil = findViewById(R.id.pfeilnachunten);
+        if(detailsList.isEmpty()){
+            Group group = new Group("empty","empty","Keine Gruppe vorhanden!","#8B0000","empty");
+            Details details = new Details(group);
+            details.addItem(new Item("empty","empty","empty","Bitte eine Gruppe Hinzufügen!",""));
+            detailsArrayListTmp.add(details);
+            pfeil.setVisibility(View.VISIBLE);
+            detailsListTmp = detailsArrayListTmp;
+        }else{
+            pfeil.setVisibility(View.INVISIBLE);
+            detailsListTmp = detailsList;
+        }
+        DetailsAdapter detailsAdapter = new DetailsAdapter(detailsListTmp, db);
+        if(detailsList.isEmpty()){
+            detailsAdapter.setGroupEditClick(new DetailsAdapter.OnGroupEditClicked() {
+                @Override
+                public void onGroupEditClick(String sl_id, String group_id, View v) {
 
-        DetailsAdapter detailsAdapter = new DetailsAdapter(detailsList, db);
-        detailsAdapter.setGroupEditClick(this);
-        detailsAdapter.setGroupDeleteClick(this);
-        detailsAdapter.setCardClick(this);
+                }
+            });
+            detailsAdapter.setGroupDeleteClick(new DetailsAdapter.OnGroupDeleteClicked() {
+                @Override
+                public void onGroupDeleteClick(String sl_id, String group_id, View v) {
 
+                }
+            });
+            detailsAdapter.setCardClick(new DetailsAdapter.OnCardClicked() {
+                @Override
+                public void onCardClick(String group_id, String sl_id, String groupName, View v) {
+
+                }
+            });
+        }else {
+
+            detailsAdapter.setGroupEditClick(this);
+            detailsAdapter.setGroupDeleteClick(this);
+            detailsAdapter.setCardClick(this);
+        }
         detailsRecycleView.setAdapter(detailsAdapter);
     }
 
