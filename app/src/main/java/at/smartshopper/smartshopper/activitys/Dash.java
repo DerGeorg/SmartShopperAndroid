@@ -607,6 +607,10 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                 Intent intent = new Intent(Dash.this, DoneItemActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.editUser:
+                Intent intent2 = new Intent(Dash.this, EditUser.class);
+                startActivity(intent2);
+                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.

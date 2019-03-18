@@ -5,7 +5,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "at.smartshopper.smartshopper"
-        minSdkVersion 19
+        minSdkVersion 26
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -30,10 +30,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
     implementation 'com.google.firebase:firebase-core:16.0.6'
+    implementation 'com.google.firebase:firebase-storage:16.0.5'
     implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
     implementation 'com.firebaseui:firebase-ui-auth:4.1.0'
-    // http://mvnrepository.com/artifact/postgresql/postgresql
     implementation group: 'postgresql', name: 'postgresql', version: '9.1-901.jdbc4'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.android.support:swiperefreshlayout:28.0.0-alpha1'
@@ -42,5 +42,4 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:28.0.0'
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'cz.msebera.android:httpclient:4.4.1.2'
-
 }
