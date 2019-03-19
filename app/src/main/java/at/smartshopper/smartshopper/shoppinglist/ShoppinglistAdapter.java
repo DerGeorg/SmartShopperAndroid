@@ -124,7 +124,7 @@ String uid = FirebaseAuth.getInstance().getUid();
             try {
                 Member user = db.getUser(uid);
                 holder.ownerName.setText(user.getName());
-                Picasso.get().load(user.getPic()).resize(250, 250).transform(new RoundCornersTransformation(30, 30, true, true)).into(holder.imageView);
+                Picasso.get().load(user.getPic()).resize(250, 250).transform(new RoundCornersTransformation(15, 15, true, true)).into(holder.imageView);
             } catch (SQLException e) {
                 e.printStackTrace();
             } catch (JSONException e) {

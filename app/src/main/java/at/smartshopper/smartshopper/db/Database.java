@@ -119,7 +119,7 @@ public class Database {
             newname = name;
         }
         if (picture.isEmpty() || picture.equals(" ")) {
-            newpicture = "https://i0.wp.com/www.windowspower.de/wp-content/uploads/2015/10/profilbilde-windows-10.jpg?fit=610%2C340&ssl=1";
+            newpicture = picture;
         } else {
             newpicture = picture;
         }
@@ -485,6 +485,9 @@ public class Database {
      */
     public void createUser(String username, String message_id, String name, String picture, String email) throws SQLException {
         String SQL = "INSERT INTO \"User\" (username, message_id, name, picture, email) VALUES (?, ?, ?, ?, ?)";
+        if(picture.isEmpty()){
+            picture = "https://st2.depositphotos.com/1537427/5927/v/950/depositphotos_59279377-stock-illustration-user-icon.jpg";
+        }
         sqlUpdate5Param(SQL, username, message_id, name, picture, email);
     }
 

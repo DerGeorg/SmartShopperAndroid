@@ -110,38 +110,14 @@ public class EditUser extends Activity {
 
                 arlist.add(userBitmap);
                 arlist.add(FirebaseAuth.getInstance().getUid());
+                arlist.add(editname.getText().toString());
                 Object[] objArr = arlist.toArray();
                 ImgSaver imgSaver = new ImgSaver();
-                String uri = null;
+                String[] uri = null;
                 String name = editname.getText().toString();
                 try {
-                    uri = imgSaver.execute(objArr).get();
+                    imgSaver.execute(objArr).get();
 
-
-                    Log.d("SmartShopper", uri + " " + name);
-                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                            .setDisplayName(name)
-                            .setPhotoUri(Uri.parse(uri))
-                            .build();
-                    try {
-                        Member member = db.getUser(FirebaseAuth.getInstance().getUid());
-                        db.updateUser(FirebaseAuth.getInstance().getUid(), member.getMsid(), name, FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString(), member.getEmail());
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    user.updateProfile(profileUpdates)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        Log.d("SmartShopper", "User profile updated.");
-                                        doRestart(EditUser.this);
-                                    }
-                                }
-                            });
 
                 } catch (ExecutionException e) {
                     e.printStackTrace();
@@ -440,13 +416,13 @@ public class EditUser extends Activity {
         }
     }
 
-    public class ImgSaver extends AsyncTask<Object, String, String> {
+    public class ImgSaver extends AsyncTask<Object, Void, Void> {
 
         private FirebaseStorage storage = FirebaseStorage.getInstance();
         private String downloadUriFinal = "";
 
         @Override
-        protected String doInBackground(Object... objects) {
+        protected Void doInBackground(Object... objects) {
 //            Log.d("SmartShopper", objects[0].toString() + objects[1].toString());
             final StorageReference storageRef = storage.getReference("/" + objects[1]);
 
@@ -468,16 +444,41 @@ public class EditUser extends Activity {
             }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
+                    String name = editname.getText().toString();
                     if (task.isSuccessful()) {
                         Uri downloadUri = task.getResult();
                         Log.d("SmartShopper", downloadUri.toString());
                         downloadUriFinal = downloadUri.toString();
+                        Log.d("SmartShopper", downloadUriFinal + " " + name);
+                        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                .setDisplayName(name)
+                                .setPhotoUri(Uri.parse(downloadUriFinal))
+                                .build();
+                        try {
+                            Member member = db.getUser(FirebaseAuth.getInstance().getUid());
+                            db.updateUser(FirebaseAuth.getInstance().getUid(), member.getMsid(), name, downloadUriFinal, member.getEmail());
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        user.updateProfile(profileUpdates)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d("SmartShopper", "User profile updated.");
+                                            doRestart(EditUser.this);
+                                        }
+                                    }
+                                });
                     } else {
                         System.out.println(task.getException().getMessage());
                     }
                 }
             });
-            return downloadUriFinal;
+            return null;
         }
     }
 }

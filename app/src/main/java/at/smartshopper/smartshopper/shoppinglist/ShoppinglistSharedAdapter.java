@@ -117,7 +117,7 @@ public class ShoppinglistSharedAdapter extends RecyclerView.Adapter<Shoppinglist
                 String name = user.getDisplayName();
                 Uri photoUrl = user.getPhotoUrl();
                 holder.ownerName.setText(name);
-                Picasso.get().load(photoUrl).resize(250, 250).transform(new RoundCornersTransformation(30, 30, true, true)).into(holder.imageView);
+                Picasso.get().load(photoUrl).resize(250, 250).transform(new RoundCornersTransformation(15, 15, true, true)).into(holder.imageView);
                 // holder.imageView.setImageDrawable(Drawable.createFromPath("@drawable/common_google_signin_btn_icon_dark"));
 
                 // Check if user's email is verified
@@ -129,7 +129,7 @@ public class ShoppinglistSharedAdapter extends RecyclerView.Adapter<Shoppinglist
         }
         try {
             Member admin = db.getAdmin(shoppinglist.getSlId());
-            Picasso.get().load(admin.getPic()).resize(250, 250).transform(new RoundCornersTransformation(30, 30, true, true)).into(holder.imageView);
+            Picasso.get().load(admin.getPic()).resize(250, 250).transform(new RoundCornersTransformation(15, 15, true, true)).into(holder.imageView);
             holder.ownerName.setText(admin.getName());
         } catch (SQLException e) {
             e.printStackTrace();
