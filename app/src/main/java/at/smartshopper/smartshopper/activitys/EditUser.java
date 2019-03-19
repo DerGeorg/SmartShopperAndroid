@@ -255,11 +255,11 @@ public class EditUser extends Activity {
             CropIntent.setDataAndType(uri, "image/*");
 
             CropIntent.putExtra("crop", "true");
-            CropIntent.putExtra("outputX", 180);
-            CropIntent.putExtra("outputY", 180);
-            CropIntent.putExtra("aspectX", 3);
-            CropIntent.putExtra("aspectY", 4);
-            CropIntent.putExtra("scaleUpIfNeeded", true);
+            CropIntent.putExtra("outputX", 350);
+            CropIntent.putExtra("outputY", 350);
+            CropIntent.putExtra("aspectX", 1);
+            CropIntent.putExtra("aspectY", 1);
+            CropIntent.putExtra("scaleUpIfNeeded", false);
             CropIntent.putExtra("return-data", true);
 
             startActivityForResult(CropIntent, 1);
