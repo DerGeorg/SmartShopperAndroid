@@ -3,6 +3,7 @@ package at.smartshopper.smartshopper.activitys;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,13 +12,16 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,7 +36,9 @@ import com.google.firebase.storage.UploadTask;
 import org.json.JSONException;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.SQLException;
@@ -51,6 +57,8 @@ public class EditUser extends Activity {
     private Bitmap userBitmap;
     private Database db;
     private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private Bitmap selectedImage;
+    private Uri imageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,16 +193,115 @@ public class EditUser extends Activity {
         }
     }
 
+
+    // code for device below 5
+    private boolean performCropImage(Uri mFinalImageUri) {
+        Uri mCropImagedUri;
+        try {
+            if (mFinalImageUri != null) {
+                //call the standard crop action intent (the user device may not support it)
+                Intent cropIntent = new Intent("com.android.camera.action.CROP");
+                //indicate image type and Uri
+                cropIntent.setDataAndType(mFinalImageUri, "image/*");
+                //set crop properties
+                cropIntent.putExtra("crop", "true");
+                //indicate aspect of desired crop
+                cropIntent.putExtra("aspectX", 1);
+                cropIntent.putExtra("aspectY", 1);
+                cropIntent.putExtra("scale", true);
+                // cropIntent.p
+                //indicate output X and Y
+                cropIntent.putExtra("outputX", 200);
+                cropIntent.putExtra("outputY", 200);
+                //retrieve data on return
+                cropIntent.putExtra("return-data", false);
+
+                File f = new File("CROP_");
+                try {
+                    f.createNewFile();
+                } catch (IOException ex) {
+                    Log.e("io", ex.getMessage());
+                }
+
+                mCropImagedUri = Uri.fromFile(f);
+                cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCropImagedUri);
+                //start the activity - we handle returning in onActivityResult
+                startActivityForResult(cropIntent, 2);
+                return true;
+            }
+        } catch (ActivityNotFoundException anfe) {
+            //display an error message
+            String errorMessage = getString('2');
+            Toast toast = Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
+            toast.show();
+            return false;
+        }
+        return false;
+    }
+    // code for 5 or 6
+    private void performCrop(Uri picUri) {
+        try {
+
+            Intent cropIntent = new Intent("com.android.camera.action.CROP");
+            // indicate image type and Uri
+            cropIntent.setDataAndType(picUri, "image/*");
+            // set crop properties
+            cropIntent.putExtra("crop", "true");
+            // indicate aspect of desired crop
+            cropIntent.putExtra("aspectX", 1);
+            cropIntent.putExtra("aspectY", 1);
+            // indicate output X and Y
+            cropIntent.putExtra("outputX", 200);
+            cropIntent.putExtra("outputY", 200);
+            // retrieve data on return
+            cropIntent.putExtra("return-data", true);
+            // start the activity - we handle returning in onActivityResult
+            startActivityForResult(cropIntent, 2);
+        }
+        // respond to users whose devices do not support the crop action
+        catch (ActivityNotFoundException anfe) {
+            // display an error message
+            String errorMessage = getString('2');
+            Toast toast = Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        final InputStream imageStream;
+
+
         if (requestCode == 1) {
+            imageUri = data.getData();
             try {
-                final Uri imageUri = data.getData();
-                final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                imageStream = getContentResolver().openInputStream(imageUri);
+                selectedImage = BitmapFactory.decodeStream(imageStream);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+                performCrop(imageUri);
+            } else {
+                performCropImage(imageUri);
+            }
+
+        } else if (requestCode == 2) {
+            try {
+                if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+                    Bundle extras = data.getExtras();
+                    selectedImage = extras.getParcelable("data");
+                } else {
+                    selectedImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+
+                }
                 userBitmap = selectedImage;
                 userbild.setImageBitmap(selectedImage);
             } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
