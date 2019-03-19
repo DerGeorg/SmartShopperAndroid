@@ -8,11 +8,16 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,6 +37,7 @@ import java.util.List;
 
 import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.customViews.SpaceItemDecoration;
+import at.smartshopper.smartshopper.customViews.ToolbarHelper;
 import at.smartshopper.smartshopper.db.Database;
 import at.smartshopper.smartshopper.messaging.MyFirebaseSender;
 import at.smartshopper.smartshopper.shoppinglist.Shoppinglist;
@@ -40,14 +46,66 @@ import at.smartshopper.smartshopper.shoppinglist.details.DetailsAdapter;
 import at.smartshopper.smartshopper.shoppinglist.details.group.Group;
 import at.smartshopper.smartshopper.shoppinglist.details.item.Item;
 
-public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGroupEditClicked, DetailsAdapter.OnGroupDeleteClicked, DetailsAdapter.OnCardClicked {
+public class ShoppinglistDetails extends AppCompatActivity implements DetailsAdapter.OnGroupEditClicked, DetailsAdapter.OnGroupDeleteClicked, DetailsAdapter.OnCardClicked {
 
     private Database db;
     private FloatingActionButton fab;
-    private String colorString;
+    private String colorString, sl_id;
     private PopupWindow popupWindow;
     private Button colorBtn;
     private SwipeRefreshLayout detailsSwiperefresh;
+
+
+    /**
+     * Menu item Action listener
+     *
+     * @param item Action Item
+     * @return True wenn erfolgreich
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        ToolbarHelper th = new ToolbarHelper(getApplicationContext(),getWindow().getDecorView());
+        switch (item.getItemId()) {
+            case R.id.logoutBtn:
+                th.logout();
+                return true;
+
+            case R.id.addInvite:
+                th.popupaddInvite();
+                return true;
+            case R.id.doneEinkauf:
+                th.doneEinkauf("shpdetails", sl_id, " ", " ");
+                return true;
+            case R.id.editUser:
+                finish();
+                Intent intent2 = new Intent(this, EditUser.class);
+                startActivity(intent2);
+                return true;
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater inflater = getMenuInflater();
+
+        inflater.inflate(R.menu.dash_menu, menu);
+
+        return true;
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        Intent intent = new Intent(this, Dash.class);
+        startActivity(intent);
+    }
 
     /**
      * Convertiert eine int farbe in eine hexa dezimale Farbe
@@ -63,11 +121,12 @@ public class ShoppinglistDetails extends Activity implements DetailsAdapter.OnGr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shoppinglist_details);
+
         fab = findViewById(R.id.addGroupFab);
         db = new Database();
         colorBtn = (Button) findViewById(R.id.groupColor);
         Intent intent = getIntent();
-        String sl_id = intent.getStringExtra("sl_id");
+        sl_id = intent.getStringExtra("sl_id");
 
 
         try {

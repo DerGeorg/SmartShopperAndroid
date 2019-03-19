@@ -64,6 +64,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
     private Button colorBtn;
     //Für Double Back press to exit
     private boolean doubleBackToExitPressedOnce = false;
+    private TabHost host;
 
     /**
      * Convertiert eine int farbe in eine hexa dezimale Farbe
@@ -158,6 +159,16 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             final String uid = user.getUid();
             // Erstellt die Tabs
             tabHoster(uid);
+
+            // Get the transferred data from source activity.
+            Intent intent = getIntent();
+            String message = intent.getStringExtra("tab2");
+            String wahr = "true";
+            if(message != null){
+                if(message.equals(wahr)) {
+                    host.setCurrentTab(1);
+                }
+            }
 
             try {
                 try {
@@ -337,6 +348,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         colorBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                finish();
                 Intent intent = new Intent(Dash.this, Colorpicker.class);
                 startActivityForResult(intent, 1);
 
@@ -526,7 +538,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
      * Hier wird auch der Name der Tabs gesetzt
      */
     private void tabHoster(final String uid) {
-        final TabHost host = (TabHost) findViewById(R.id.tabHost1);
+        host = (TabHost) findViewById(R.id.tabHost1);
         host.setup();
 
         //Tab 1
@@ -574,6 +586,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
      * Schickt an die Login Activity einen intend mit dem extra EXIT. Um die app zu schließen
      */
     private void exit() {
+        finish();
         Intent intent = new Intent(Dash.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("EXIT", true);
@@ -604,10 +617,12 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                 popupaddInvite();
                 return true;
             case R.id.doneEinkauf:
+                finish();
                 Intent intent = new Intent(Dash.this, DoneItemActivity.class);
                 startActivity(intent);
                 return true;
             case R.id.editUser:
+                finish();
                 Intent intent2 = new Intent(Dash.this, EditUser.class);
                 startActivity(intent2);
                 return true;
@@ -765,6 +780,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
     }
 
     private void onShoppinglistClickContainer(String sl_id, View v) {
+        finish();
         Intent intent = new Intent(this, ShoppinglistDetails.class);
         intent.putExtra("sl_id", sl_id);
 
