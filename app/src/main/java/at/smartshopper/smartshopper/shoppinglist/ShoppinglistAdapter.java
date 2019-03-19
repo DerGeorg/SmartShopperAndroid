@@ -17,6 +17,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+
+import java.sql.SQLException;
 import java.util.List;
 
 import at.smartshopper.smartshopper.R;
@@ -113,13 +116,20 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
 
         holder.shoppinglistColor.setBackgroundColor(cardcolor);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            // Name, email address, and profile photo Url
-            String name = user.getDisplayName();
-            Uri photoUrl = user.getPhotoUrl();
-            holder.ownerName.setText(name);
-            Picasso.get().load(photoUrl).resize(250, 250).transform(new RoundCornersTransformation(30, 30, true, true)).into(holder.imageView);
+
+String uid = FirebaseAuth.getInstance().getUid();
+
+
+
+            try {
+                Member user = db.getUser(uid);
+                holder.ownerName.setText(user.getName());
+                Picasso.get().load(user.getPic()).resize(250, 250).transform(new RoundCornersTransformation(30, 30, true, true)).into(holder.imageView);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             // holder.imageView.setImageDrawable(Drawable.createFromPath("@drawable/common_google_signin_btn_icon_dark"));
 
             // Check if user's email is verified
@@ -130,7 +140,7 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
         }
 
 
-    }
+
 
 
     /**

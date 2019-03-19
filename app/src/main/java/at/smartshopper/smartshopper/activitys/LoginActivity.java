@@ -28,10 +28,13 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
+import org.json.JSONException;
+
 import java.sql.SQLException;
 
 import at.smartshopper.smartshopper.R;
 import at.smartshopper.smartshopper.db.Database;
+import at.smartshopper.smartshopper.shoppinglist.Member;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -82,16 +85,22 @@ public class LoginActivity extends AppCompatActivity {
                             return;
                         }
 
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        String uid = user.getUid();
-                        String name = user.getDisplayName();
-                        String email = user.getEmail();
-                        String picture = " ";
+                        String uid = FirebaseAuth.getInstance().getUid();
+                        Member user;
+                        String name = null;
+                        String picture = null;
+                        String email = null;
                         try {
-                            picture = user.getPhotoUrl().toString();
-                        } catch (Exception e) {
+                            user = db.getUser(uid);
+                            name = user.getName();
+                            picture = user.getPic();
+                            email = user.getEmail();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
+
                         // Get new Instance ID token
                         String token = task.getResult().getToken();
 
