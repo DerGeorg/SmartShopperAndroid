@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="at.smartshopper.smartshopper">
+    package="at.smartshopper.smartshopperapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -13,14 +13,14 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".activitys.EditUser"
+            android:name="at.smartshopper.smartshopperapp.activitys.EditUser"
             android:label="@string/title_activity_edit_user"></activity>
-        <activity android:name=".activitys.DoneItemActivity" />
+        <activity android:name="at.smartshopper.smartshopperapp.activitys.DoneItemActivity" />
         <activity
-            android:name=".activitys.ItemListActivity"
+            android:name="at.smartshopper.smartshopperapp.activitys.ItemListActivity"
             android:label="@string/title_activity_item_list" />
-        <activity android:name=".activitys.Colorpicker" />
-        <activity android:name=".activitys.LoginActivity">
+        <activity android:name="at.smartshopper.smartshopperapp.activitys.Colorpicker" />
+        <activity android:name="at.smartshopper.smartshopperapp.activitys.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activitys.Dash"
+            android:name="at.smartshopper.smartshopperapp.activitys.Dash"
             android:label="SmartShopper"
             android:theme="@style/AppTheme" />
         <!--
@@ -46,14 +46,14 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" /> <!-- [START firebase_service] -->
         <service
-            android:name=".messaging.MyFirebaseMessagingService"
+            android:name="at.smartshopper.smartshopperapp.messaging.MyFirebaseMessagingService"
             android:stopWithTask="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service> <!-- [END firebase_service] -->
         <activity
-            android:name=".activitys.ShoppinglistDetails"
+            android:name="at.smartshopper.smartshopperapp.activitys.ShoppinglistDetails"
             android:label="@string/title_activity_shoppinglist_details" />
     </application>
 

@@ -4,7 +4,7 @@ apply plugin: 'com.google.gms.google-services'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "at.smartshopper.smartshopper"
+        applicationId "at.smartshopper.smartshopperapp"
         minSdkVersion 26
         targetSdkVersion 28
         versionCode 1
