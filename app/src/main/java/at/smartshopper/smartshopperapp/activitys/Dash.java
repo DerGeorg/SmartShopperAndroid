@@ -164,8 +164,8 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             Intent intent = getIntent();
             String message = intent.getStringExtra("tab2");
             String wahr = "true";
-            if(message != null){
-                if(message.equals(wahr)) {
+            if (message != null) {
+                if (message.equals(wahr)) {
                     host.setCurrentTab(1);
                 }
             }
@@ -426,15 +426,15 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         ArrayList<Shoppinglist> sharedListsArrayListTmp = new ArrayList<>();
         List<Shoppinglist> sharedListsListTmp;
 
-        if(sharedListsList.isEmpty()){
-            sharedListsArrayListTmp.add(new Shoppinglist("empty","Keine Shoppingliste geteilt!","Um einen Invite Link hinzuzufügen, fügen Sie diesen im Menü ein.","empty","#8B0000"));
+        if (sharedListsList.isEmpty()) {
+            sharedListsArrayListTmp.add(new Shoppinglist("empty", "Keine Shoppingliste geteilt!", "Um einen Invite Link hinzuzufügen, fügen Sie diesen im Menü ein.", "empty", "#8B0000"));
             sharedListsListTmp = sharedListsArrayListTmp;
-        }else{
+        } else {
             sharedListsListTmp = sharedListsList;
             findViewById(R.id.pfeilnachunten3).setVisibility(View.GONE);
         }
         ShoppinglistSharedAdapter shpAdapter = new ShoppinglistSharedAdapter(Dash.this, sharedListsListTmp, db);
-        if(sharedListsList.isEmpty()){
+        if (sharedListsList.isEmpty()) {
             shpAdapter.setOnDelClick(new ShoppinglistSharedAdapter.SharedOnItemClicked() {
                 @Override
                 public void sharedOnItemClick(String sl_id) {
@@ -459,7 +459,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
                 }
             });
-        }else {
+        } else {
             shpAdapter.setOnDelClick(Dash.this);
             shpAdapter.setOnChangeClick(Dash.this);
             shpAdapter.setOnShareClick(Dash.this);
@@ -469,7 +469,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
     }
 
-    private void onEmptyClick(){
+    private void onEmptyClick() {
 
     }
 
@@ -487,22 +487,22 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         List<Shoppinglist> ownListsListTmp;
         View pfeil = findViewById(R.id.pfeilnachunten3);
 
-        if(ownListsList.isEmpty()){
-            ownListsArrayListTmp.add(new Shoppinglist("empty","Keine Shoppingliste vorhanden!","Bitte eine Shoppingliste hinzufügen!","empty","#8B0000"));
+        if (ownListsList.isEmpty()) {
+            ownListsArrayListTmp.add(new Shoppinglist("empty", "Keine Shoppingliste vorhanden!", "Bitte eine Shoppingliste hinzufügen!", "empty", "#8B0000"));
             pfeil.setVisibility(View.VISIBLE);
             ownListsListTmp = ownListsArrayListTmp;
-        }else{
+        } else {
             ownListsListTmp = ownListsList;
             pfeil.setVisibility(View.GONE);
         }
 
         ShoppinglistAdapter shpAdapter = new ShoppinglistAdapter(Dash.this, ownListsListTmp, db);
-        if(!ownListsList.isEmpty()) {
+        if (!ownListsList.isEmpty()) {
             shpAdapter.setOnDelClick(Dash.this);
             shpAdapter.setOnChangeClick(Dash.this);
             shpAdapter.setOnShareClick(Dash.this);
             shpAdapter.setOnShoppinglistClick(Dash.this);
-        }else{
+        } else {
             shpAdapter.setOnDelClick(new ShoppinglistAdapter.OnItemClicked() {
                 @Override
                 public void onItemClick(String sl_id) {
@@ -566,8 +566,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                         e.printStackTrace();
                     }
 
-                }
-                else if (i ==1) {
+                } else if (i == 1) {
                     try {
                         showSharedShoppingList(uid);
                     } catch (JSONException e) {

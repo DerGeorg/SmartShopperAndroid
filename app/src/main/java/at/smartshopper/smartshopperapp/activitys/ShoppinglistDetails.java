@@ -6,8 +6,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -53,6 +53,15 @@ public class ShoppinglistDetails extends AppCompatActivity implements DetailsAda
     private Button colorBtn;
     private SwipeRefreshLayout detailsSwiperefresh;
 
+    /**
+     * Convertiert eine int farbe in eine hexa dezimale Farbe
+     *
+     * @param color Farbe zum umwandeln in int
+     * @return farbe als hex im string
+     */
+    private static String colorToHexString(int color) {
+        return String.format("#%06X", 0xFFFFFFFF & color);
+    }
 
     /**
      * Menu item Action listener
@@ -62,7 +71,7 @@ public class ShoppinglistDetails extends AppCompatActivity implements DetailsAda
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        ToolbarHelper th = new ToolbarHelper(getApplicationContext(),getWindow().getDecorView());
+        ToolbarHelper th = new ToolbarHelper(getApplicationContext(), getWindow().getDecorView());
         switch (item.getItemId()) {
             case R.id.logoutBtn:
                 th.logout();
@@ -103,16 +112,6 @@ public class ShoppinglistDetails extends AppCompatActivity implements DetailsAda
         finish();
         Intent intent = new Intent(this, Dash.class);
         startActivity(intent);
-    }
-
-    /**
-     * Convertiert eine int farbe in eine hexa dezimale Farbe
-     *
-     * @param color Farbe zum umwandeln in int
-     * @return farbe als hex im string
-     */
-    private static String colorToHexString(int color) {
-        return String.format("#%06X", 0xFFFFFFFF & color);
     }
 
     @Override
@@ -367,19 +366,19 @@ public class ShoppinglistDetails extends AppCompatActivity implements DetailsAda
         ArrayList<Details> detailsArrayListTmp = new ArrayList<>();
         List<Details> detailsListTmp;
         View pfeil = findViewById(R.id.pfeilnachunten);
-        if(detailsList.isEmpty()){
-            Group group = new Group("empty","empty","Keine Gruppe vorhanden!","#8B0000","empty");
+        if (detailsList.isEmpty()) {
+            Group group = new Group("empty", "empty", "Keine Gruppe vorhanden!", "#8B0000", "empty");
             Details details = new Details(group);
-            details.addItem(new Item("empty","empty","empty","Bitte eine Gruppe Hinzufügen!",""));
+            details.addItem(new Item("empty", "empty", "empty", "Bitte eine Gruppe Hinzufügen!", ""));
             detailsArrayListTmp.add(details);
             pfeil.setVisibility(View.VISIBLE);
             detailsListTmp = detailsArrayListTmp;
-        }else{
+        } else {
             pfeil.setVisibility(View.INVISIBLE);
             detailsListTmp = detailsList;
         }
         DetailsAdapter detailsAdapter = new DetailsAdapter(detailsListTmp, db);
-        if(detailsList.isEmpty()){
+        if (detailsList.isEmpty()) {
             detailsAdapter.setGroupEditClick(new DetailsAdapter.OnGroupEditClicked() {
                 @Override
                 public void onGroupEditClick(String sl_id, String group_id, View v) {
@@ -398,7 +397,7 @@ public class ShoppinglistDetails extends AppCompatActivity implements DetailsAda
 
                 }
             });
-        }else {
+        } else {
 
             detailsAdapter.setGroupEditClick(this);
             detailsAdapter.setGroupDeleteClick(this);

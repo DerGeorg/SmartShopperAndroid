@@ -128,7 +128,7 @@ public class ItemListActivity extends AppCompatActivity implements ItemAdapter.O
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        ToolbarHelper th = new ToolbarHelper(getApplicationContext(),getWindow().getDecorView());
+        ToolbarHelper th = new ToolbarHelper(getApplicationContext(), getWindow().getDecorView());
         switch (item.getItemId()) {
             case R.id.logoutBtn:
                 th.logout();
@@ -181,17 +181,17 @@ public class ItemListActivity extends AppCompatActivity implements ItemAdapter.O
         ArrayList<Item> itemArrayListTmp = new ArrayList<>();
         List itemListTmp;
         View pfeil = findViewById(R.id.pfeilnachunten2);
-        if(itemList.isEmpty()){
+        if (itemList.isEmpty()) {
             itemArrayListTmp.add(new Item("empty", "empty", "empty", "Bitte ein Item Hinzufügen!", ""));
             itemListTmp = itemArrayListTmp;
             pfeil.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             itemListTmp = itemList;
             pfeil.setVisibility(View.GONE);
         }
 
         ItemAdapter itemAdapter = new ItemAdapter(itemListTmp);
-        if(itemList.isEmpty()){
+        if (itemList.isEmpty()) {
             itemAdapter.setOnItemEditClick(new ItemAdapter.OnItemEditClicked() {
                 @Override
                 public void onItemEditClicked(String item_id, String group_id, String sl_id, View v) {
@@ -210,7 +210,7 @@ public class ItemListActivity extends AppCompatActivity implements ItemAdapter.O
 
                 }
             });
-        }else {
+        } else {
             itemAdapter.setOnItemEditClick(this);
             itemAdapter.setItemDelClick(this);
             itemAdapter.setOnItemCheckClick(this);

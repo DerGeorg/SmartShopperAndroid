@@ -50,15 +50,54 @@ import at.smartshopper.smartshopperapp.shoppinglist.Member;
 
 public class EditUser extends Activity {
 
+    public static final int RequestPermissionCode = 1;
+    private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private EditText editname;
     private ImageView userbild;
     private Button finish, chooseImg;
     private Database db;
-    private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private Uri uri;
     private Intent CamIntent, GalIntent, CropIntent;
     private File file;
-    public static final int RequestPermissionCode = 1;
+
+    public static void doRestart(Context c) {
+        try {
+            //check if the context is given
+            if (c != null) {
+                //fetch the packagemanager so we can get the default launch activity
+                // (you can replace this intent with any other activity if you want
+                PackageManager pm = c.getPackageManager();
+                //check if we got the PackageManager
+                if (pm != null) {
+                    //create the intent with the default start activity for your application
+                    Intent mStartActivity = pm.getLaunchIntentForPackage(
+                            c.getPackageName()
+                    );
+                    if (mStartActivity != null) {
+                        mStartActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        //create a pending intent so the application is restarted after System.exit(0) was called.
+                        // We use an AlarmManager to call this intent in 100ms
+                        int mPendingIntentId = 223344;
+                        PendingIntent mPendingIntent = PendingIntent
+                                .getActivity(c, mPendingIntentId, mStartActivity,
+                                        PendingIntent.FLAG_CANCEL_CURRENT);
+                        AlarmManager mgr = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+                        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+                        //kill the application
+                        System.exit(0);
+                    } else {
+                        Log.e("SmartShopper", "Was not able to restart application, mStartActivity null");
+                    }
+                } else {
+                    Log.e("SmartShopper", "Was not able to restart application, PM null");
+                }
+            } else {
+                Log.e("SmartShopper", "Was not able to restart application, Context null");
+            }
+        } catch (Exception ex) {
+            Log.e("SmartShopper", "Was not able to restart application");
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,45 +165,6 @@ public class EditUser extends Activity {
 
             }
         });
-    }
-
-    public static void doRestart(Context c) {
-        try {
-            //check if the context is given
-            if (c != null) {
-                //fetch the packagemanager so we can get the default launch activity
-                // (you can replace this intent with any other activity if you want
-                PackageManager pm = c.getPackageManager();
-                //check if we got the PackageManager
-                if (pm != null) {
-                    //create the intent with the default start activity for your application
-                    Intent mStartActivity = pm.getLaunchIntentForPackage(
-                            c.getPackageName()
-                    );
-                    if (mStartActivity != null) {
-                        mStartActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        //create a pending intent so the application is restarted after System.exit(0) was called.
-                        // We use an AlarmManager to call this intent in 100ms
-                        int mPendingIntentId = 223344;
-                        PendingIntent mPendingIntent = PendingIntent
-                                .getActivity(c, mPendingIntentId, mStartActivity,
-                                        PendingIntent.FLAG_CANCEL_CURRENT);
-                        AlarmManager mgr = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
-                        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
-                        //kill the application
-                        System.exit(0);
-                    } else {
-                        Log.e("SmartShopper", "Was not able to restart application, mStartActivity null");
-                    }
-                } else {
-                    Log.e("SmartShopper", "Was not able to restart application, PM null");
-                }
-            } else {
-                Log.e("SmartShopper", "Was not able to restart application, Context null");
-            }
-        } catch (Exception ex) {
-            Log.e("SmartShopper", "Was not able to restart application");
-        }
     }
 
     public void ClickImageFromCamera() {

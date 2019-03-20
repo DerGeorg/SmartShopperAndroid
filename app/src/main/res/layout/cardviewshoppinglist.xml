@@ -9,31 +9,50 @@
     card_view:cardElevation="4dp"
     card_view:cardUseCompatPadding="true">
 
-    <TableRow
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            card_view:layout_constraintGuide_begin="118dp" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            card_view:layout_constraintGuide_begin="32dp" />
+
+        <View
+            android:id="@+id/shoppinglistColor"
+            android:layout_width="0dp"
+            android:layout_height="0dp "
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/rechteck"
+            card_view:layout_constraintBottom_toBottomOf="parent"
+            card_view:layout_constraintEnd_toStartOf="@+id/guideline4"
+            card_view:layout_constraintStart_toStartOf="parent"
+            card_view:layout_constraintTop_toTopOf="parent" />
 
         <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <View
-                android:id="@+id/shoppinglistColor"
-                android:layout_width="0dp"
-                android:layout_height="0dp "
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:src="@drawable/rechteck"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintEnd_toStartOf="@+id/guideline4"
-                card_view:layout_constraintStart_toStartOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent" />
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="8dp"
+            card_view:layout_constraintBottom_toBottomOf="parent"
+            card_view:layout_constraintEnd_toStartOf="@+id/guideline6"
+            card_view:layout_constraintStart_toStartOf="@+id/guideline4"
+            card_view:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
                 android:id="@+id/linearLayout2"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
@@ -41,131 +60,159 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintEnd_toStartOf="@+id/guideline"
-                card_view:layout_constraintStart_toStartOf="@+id/guideline4"
-                card_view:layout_constraintTop_toTopOf="parent"
-                card_view:layout_constraintVertical_bias="0.436">
+                card_view:layout_constraintStart_toStartOf="parent"
+                card_view:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                     android:id="@+id/shoppinglistOwner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:scaleType="centerCrop"
+                    android:src="@drawable/common_google_signin_btn_icon_dark"
                     card_view:layout_constraintStart_toStartOf="parent"
-                    card_view:layout_constraintTop_toTopOf="parent"
-                    tools:srcCompat="@drawable/common_google_signin_btn_icon_dark" />
+                    card_view:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/ownerName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="OwnerName"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     card_view:layout_constraintBottom_toBottomOf="parent"
                     card_view:layout_constraintStart_toStartOf="parent"
                     card_view:layout_constraintTop_toBottomOf="@+id/shoppinglistOwner" />
 
             </LinearLayout>
 
-            <android.support.constraint.Guideline
-                android:id="@+id/guideline"
-                android:layout_width="wrap_content"
+        </android.support.constraint.ConstraintLayout>
+
+        <TableLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="fill"
+            card_view:layout_constraintBottom_toBottomOf="parent"
+            card_view:layout_constraintEnd_toEndOf="parent"
+            card_view:layout_constraintStart_toStartOf="@+id/guideline6"
+            card_view:layout_constraintTop_toTopOf="parent">
+
+            <TableRow
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                card_view:layout_constraintGuide_begin="111dp" />
+                android:gravity="right">
 
-            <LinearLayout
-                android:id="@+id/linearLayout"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintEnd_toStartOf="@+id/guideline2"
-                card_view:layout_constraintStart_toStartOf="@+id/guideline"
-                card_view:layout_constraintTop_toTopOf="parent">
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-                <TextView
-                    android:id="@+id/shoppinglistName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="Name"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    card_view:layout_constraintEnd_toEndOf="parent"
-                    card_view:layout_constraintStart_toEndOf="@+id/shoppinglistOwner"
-                    card_view:layout_constraintTop_toTopOf="parent" />
+                    <android.support.constraint.ConstraintLayout
+                        android:id="@+id/constraintLayout2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        card_view:layout_constraintBottom_toBottomOf="parent"
+                        card_view:layout_constraintEnd_toEndOf="parent"
+                        card_view:layout_constraintTop_toTopOf="parent">
 
-                <TextView
-                    android:id="@+id/shoppinglistBeschreibung"
+                        <ImageButton
+                            android:id="@+id/shareEditButton"
+                            android:layout_width="@dimen/buttonSize"
+                            android:layout_height="@dimen/buttonSize"
+                            android:layout_marginStart="8dp"
+                            android:background="@color/fui_transparent"
+                            android:contentDescription="Share Button"
+                            android:scaleType="fitXY"
+                            card_view:layout_constraintBottom_toBottomOf="parent"
+                            card_view:layout_constraintStart_toStartOf="parent"
+                            card_view:layout_constraintTop_toTopOf="parent"
+                            card_view:srcCompat="@drawable/share" />
+
+                        <ImageButton
+                            android:id="@+id/shpEdit"
+                            android:layout_width="@dimen/buttonSize"
+                            android:layout_height="@dimen/buttonSize"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/fui_transparent"
+                            android:contentDescription="Edit Button"
+                            android:scaleType="fitXY"
+                            card_view:layout_constraintBottom_toBottomOf="parent"
+                            card_view:layout_constraintEnd_toStartOf="@+id/shpDel"
+                            card_view:layout_constraintStart_toEndOf="@+id/shareEditButton"
+                            card_view:layout_constraintTop_toTopOf="parent"
+                            card_view:srcCompat="@drawable/bearbeiten"
+                            tools:srcCompat="@drawable/bearbeiten" />
+
+                        <ImageButton
+                            android:id="@+id/shpDel"
+                            android:layout_width="@dimen/buttonSize"
+                            android:layout_height="@dimen/buttonSize"
+                            android:background="@color/fui_transparent"
+                            android:contentDescription="Delete Button"
+                            android:scaleType="fitXY"
+                            android:src="@drawable/delete"
+                            card_view:layout_constraintBottom_toBottomOf="parent"
+                            card_view:layout_constraintEnd_toEndOf="parent"
+                            card_view:layout_constraintTop_toTopOf="parent"
+                            tools:src="@drawable/delete" />
+                    </android.support.constraint.ConstraintLayout>
+
+                </android.support.constraint.ConstraintLayout>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <android.support.constraint.ConstraintLayout
+                    android:id="@+id/constraintLayout3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="8dp"
-                    android:text="Beschreibung"
                     card_view:layout_constraintBottom_toBottomOf="parent"
                     card_view:layout_constraintEnd_toEndOf="parent"
-                    card_view:layout_constraintStart_toEndOf="@+id/shoppinglistOwner"
-                    card_view:layout_constraintTop_toBottomOf="@+id/shoppinglistName" />
-            </LinearLayout>
+                    card_view:layout_constraintStart_toStartOf="parent"
+                    card_view:layout_constraintTop_toTopOf="parent">
 
-            <android.support.constraint.Guideline
-                android:id="@+id/guideline2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                card_view:layout_constraintGuide_begin="319dp" />
+                    <TextView
+                        android:id="@+id/shoppinglistBeschreibung"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="Beschreibung"
+                        android:textAlignment="center"
+                        android:textSize="18sp"
+                        card_view:layout_constraintBottom_toBottomOf="parent"
+                        card_view:layout_constraintEnd_toEndOf="parent"
+                        card_view:layout_constraintStart_toStartOf="parent" />
 
-            <LinearLayout
-                android:id="@+id/linearLayout3"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:gravity="right|top"
-                android:orientation="horizontal"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintEnd_toEndOf="parent"
-                card_view:layout_constraintStart_toStartOf="@+id/guideline2"
-                card_view:layout_constraintTop_toTopOf="parent">
+                    <TextView
+                        android:id="@+id/shoppinglistName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="Name"
+                        android:textAlignment="center"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        card_view:layout_constraintBottom_toTopOf="@+id/shoppinglistBeschreibung"
+                        card_view:layout_constraintEnd_toEndOf="parent"
+                        card_view:layout_constraintStart_toStartOf="parent"
+                        card_view:layout_constraintTop_toTopOf="parent" />
+                </android.support.constraint.ConstraintLayout>
 
-                <ImageButton
-                    android:id="@+id/shareButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/fui_transparent"
-                    card_view:srcCompat="@drawable/share" />
+            </TableRow>
 
-                <ImageButton
-                    android:id="@+id/bearbeiteShoppinglist"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/fui_transparent"
-                    card_view:srcCompat="@drawable/bearbeiten" />
 
-                <ImageButton
-                    android:id="@+id/deleteShoppinglist"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/fui_transparent"
-                    card_view:srcCompat="@drawable/delete" />
-
-            </LinearLayout>
-
-            <android.support.constraint.Guideline
-                android:id="@+id/guideline4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                card_view:layout_constraintGuide_begin="32dp" />
-
-        </android.support.constraint.ConstraintLayout>
-
-    </TableRow>
+        </TableLayout>
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.v7.widget.CardView>

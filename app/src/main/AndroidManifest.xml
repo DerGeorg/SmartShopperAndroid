@@ -37,14 +37,14 @@
         -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_launcher_foreground" />
+            android:resource="@mipmap/ic_launcher_round" />
         <!--
              Set color used with incoming notification messages. This is used when no color is set for the incoming
              notification message. See README(https://goo.gl/6BKBk7) for more.
         -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorAccent" /> <!-- [START firebase_service] -->
+            android:resource="@color/colorPrimaryDark" /> <!-- [START firebase_service] -->
         <service
             android:name="at.smartshopper.smartshopperapp.messaging.MyFirebaseMessagingService"
             android:stopWithTask="false">

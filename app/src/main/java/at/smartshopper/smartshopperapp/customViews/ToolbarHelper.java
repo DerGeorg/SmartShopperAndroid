@@ -51,7 +51,7 @@ public class ToolbarHelper extends Activity {
         context.startActivity(intent);
     }
 
-    public void doneEinkauf(String from, String sl_id,String group_id, String groupname) {
+    public void doneEinkauf(String from, String sl_id, String group_id, String groupname) {
         finish();
         Intent intent = new Intent(context, DoneItemActivity.class);
         intent.putExtra("from", from);

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,11 +73,14 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
         final Shoppinglist shoppinglist = this.shoppinglist.get(position);
         final ImageButton shareButton = holder.share;
         TextView beschreibung = holder.textViewBeschreibung;
+        ImageButton bearbeiten = holder.bearbeiten;
+        ImageButton delete = holder.del;
         beschreibung.setText(shoppinglist.getdescription());
+
         Picasso.get().load(R.drawable.share).into(shareButton);
 
-        Picasso.get().load(R.drawable.bearbeiten).into(holder.bearbeiten);
-        Picasso.get().load(R.drawable.delete).into(holder.del);
+        Picasso.get().load(R.drawable.bearbeiten).into(bearbeiten);
+        Picasso.get().load(R.drawable.delete).into(delete);
 
         //binding the data with the viewholder views
         holder.textViewTitle.setText(shoppinglist.getname());
@@ -118,30 +122,26 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
         holder.shoppinglistColor.setBackgroundColor(cardcolor);
 
 
-String uid = FirebaseAuth.getInstance().getUid();
+        String uid = FirebaseAuth.getInstance().getUid();
 
 
-
-            try {
-                Member user = db.getUser(uid);
-                holder.ownerName.setText(user.getName());
-                Picasso.get().load(user.getPic()).resize(250, 250).transform(new RoundCornersTransformation(15, 15, true, true)).into(holder.imageView);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            // holder.imageView.setImageDrawable(Drawable.createFromPath("@drawable/common_google_signin_btn_icon_dark"));
-
-            // Check if user's email is verified
-
-            // The user's ID, unique to the Firebase project. Do NOT use this value to
-            // authenticate with your backend server, if you have one. Use
-            // FirebaseUser.getIdToken() instead.
+        try {
+            Member user = db.getUser(uid);
+            holder.ownerName.setText(user.getName());
+            Picasso.get().load(user.getPic()).resize(250, 250).transform(new RoundCornersTransformation(15, 15, true, true)).into(holder.imageView);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        // holder.imageView.setImageDrawable(Drawable.createFromPath("@drawable/common_google_signin_btn_icon_dark"));
 
+        // Check if user's email is verified
 
-
+        // The user's ID, unique to the Firebase project. Do NOT use this value to
+        // authenticate with your backend server, if you have one. Use
+        // FirebaseUser.getIdToken() instead.
+    }
 
 
     /**
@@ -226,7 +226,8 @@ String uid = FirebaseAuth.getInstance().getUid();
         TextView textViewTitle, textViewBeschreibung, ownerName;
         ImageView imageView;
         CardView ownList;
-        ImageButton bearbeiten, del, share;
+        ImageButton del, share;
+        ImageButton bearbeiten;
         View shoppinglistColor;
 
         public ShoppinglistViewHolder(View itemView) {
@@ -237,10 +238,11 @@ String uid = FirebaseAuth.getInstance().getUid();
             imageView = itemView.findViewById(R.id.shoppinglistOwner);
             ownerName = itemView.findViewById(R.id.ownerName);
             ownList = itemView.findViewById(R.id.ownLists);
-            bearbeiten = itemView.findViewById(R.id.bearbeiteShoppinglist);
-            del = itemView.findViewById(R.id.deleteShoppinglist);
+            bearbeiten = itemView.findViewById(R.id.shpEdit);
+            Log.d("SmartShopper", bearbeiten.toString());
+            del = itemView.findViewById(R.id.shpDel);
             shoppinglistColor = itemView.findViewById(R.id.shoppinglistColor);
-            share = itemView.findViewById(R.id.shareButton);
+            share = itemView.findViewById(R.id.shareEditButton);
 
         }
 

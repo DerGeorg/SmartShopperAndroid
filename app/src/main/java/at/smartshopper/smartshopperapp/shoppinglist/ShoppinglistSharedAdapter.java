@@ -77,6 +77,8 @@ public class ShoppinglistSharedAdapter extends RecyclerView.Adapter<Shoppinglist
         beschreibung.setText(shoppinglist.getdescription());
         Picasso.get().load(R.drawable.share).into(shareButton);
 
+        Picasso.get().load(R.drawable.bearbeiten).into(holder.bearbeiten);
+
         //binding the data with the viewholder views
         holder.textViewTitle.setText(shoppinglist.getname());
         System.out.println(shoppinglist.getname());
@@ -110,7 +112,7 @@ public class ShoppinglistSharedAdapter extends RecyclerView.Adapter<Shoppinglist
 
         holder.shoppinglistColor.setBackgroundColor(cardcolor);
 
-        if(shoppinglist.getSlId().equals("empty")){
+        if (shoppinglist.getSlId().equals("empty")) {
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {
                 // Name, email address, and profile photo Url
@@ -128,7 +130,7 @@ public class ShoppinglistSharedAdapter extends RecyclerView.Adapter<Shoppinglist
             }
         }
         try {
-            if(!shoppinglist.getSlId().equals("empty")){
+            if (!shoppinglist.getSlId().equals("empty")) {
                 Member admin = db.getAdmin(shoppinglist.getSlId());
                 Picasso.get().load(admin.getPic()).resize(250, 250).transform(new RoundCornersTransformation(15, 15, true, true)).into(holder.imageView);
                 holder.ownerName.setText(admin.getName());
