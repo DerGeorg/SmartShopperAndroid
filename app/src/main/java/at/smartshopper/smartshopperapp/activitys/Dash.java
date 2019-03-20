@@ -32,6 +32,9 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -132,7 +135,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash);
         color = "ffffff";
-
 
         setMsgId();
 
@@ -383,9 +385,22 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
      */
     private void logout() {
         finish();
-        FirebaseAuth.getInstance().signOut();
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
+        // Configure sign-in to request the user's ID, email address, and basic
+// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        mGoogleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(Dash.this, LoginActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     /**
