@@ -1,12 +1,21 @@
 package at.smartshopper.smartshopperapp.db;
 
+import android.net.Uri;
 import android.os.StrictMode;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -21,7 +30,7 @@ import at.smartshopper.smartshopperapp.shoppinglist.details.Details;
 import at.smartshopper.smartshopperapp.shoppinglist.details.group.Group;
 import at.smartshopper.smartshopperapp.shoppinglist.details.item.Item;
 
-public class Database {
+public class Database extends AppCompatActivity {
 
     final private String HOST = "188.166.124.80";
     final private String DB_NAME = "smartshopperdb";
@@ -163,7 +172,7 @@ public class Database {
     public void deleteInvite(String invitelink) throws SQLException, JSONException {
         String sl_id = getSlIdFromInvite(invitelink);
         sqlUpdate("DELETE FROM \"Shoppinglist_member\" WHERE sl_id = ?", sl_id);
-        sqlUpdate("Update \"Shoppinglist\" set invitelink=null where sl_id=?", sl_id);
+        sqlUpdate("Update \"Shoppinglist\" set invitelink=null, dynamiclink=null where sl_id=?", sl_id);
     }
 
     /**
@@ -179,15 +188,17 @@ public class Database {
     }
 
 
-    private String getinviteFromLink(String eingabeLink) {
+    public String getinviteFromLink(String eingabeLink) {
         String delString = null;
         if (eingabeLink.contains("https://")) {
-            delString = "https://www.smartshopper.cf/invite/";
+            delString = "https://invite.dergeorg.at/invite/";
         } else if (eingabeLink.contains("http://")) {
-            delString = "http://www.smartshopper.cf/invite/";
-        } else if (eingabeLink.contains("www.smartshopper.cf/invite/")) {
-            delString = "www.smartshopper.cf/invite/";
-        } else if (!eingabeLink.contains("www.smartshopper.cf/invite/")) {
+            delString = "http://invite.dergeorg.at/invite/";
+        } else if (eingabeLink.contains("invite.dergeorg.at/invite/")) {
+            delString = "invite.dergeorg.at/invite/";
+        } else if (eingabeLink.contains("www.invite.dergeorg.atf/invite/")) {
+            delString = "www.invite.dergeorg.at/invite";
+        } else {
             delString = "";
         }
         String invite = eingabeLink.replace(delString, "");
@@ -204,7 +215,7 @@ public class Database {
      * @throws JSONException
      */
     public String getInviteLink(String sl_id) throws SQLException, JSONException {
-        String SQL = "Select invitelink from \"Shoppinglist\" WHERE sl_id = ?";
+        String SQL = "Select dynamiclink from \"Shoppinglist\" WHERE sl_id = ?";
         String returnLink = executeQuery(SQL, sl_id);
         return returnLink;
     }
@@ -218,6 +229,20 @@ public class Database {
      * @throws JSONException
      */
     public String getSlIdFromInvite(String invitelink) throws SQLException, JSONException {
+        String SQL = "Select sl_id from \"Shoppinglist\" WHERE dynamiclink = ?";
+        String returnSl_id = executeQuery(SQL, getinviteFromLink(invitelink));
+        return returnSl_id;
+    }
+
+    /**
+     * Sucht anhand des invitelinks eine Shoppingliste und gibt dessen sl_id zurück
+     *
+     * @param invitelink Der invitelink nach dem gesucht werden soll
+     * @return Die sl_id die dem invitelink zugeordnet ist
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public String getSlIdFromInviteDynamicLink(String invitelink) throws SQLException, JSONException {
         String SQL = "Select sl_id from \"Shoppinglist\" WHERE invitelink = ?";
         String returnSl_id = executeQuery(SQL, getinviteFromLink(invitelink));
         return returnSl_id;
@@ -240,16 +265,38 @@ public class Database {
     }
 
     /**
+     * Fügt einen invite link zu den shoppinglisten hinzu
+     *
+     * @param invitelink Der invite link der hinzugefügt werden soll
+     * @param uid        Der user zu dem der invitelink hinzugefügt werden soll
+     * @throws SQLException
+     * @throws JSONException
+     */
+    public void addInviteLinkDynamicLink(String invitelink, String uid) throws SQLException, JSONException {
+        String sl_id = getSlIdFromInviteDynamicLink(invitelink);
+        if (!sl_id.equals("null")) {
+            sqlUpdate2Param("INSERT INTO \"Shoppinglist_member\" (username, sl_id) VALUES (?, ?)", uid, sl_id);
+        }
+    }
+
+    /**
      * Erstellt einen neuen InviteLink
      *
      * @param sl_id
      * @return Der neue InviteLink
      * @throws SQLException
      */
-    public String createInviteLink(String sl_id) throws SQLException {
-        String invitelink = generateInviteLink();
-        sqlUpdate2Param("UPDATE \"Shoppinglist\" SET invitelink = ? WHERE sl_id = ?", invitelink, sl_id);
-        return invitelink;
+    public void createInviteLink(String sl_id, String invitelink, String dynamiclink) throws SQLException, IOException, JSONException {
+        sqlUpdate3Param("UPDATE \"Shoppinglist\" SET invitelink = ?, dynamiclink = ? WHERE sl_id = ?", invitelink, dynamiclink, sl_id);
+    }
+
+    /**
+     * Generiert einen neuen dynamic link bei google und gibt nur die id zurück
+     *
+     * @return DynamicId von dem neuen link
+     */
+    private void generateDynamicLink(final String sl_id, final String invitelink) throws IOException, SQLException, JSONException {
+
     }
 
     /**

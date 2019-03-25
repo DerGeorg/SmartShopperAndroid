@@ -99,7 +99,13 @@ public class ShoppinglistSharedAdapter extends RecyclerView.Adapter<Shoppinglist
             public void onClick(View v) {
                 String sl_id = shoppinglist.getSlId();
                 Toast.makeText(v.getContext(), "LISTENER im ADAPTER geht: " + sl_id, Toast.LENGTH_LONG);
-                sharedOnShareClick.sharedOnShareClick(sl_id, v);
+                try {
+                    sharedOnShareClick.sharedOnShareClick(sl_id, v);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -211,7 +217,7 @@ public class ShoppinglistSharedAdapter extends RecyclerView.Adapter<Shoppinglist
      * Interface damit onoclick in der dash activity ausgeführt werden kann
      */
     public interface SharedOnShareClick {
-        void sharedOnShareClick(String sl_id, View v);
+        void sharedOnShareClick(String sl_id, View v) throws SQLException, JSONException;
     }
 
     /**

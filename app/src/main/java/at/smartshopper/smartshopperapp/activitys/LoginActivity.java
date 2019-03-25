@@ -60,10 +60,19 @@ public class LoginActivity extends AppCompatActivity {
                     public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
                         // Get deep link from result (may be null if no link is found)
                         Uri deepLink = null;
+                        String sl_idToGo = "";
                         if (pendingDynamicLinkData != null) {
                             deepLink = pendingDynamicLinkData.getLink();
+                            String invite = deepLink.toString();
+                            invite = invite.replaceAll("https://smartshopper.cf/invite/", "");
+                            invite = invite.replaceAll(".slid=.*", "");
+                            sl_idToGo = deepLink.getQueryParameter("slid");
                             Log.d("SmartShopper", deepLink.toString());
+                            if (null != mAuth.getCurrentUser()) {
+                                goDash(sl_idToGo, invite);
+                            }
                         }
+
 
 
                         // Handle the deep link. For example, open the linked
@@ -109,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * Wechselt zu der Dash Activity
      */
-    private void goDash() {
+    private void goDash(String sl_idToGo, String inviteToAdd) {
 
         FirebaseInstanceId.getInstance().getInstanceId()
                 .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
@@ -156,6 +165,10 @@ public class LoginActivity extends AppCompatActivity {
 
 
         Intent intent = new Intent(this, Dash.class);
+        if(sl_idToGo != null){
+            intent.putExtra("sl_idToGo", sl_idToGo);
+            intent.putExtra("inviteToAdd", inviteToAdd);
+        }
         finish();
         startActivity(intent);
     }
@@ -175,7 +188,7 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            goDash();
+                            goDash(null, null);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
@@ -225,7 +238,7 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = new Database();
 
-        getDynamicLink();
+
 
         Button loginEmailBtn = (Button) findViewById(R.id.loginEmailBtn);
         final TextView email = (TextView) findViewById(R.id.email);
@@ -277,7 +290,7 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            goDash();
+                            goDash(null, null);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -297,9 +310,10 @@ public class LoginActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
 
+        getDynamicLink();
 
         if (null != mAuth.getCurrentUser()) {
-            goDash();
+            goDash(null, null);
         }
 
     }

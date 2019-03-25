@@ -39,12 +39,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -138,7 +142,35 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
         setMsgId();
 
+        Intent getIntent = getIntent();
+        String sl_idToGo = getIntent.getStringExtra("sl_idToGo");
+        String inviteToAdd = getIntent.getStringExtra("inviteToAdd");
 
+        if (sl_idToGo != null && inviteToAdd != null) {
+            try {
+                db.addInviteLinkDynamicLink(inviteToAdd, FirebaseAuth.getInstance().getCurrentUser().getUid());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+//           Damit werden die Shared Shoppinglists angezeigt
+
+
+//            try {
+//                TabHost tabhost = (TabHost) findViewById(R.id.tabHost1);
+//                tabhost.setCurrentTab(1);
+//                sharedswiperefresh.setRefreshing(true);
+//                showSharedShoppingList(FirebaseAuth.getInstance().getCurrentUser().getUid());
+//                sharedswiperefresh.setRefreshing(false);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+            //Damit wird die hinzugefügte shoppinglist angezeigt
+            onShoppinglistClickContainer(sl_idToGo);
+        }
 
 
         /*
@@ -793,7 +825,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         }
     }
 
-    private void onShoppinglistClickContainer(String sl_id, View v) {
+    private void onShoppinglistClickContainer(String sl_id) {
         finish();
         Intent intent = new Intent(this, ShoppinglistDetails.class);
         intent.putExtra("sl_id", sl_id);
@@ -827,109 +859,222 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
      * @param sl_id Die Shoppingliste von der der invitelink gewünscht ist
      * @return
      */
-    private String getInviteLink(String sl_id) {
+//    private String getInviteLink(String sl_id, String invitelink, String dynamiclink) {
+//
+//        return link;
+//    }
+
+    @Override
+    public void onShareClick(final String sl_id, final View v) {
         String link = null;
         try {
             if (db.isShared(sl_id)) {
                 link = db.getInviteLink(sl_id);
-            } else {
+                final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+                View popupContentView = inflater.inflate(R.layout.add_share, null);
 
-                link = db.createInviteLink(sl_id);
+                final TextView linkausgabe = (TextView) popupContentView.findViewById(R.id.shareLink);
+                linkausgabe.setText("invite.dergeorg.at/invite/" + link);
+
+                ImageButton exitButton = (ImageButton) popupContentView.findViewById(R.id.shareExit);
+                Picasso.get().load(R.drawable.close).into(exitButton);
+                exitButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        popupShare.dismiss();
+                    }
+                });
+
+                final Button copyButton = (Button) popupContentView.findViewById(R.id.shareCopy);
+                copyButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        copyText(linkausgabe.getText().toString());
+                        popupShare.dismiss();
+                    }
+                });
+
+                Button delShare = (Button) popupContentView.findViewById(R.id.delShare);
+
+                final String finalLink = link;
+                delShare.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Shoppinglist spl = null;
+                        try {
+                            spl = db.getShoppinglist(db.getSlIdFromInvite(finalLink));
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
+                            myFirebaseSender.addMember(db.getAdmin(sl_id));
+                            myFirebaseSender.sendMessage("Das Sharing von " + spl.getname() + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " aufgehoben!", spl.getname() + " sharing wurde geändert!");
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        try {
+                            db.deleteInvite(finalLink);
+
+
+                            TabHost tabhost = (TabHost) findViewById(R.id.tabHost1);
+                            tabhost.setCurrentTab(0);
+                            sharedswiperefresh.setRefreshing(true);
+
+                            showSharedShoppingList(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                            sharedswiperefresh.setRefreshing(false);
+                            popupShare.dismiss();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+                });
+
+                popupShare = new PopupWindow(popupContentView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                popupShare.setOutsideTouchable(false);
+                popupShare.setFocusable(true);
+                // Set an elevation value for popup window
+                // Call requires API level 21
+                if (Build.VERSION.SDK_INT >= 21) {
+                    popupShare.setElevation(5.0f);
+                }
+                popupShare.setAnimationStyle(R.style.popup_window_animation_phone);
+
+
+                popupShare.showAtLocation(v, Gravity.CENTER, 0, 0);
+                popupShare.update();
+            } else {
+                final String invitelink = db.generateInviteLink();
+                String url = "https://smartshopper.cf/androidinvite/" + sl_id;
+                Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+                        .setLink(Uri.parse("https://smartshopper.cf/invite/" + invitelink + "?slid=" + sl_id))
+                        .setDomainUriPrefix("https://invite.dergeorg.at/invite")
+                        .setAndroidParameters(new DynamicLink.AndroidParameters.Builder().build())
+                        .buildShortDynamicLink()
+                        .addOnCompleteListener(this, new OnCompleteListener<ShortDynamicLink>() {
+                            @Override
+                            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                                if (task.isSuccessful()) {
+                                    // Short link created
+                                    final Uri shortLink = task.getResult().getShortLink();
+                                    try {
+                                        db.createInviteLink(sl_id, invitelink, db.getinviteFromLink(shortLink.toString()));
+                                    } catch (SQLException e) {
+                                        e.printStackTrace();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+                                    View popupContentView = inflater.inflate(R.layout.add_share, null);
+
+                                    final TextView linkausgabe = (TextView) popupContentView.findViewById(R.id.shareLink);
+                                    try {
+                                        linkausgabe.setText("invite.dergeorg.at/invite/" + db.getInviteLink(sl_id));
+                                    } catch (SQLException e) {
+                                        e.printStackTrace();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    ImageButton exitButton = (ImageButton) popupContentView.findViewById(R.id.shareExit);
+                                    Picasso.get().load(R.drawable.close).into(exitButton);
+                                    exitButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            popupShare.dismiss();
+                                        }
+                                    });
+
+                                    final Button copyButton = (Button) popupContentView.findViewById(R.id.shareCopy);
+                                    copyButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            copyText(linkausgabe.getText().toString());
+                                            popupShare.dismiss();
+                                        }
+                                    });
+
+                                    Button delShare = (Button) popupContentView.findViewById(R.id.delShare);
+
+                                    delShare.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Shoppinglist spl = null;
+                                            try {
+                                                spl = db.getShoppinglist(sl_id);
+                                            } catch (SQLException e) {
+                                                e.printStackTrace();
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                            try {
+                                                MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
+                                                myFirebaseSender.addMember(db.getAdmin(sl_id));
+                                                myFirebaseSender.sendMessage("Das Sharing von " + spl.getname() + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " aufgehoben!", spl.getname() + " sharing wurde geändert!");
+                                            } catch (SQLException e) {
+                                                e.printStackTrace();
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+
+                                            try {
+                                                db.deleteInvite(db.getInviteLink(shortLink.toString()));
+
+
+                                                TabHost tabhost = (TabHost) findViewById(R.id.tabHost1);
+                                                tabhost.setCurrentTab(0);
+                                                sharedswiperefresh.setRefreshing(true);
+
+                                                showSharedShoppingList(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                                                sharedswiperefresh.setRefreshing(false);
+                                                popupShare.dismiss();
+                                            } catch (SQLException e) {
+                                                e.printStackTrace();
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+
+
+                                        }
+                                    });
+
+                                    popupShare = new PopupWindow(popupContentView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                    popupShare.setOutsideTouchable(false);
+                                    popupShare.setFocusable(true);
+                                    // Set an elevation value for popup window
+                                    // Call requires API level 21
+                                    if (Build.VERSION.SDK_INT >= 21) {
+                                        popupShare.setElevation(5.0f);
+                                    }
+                                    popupShare.setAnimationStyle(R.style.popup_window_animation_phone);
+
+
+                                    popupShare.showAtLocation(v, Gravity.CENTER, 0, 0);
+                                    popupShare.update();
+                                    Uri flowchartLink = task.getResult().getPreviewLink();
+                                } else {
+                                    // Error
+                                    // ...
+                                }
+                            }
+                        });
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return link;
-    }
-
-    @Override
-    public void onShareClick(final String sl_id, View v) {
-        final String link = getInviteLink(sl_id);
-
-        final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupContentView = inflater.inflate(R.layout.add_share, null);
-
-        final TextView linkausgabe = (TextView) popupContentView.findViewById(R.id.shareLink);
-        linkausgabe.setText("www.smartshopper.cf/invite/" + link);
-
-        ImageButton exitButton = (ImageButton) popupContentView.findViewById(R.id.shareExit);
-        Picasso.get().load(R.drawable.close).into(exitButton);
-        exitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popupShare.dismiss();
-            }
-        });
-
-        final Button copyButton = (Button) popupContentView.findViewById(R.id.shareCopy);
-        copyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                copyText(linkausgabe.getText().toString());
-                popupShare.dismiss();
-            }
-        });
-
-        Button delShare = (Button) popupContentView.findViewById(R.id.delShare);
-
-        final String finalLink = link;
-        delShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Shoppinglist spl = null;
-                try {
-                    spl = db.getShoppinglist(db.getSlIdFromInvite(finalLink));
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    MyFirebaseSender myFirebaseSender = new MyFirebaseSender(db.getMembers(sl_id));
-                    myFirebaseSender.addMember(db.getAdmin(sl_id));
-                    myFirebaseSender.sendMessage("Das Sharing von " + spl.getname() + " wurde von " + db.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).getName() + " aufgehoben!", spl.getname() + " sharing wurde geändert!");
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                try {
-                    db.deleteInvite(finalLink);
-
-
-                    TabHost tabhost = (TabHost) findViewById(R.id.tabHost1);
-                    tabhost.setCurrentTab(0);
-                    sharedswiperefresh.setRefreshing(true);
-
-                    showSharedShoppingList(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                    sharedswiperefresh.setRefreshing(false);
-                    popupShare.dismiss();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
-            }
-        });
-
-        popupShare = new PopupWindow(popupContentView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        popupShare.setOutsideTouchable(false);
-        popupShare.setFocusable(true);
-        // Set an elevation value for popup window
-        // Call requires API level 21
-        if (Build.VERSION.SDK_INT >= 21) {
-            popupShare.setElevation(5.0f);
-        }
-        popupShare.setAnimationStyle(R.style.popup_window_animation_phone);
-
-
-        popupShare.showAtLocation(v, Gravity.CENTER, 0, 0);
-        popupShare.update();
     }
 
     /**
@@ -945,7 +1090,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
     @Override
     public void onShoppinglistClick(String sl_id, View v) {
-        onShoppinglistClickContainer(sl_id, v);
+        onShoppinglistClickContainer(sl_id);
     }
 
     @Override
@@ -959,7 +1104,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
     }
 
     @Override
-    public void sharedOnShareClick(String sl_id, View v) {
+    public void sharedOnShareClick(String sl_id, View v) throws SQLException, JSONException {
         final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupContentView = inflater.inflate(R.layout.edit_share_member, null);
 
@@ -970,7 +1115,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         Button stopShareBtn = popupContentView.findViewById(R.id.delShare);
 
 
-        linkAusgabe.setText("www.smartshopper.cf/invite/" + getInviteLink(sl_id));
+        linkAusgabe.setText("invite.dergeorg.at/invite/" + db.getInviteLink(sl_id));
         exitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1019,6 +1164,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 
     @Override
     public void sharedOnShoppinglistClick(String sl_id, View v) {
-        onShoppinglistClickContainer(sl_id, v);
+        onShoppinglistClickContainer(sl_id);
     }
 }
