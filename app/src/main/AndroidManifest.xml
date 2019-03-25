@@ -14,7 +14,7 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name="at.smartshopper.smartshopperapp.activitys.EditUser"
-            android:label="@string/title_activity_edit_user"></activity>
+            android:label="@string/title_activity_edit_user"/>
         <activity android:name="at.smartshopper.smartshopperapp.activitys.DoneItemActivity" />
         <activity
             android:name="at.smartshopper.smartshopperapp.activitys.ItemListActivity"
@@ -25,6 +25,14 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:host="smartshopper.cf"
+                    android:scheme="https"/>
             </intent-filter>
         </activity>
         <activity
@@ -55,6 +63,7 @@
         <activity
             android:name="at.smartshopper.smartshopperapp.activitys.ShoppinglistDetails"
             android:label="@string/title_activity_shoppinglist_details" />
+
     </application>
 
 </manifest>

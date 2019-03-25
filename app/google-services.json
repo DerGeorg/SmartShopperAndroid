@@ -8,37 +8,6 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:221332577314:android:acb28f092122eb64",
-        "android_client_info": {
-          "package_name": "at.smartshopper.smartshopper"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "221332577314-oo8b4uqtlgj75e7u7o3qt1vc96prfv52.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDz7MzopErZ6paAIaGGJAGY8Lx9kly5q2k"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:221332577314:android:33ebe9c1c19a0a72",
         "android_client_info": {
           "package_name": "at.smartshopper.smartshopperapp"
