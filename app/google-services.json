@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "221332577314-6ni31tev6ii08fadj8mdl754v32bdbuu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "at.smartshopper.smartshopperapp",
+            "certificate_hash": "4f9180e4472117e0f2b5a891778d247c99b1ea16"
+          }
+        },
+        {
           "client_id": "221332577314-oo8b4uqtlgj75e7u7o3qt1vc96prfv52.apps.googleusercontent.com",
           "client_type": 3
         }
