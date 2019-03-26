@@ -9,6 +9,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -59,24 +60,39 @@ public class ItemListActivity extends AppCompatActivity implements ItemAdapter.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
 
+
         Intent myIntent = getIntent(); // gets the previously created intent
         this.group_id = myIntent.getStringExtra("group_id"); // will return "FirstKeyValue"
         this.sl_id = myIntent.getStringExtra("sl_id"); // will return "SecondKeyValue"
         this.groupNameString = myIntent.getStringExtra("groupNameString"); // will return "SecondKeyValue"
         this.db = new Database();
+        String colorToolbar = null;
+        try {
+            colorToolbar = db.getGroup(group_id, sl_id).getColor();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Toolbar toolbar = findViewById(R.id.itemToolbar);
+        toolbar.setTitle("Gruppe: " + this.groupNameString);
+        String colorstring;
+        if (colorToolbar.contains("#")) {
+            colorstring = colorToolbar;
+        } else {
+            colorstring = "#" + colorToolbar;
+        }
+        toolbar.setBackgroundColor(Color.parseColor(colorstring));
+        setSupportActionBar(toolbar);
 
         this.groupName = (TextView) findViewById(R.id.groupViewName);
         this.groupName.setText(groupNameString);
 
         this.colorView = (View) findViewById(R.id.itemListColorView);
 
-        try {
-            this.colorView.setBackgroundColor(Color.parseColor(db.getGroup(group_id, sl_id).getColor()));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        this.colorView.setBackgroundColor(Color.parseColor(colorstring));
+
 
         this.swipeRefreshLayoutItem = (SwipeRefreshLayout) findViewById(R.id.itemListRefresh);
         this.swipeRefreshLayoutItem.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -182,7 +198,7 @@ public class ItemListActivity extends AppCompatActivity implements ItemAdapter.O
         List itemListTmp;
         View pfeil = findViewById(R.id.pfeilnachunten2);
         if (itemList.isEmpty()) {
-            itemArrayListTmp.add(new Item("empty", "empty", "empty", "Bitte ein Item Hinzufügen!", ""));
+            itemArrayListTmp.add(new Item("empty", "empty", "empty", "Bitte ein Item Hinzufügen!", "1"));
             itemListTmp = itemArrayListTmp;
             pfeil.setVisibility(View.VISIBLE);
         } else {

@@ -9,6 +9,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -125,14 +126,25 @@ public class ShoppinglistDetails extends AppCompatActivity implements DetailsAda
         Intent intent = getIntent();
         sl_id = intent.getStringExtra("sl_id");
 
-
+        Shoppinglist shoppinglist = null;
         try {
-            Shoppinglist shoppinglist = db.getShoppinglist(sl_id);
+             shoppinglist = db.getShoppinglist(sl_id);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Toolbar toolbar = findViewById(R.id.shoppinglistDetailsToolbar);
+        toolbar.setTitle("Shoppingliste: " + shoppinglist.getname());
+        String colorstring;
+        if (shoppinglist.getcolor().contains("#")) {
+            colorstring = shoppinglist.getcolor();
+        } else {
+            colorstring = "#" + shoppinglist.getcolor();
+        }
+        toolbar.setBackgroundColor(Color.parseColor(colorstring));
+        setSupportActionBar(toolbar);
+
         final String finalSl_id = sl_id;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

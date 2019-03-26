@@ -71,6 +71,7 @@
                 android:id="@+id/loginEmailBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/colorButton"
                 android:text="Login Email" />
         </TableRow>
 

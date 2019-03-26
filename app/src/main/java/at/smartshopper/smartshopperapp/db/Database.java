@@ -132,7 +132,7 @@ public class Database extends AppCompatActivity {
         } else {
             newpicture = picture;
         }
-        if (email.isEmpty()) {
+        if (email == null) {
             newemail = "EMPTY";
         } else {
             newemail = email;
@@ -532,7 +532,7 @@ public class Database extends AppCompatActivity {
      */
     public void createUser(String username, String message_id, String name, String picture, String email) throws SQLException {
         String SQL = "INSERT INTO \"User\" (username, message_id, name, picture, email) VALUES (?, ?, ?, ?, ?)";
-        if (picture.isEmpty()) {
+        if (picture == null) {
             picture = "https://st2.depositphotos.com/1537427/5927/v/950/depositphotos_59279377-stock-illustration-user-icon.jpg";
         }
         sqlUpdate5Param(SQL, username, message_id, name, picture, email);

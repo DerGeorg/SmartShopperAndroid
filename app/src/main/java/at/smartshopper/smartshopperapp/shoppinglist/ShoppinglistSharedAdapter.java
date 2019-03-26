@@ -118,22 +118,17 @@ public class ShoppinglistSharedAdapter extends RecyclerView.Adapter<Shoppinglist
 
         holder.shoppinglistColor.setBackgroundColor(cardcolor);
 
-        if (shoppinglist.getSlId().equals("empty")) {
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user != null) {
-                // Name, email address, and profile photo Url
-                String name = user.getDisplayName();
-                Uri photoUrl = user.getPhotoUrl();
-                holder.ownerName.setText(name);
-                Picasso.get().load(photoUrl).resize(250, 250).transform(new RoundCornersTransformation(15, 15, true, true)).into(holder.imageView);
-                // holder.imageView.setImageDrawable(Drawable.createFromPath("@drawable/common_google_signin_btn_icon_dark"));
+        String uid = FirebaseAuth.getInstance().getUid();
 
-                // Check if user's email is verified
 
-                // The user's ID, unique to the Firebase project. Do NOT use this value to
-                // authenticate with your backend server, if you have one. Use
-                // FirebaseUser.getIdToken() instead.
-            }
+        try {
+            Member user = db.getUser(uid);
+            holder.ownerName.setText(user.getName());
+            Picasso.get().load(user.getPic()).resize(250, 250).transform(new RoundCornersTransformation(15, 15, true, true)).into(holder.imageView);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
         try {
             if (!shoppinglist.getSlId().equals("empty")) {

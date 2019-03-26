@@ -58,6 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="10"
+                android:textIsSelectable="true"
                 android:inputType="textPersonName" />
         </TableRow>
 
@@ -70,6 +71,7 @@
                 android:id="@+id/shareAddFinish"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@color/colorButton"
                 android:text="Fertig" />
         </TableRow>
 

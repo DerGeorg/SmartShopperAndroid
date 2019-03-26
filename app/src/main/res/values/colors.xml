@@ -3,4 +3,5 @@
     <color name="colorPrimary">#FFFFFF</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#880e4f</color>
+    <color name="colorButton">@color/fui_linkColor</color>
 </resources>

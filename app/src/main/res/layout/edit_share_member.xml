@@ -41,7 +41,8 @@
                 android:layout_height="wrap_content"
                 android:editable="false"
                 android:ems="10"
-                android:inputType="textPersonName" />
+                android:inputType="textPersonName"
+                android:textIsSelectable="true" />
         </TableRow>
 
         <TableRow
@@ -49,12 +50,25 @@
             android:layout_height="match_parent"
             android:gravity="center">
 
-            <Button
-                android:id="@+id/copyButton"
+            <ImageButton
+                android:id="@+id/shareIntentBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="in die zwischenablage kopieren" />
+                android:background="@color/fui_transparent"
+                app:srcCompat="@drawable/share" />
         </TableRow>
+
+        <!--<TableRow-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:gravity="center">-->
+
+            <!--<Button-->
+                <!--android:id="@+id/copyButton"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="in die zwischenablage kopieren" />-->
+        <!--</TableRow>-->
 
         <TableRow
             android:layout_width="match_parent"
@@ -65,6 +79,7 @@
                 android:id="@+id/delShare"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@color/colorButton"
                 android:text="Listen Sharing beenden!" />
         </TableRow>
 

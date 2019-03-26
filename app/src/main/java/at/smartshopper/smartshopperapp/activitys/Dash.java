@@ -15,6 +15,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -138,6 +139,10 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash);
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.dashToolbar);
+        setSupportActionBar(myToolbar);
+
         color = "ffffff";
 
         setMsgId();
@@ -289,7 +294,9 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         colorBtn = (Button) customView.findViewById(R.id.addColor);
         final Button addFertig = (Button) customView.findViewById(R.id.addFertig);
         final EditText name = (EditText) customView.findViewById(R.id.addName);
+        name.setTextIsSelectable(true);
         final EditText description = (EditText) customView.findViewById(R.id.addDescription);
+        description.setTextIsSelectable(true);
 
         Picasso.get().load(R.drawable.close).into(addClose);
 
@@ -298,6 +305,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         } else {
             addFertig.setEnabled(false);
         }
+
         name.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -478,7 +486,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             sharedListsListTmp = sharedListsArrayListTmp;
         } else {
             sharedListsListTmp = sharedListsList;
-            findViewById(R.id.pfeilnachunten3).setVisibility(View.GONE);
+//            findViewById(R.id.pfeilnachunten3).setVisibility(View.GONE);
         }
         ShoppinglistSharedAdapter shpAdapter = new ShoppinglistSharedAdapter(Dash.this, sharedListsListTmp, db);
         if (sharedListsList.isEmpty()) {
@@ -599,23 +607,37 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
         spec.setIndicator("Geteilte Einkaufslisten");
         host.addTab(spec);
 
+
         host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
 
             @Override
             public void onTabChanged(String tabId) {
-
                 int i = host.getCurrentTab();
 
+                View pfeil = findViewById(R.id.pfeilnachunten3);
+                FloatingActionButton fab = findViewById(R.id.addShoppinglistFab);
                 if (i == 0) {
                     try {
                         refreshOwnShoppinglist(uid);
+                        fab.show();
+
+                        if (db.getMyShoppinglists(uid).isEmpty()) {
+                            pfeil.setVisibility(View.VISIBLE);
+                        } else {
+                            pfeil.setVisibility(View.GONE);
+                        }
+                        //TODO
                     } catch (SQLException e) {
+                        e.printStackTrace();
+                    } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
                 } else if (i == 1) {
                     try {
                         showSharedShoppingList(uid);
+                        pfeil.setVisibility(View.GONE);
+                        fab.hide();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     } catch (SQLException e) {
@@ -863,7 +885,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
 //
 //        return link;
 //    }
-
     @Override
     public void onShareClick(final String sl_id, final View v) {
         String link = null;
@@ -874,6 +895,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                 View popupContentView = inflater.inflate(R.layout.add_share, null);
 
                 final TextView linkausgabe = (TextView) popupContentView.findViewById(R.id.shareLink);
+                linkausgabe.setTextIsSelectable(true);
                 linkausgabe.setText("invite.dergeorg.at/invite/" + link);
 
                 ImageButton exitButton = (ImageButton) popupContentView.findViewById(R.id.shareExit);
@@ -885,14 +907,36 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                     }
                 });
 
-                final Button copyButton = (Button) popupContentView.findViewById(R.id.shareCopy);
-                copyButton.setOnClickListener(new View.OnClickListener() {
+                ImageButton shareIntentBtn = (ImageButton) popupContentView.findViewById(R.id.shareIntentBtn);
+                Picasso.get().load(R.drawable.share).into(shareIntentBtn);
+                shareIntentBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        copyText(linkausgabe.getText().toString());
+                        String shoppinglistname = "";
+                        try {
+                            shoppinglistname = db.getShoppinglist(sl_id).getname();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                        sharingIntent.setType("text/plain");
+                        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Einladung zum bearbeiten der Shoppingliste " + shoppinglistname + " von: " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+                        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, linkausgabe.getText().toString());
                         popupShare.dismiss();
+                        startActivity(Intent.createChooser(sharingIntent, "Teile mit"));
                     }
                 });
+
+//                final Button copyButton = (Button) popupContentView.findViewById(R.id.shareCopy);
+//                copyButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        copyText(linkausgabe.getText().toString());
+//                        popupShare.dismiss();
+//                    }
+//                });
 
                 Button delShare = (Button) popupContentView.findViewById(R.id.delShare);
 
@@ -979,6 +1023,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                                     View popupContentView = inflater.inflate(R.layout.add_share, null);
 
                                     final TextView linkausgabe = (TextView) popupContentView.findViewById(R.id.shareLink);
+                                    linkausgabe.setTextIsSelectable(true);
                                     try {
                                         linkausgabe.setText("invite.dergeorg.at/invite/" + db.getInviteLink(sl_id));
                                     } catch (SQLException e) {
@@ -996,14 +1041,36 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                                         }
                                     });
 
-                                    final Button copyButton = (Button) popupContentView.findViewById(R.id.shareCopy);
-                                    copyButton.setOnClickListener(new View.OnClickListener() {
+                                    ImageButton shareIntentBtn = (ImageButton) popupContentView.findViewById(R.id.shareIntentBtn);
+                                    Picasso.get().load(R.drawable.share).into(shareIntentBtn);
+                                    shareIntentBtn.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            copyText(linkausgabe.getText().toString());
+                                            String shoppinglistname = "";
+                                            try {
+                                                shoppinglistname = db.getShoppinglist(sl_id).getname();
+                                            } catch (SQLException e) {
+                                                e.printStackTrace();
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                                            sharingIntent.setType("text/plain");
+                                            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Einladung zum bearbeiten der Shoppingliste " + shoppinglistname + " von: " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+                                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, linkausgabe.getText().toString());
                                             popupShare.dismiss();
+                                            startActivity(Intent.createChooser(sharingIntent, "Teile mit"));
                                         }
                                     });
+
+//                                    final Button copyButton = (Button) popupContentView.findViewById(R.id.shareCopy);
+//                                    copyButton.setOnClickListener(new View.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(View v) {
+//                                            copyText(linkausgabe.getText().toString());
+//                                            popupShare.dismiss();
+//                                        }
+//                                    });
 
                                     Button delShare = (Button) popupContentView.findViewById(R.id.delShare);
 
@@ -1104,17 +1171,17 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
     }
 
     @Override
-    public void sharedOnShareClick(String sl_id, View v) throws SQLException, JSONException {
+    public void sharedOnShareClick(final String sl_id, View v) throws SQLException, JSONException {
         final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupContentView = inflater.inflate(R.layout.edit_share_member, null);
 
         ImageButton exitBtn = popupContentView.findViewById(R.id.exitButton);
         Picasso.get().load(R.drawable.close).into(exitBtn);
         final TextView linkAusgabe = popupContentView.findViewById(R.id.linkausgabe);
-        Button copyBtn = popupContentView.findViewById(R.id.copyButton);
+//        Button copyBtn = popupContentView.findViewById(R.id.copyButton);
         Button stopShareBtn = popupContentView.findViewById(R.id.delShare);
 
-
+        linkAusgabe.setTextIsSelectable(true);
         linkAusgabe.setText("invite.dergeorg.at/invite/" + db.getInviteLink(sl_id));
         exitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1122,11 +1189,31 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                 popupEditShare.dismiss();
             }
         });
-        copyBtn.setOnClickListener(new View.OnClickListener() {
+//        copyBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                copyText(linkAusgabe.getText().toString());
+//                popupEditShare.dismiss();
+//            }
+//        });
+        ImageButton shareIntentBtn = popupContentView.findViewById(R.id.shareIntentBtn);
+        Picasso.get().load(R.drawable.share).into(shareIntentBtn);
+        shareIntentBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                copyText(linkAusgabe.getText().toString());
-                popupEditShare.dismiss();
+                String shoppinglistname = "";
+                try {
+                    shoppinglistname = db.getShoppinglist(sl_id).getname();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                sharingIntent.setType("text/plain");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Einladung zum bearbeiten der Shoppingliste " + shoppinglistname + " von: " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, linkAusgabe.getText().toString());
+                startActivity(Intent.createChooser(sharingIntent, "Teilen mit"));
             }
         });
         stopShareBtn.setOnClickListener(new View.OnClickListener() {

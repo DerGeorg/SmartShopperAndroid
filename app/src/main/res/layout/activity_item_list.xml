@@ -4,10 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="8dp"
     tools:context=".activitys.ItemListActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/itemToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:padding="0dp"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <android.support.v4.widget.SwipeRefreshLayout
+        android:layout_margin="8dp"
         android:id="@+id/itemListRefresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -19,8 +33,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toBottomOf="@+id/itemToolbar">
 
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
@@ -112,8 +125,8 @@
 
                 <View
                     android:id="@+id/pfeilnachunten2"
-                    android:layout_width="84dp"
-                    android:layout_height="331dp"
+                    android:layout_width="60dp"
+                    android:layout_height="190dp"
                     android:layout_marginBottom="60dp"
                     android:background="@drawable/pfeil"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -131,7 +144,7 @@
         android:layout_marginBottom="8dp"
         android:clickable="true"
         android:src="@drawable/addoutline"
-        app:backgroundTint="@color/fui_linkColor"
+        app:backgroundTint="@color/colorButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

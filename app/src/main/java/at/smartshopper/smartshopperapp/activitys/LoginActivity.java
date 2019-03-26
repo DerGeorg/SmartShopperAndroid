@@ -129,21 +129,11 @@ public class LoginActivity extends AppCompatActivity {
                             return;
                         }
 
-                        String uid = FirebaseAuth.getInstance().getUid();
+                        FirebaseUser userFirebase = FirebaseAuth.getInstance().getCurrentUser();
                         Member user;
                         String name = null;
                         String picture = null;
                         String email = null;
-                        try {
-                            user = db.getUser(uid);
-                            name = user.getName();
-                            picture = user.getPic();
-                            email = user.getEmail();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
 
                         // Get new Instance ID token
                         String token = task.getResult().getToken();
@@ -151,10 +141,23 @@ public class LoginActivity extends AppCompatActivity {
                         try {
                             if (!db.checkIfUserExists(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
 
-                                db.createUser(uid, token, name, picture, email);
+                                name = userFirebase.getDisplayName();
+                                picture = userFirebase.getPhotoUrl().toString();
+                                email = userFirebase.getEmail();
+                                db.createUser(userFirebase.getUid(), token, name, picture, email);
 
                             } else {
-                                db.updateUser(uid, token, name, picture, email);
+                                try {
+                                    user = db.getUser(userFirebase.getUid());
+                                    name = user.getName();
+                                    picture = user.getPic();
+                                    email = user.getEmail();
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                db.updateUser(userFirebase.getUid(), token, name, picture, email);
                             }
                         } catch (SQLException e) {
                             e.printStackTrace();
