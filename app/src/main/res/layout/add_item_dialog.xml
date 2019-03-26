@@ -121,7 +121,6 @@
                     android:id="@+id/itemFinish"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorButton"
                     android:text="Fertig" />
             </LinearLayout>
         </TableRow>

@@ -151,8 +151,7 @@
                     android:id="@+id/addFertig"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Fertig"
-                    app:backgroundTint="@color/colorButton" />
+                    android:text="Fertig" />
             </LinearLayout>
         </TableRow>
     </TableLayout>

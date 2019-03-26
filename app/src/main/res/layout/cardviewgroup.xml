@@ -68,8 +68,8 @@
 
             <ImageButton
                 android:id="@+id/deleteGroup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/buttonSize"
+                android:layout_height="@dimen/buttonSize"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:background="@android:color/transparent"
@@ -79,8 +79,8 @@
 
             <ImageButton
                 android:id="@+id/editGroup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/buttonSize"
+                android:layout_height="@dimen/buttonSize"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:background="@android:color/transparent"

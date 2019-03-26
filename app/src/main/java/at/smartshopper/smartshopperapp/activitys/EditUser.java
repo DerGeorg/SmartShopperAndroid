@@ -125,7 +125,7 @@ public class EditUser extends Activity {
         userbild.setImageDrawable(LoadImageFromWebOperations(photoUrl));
         editname.setText(name);
 
-        EnableRuntimePermission();
+//        EnableRuntimePermission();
 
         chooseImg.setOnClickListener(new View.OnClickListener() {
             @Override

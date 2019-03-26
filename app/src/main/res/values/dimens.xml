@@ -1,5 +1,5 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="item_spacing">8dp</dimen>
-    <dimen name="buttonSize">40dp</dimen>
+    <dimen name="buttonSize">30dp</dimen>
 </resources>

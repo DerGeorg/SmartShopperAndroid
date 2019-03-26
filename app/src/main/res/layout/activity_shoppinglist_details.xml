@@ -19,8 +19,8 @@
 
     <View
         android:id="@+id/pfeilnachunten"
-        android:layout_width="60dp"
-        android:layout_height="190dp"
+        android:layout_width="50dp"
+        android:layout_height="150dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/pfeil"
@@ -58,7 +58,7 @@
         android:layout_marginBottom="8dp"
         android:clickable="true"
         android:src="@drawable/addoutline"
-        app:backgroundTint="@color/colorButton"
+        app:backgroundTint="@color/fui_linkColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
