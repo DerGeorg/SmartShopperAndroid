@@ -13,30 +13,35 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name="at.smartshopper.smartshopperapp.activitys.EditUser"
-            android:label="@string/title_activity_edit_user"/>
-        <activity android:name="at.smartshopper.smartshopperapp.activitys.DoneItemActivity" />
+            android:name=".activitys.Register"
+            android:label="@string/title_activity_register"></activity>
         <activity
-            android:name="at.smartshopper.smartshopperapp.activitys.ItemListActivity"
+            android:name=".activitys.EditUser"
+            android:label="@string/title_activity_edit_user" />
+        <activity android:name=".activitys.DoneItemActivity" />
+        <activity
+            android:name=".activitys.ItemListActivity"
             android:label="@string/title_activity_item_list" />
-        <activity android:name="at.smartshopper.smartshopperapp.activitys.Colorpicker" />
-        <activity android:name="at.smartshopper.smartshopperapp.activitys.LoginActivity">
+        <activity android:name=".activitys.Colorpicker" />
+        <activity android:name=".activitys.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="smartshopper.cf"
-                    android:scheme="https"/>
+                    android:scheme="https" />
             </intent-filter>
         </activity>
         <activity
-            android:name="at.smartshopper.smartshopperapp.activitys.Dash"
+            android:name=".activitys.Dash"
             android:label="SmartShopper"
             android:theme="@style/AppTheme" />
         <!--
@@ -54,16 +59,15 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorPrimaryDark" /> <!-- [START firebase_service] -->
         <service
-            android:name="at.smartshopper.smartshopperapp.messaging.MyFirebaseMessagingService"
+            android:name=".messaging.MyFirebaseMessagingService"
             android:stopWithTask="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service> <!-- [END firebase_service] -->
         <activity
-            android:name="at.smartshopper.smartshopperapp.activitys.ShoppinglistDetails"
+            android:name=".activitys.ShoppinglistDetails"
             android:label="@string/title_activity_shoppinglist_details" />
-
     </application>
 
 </manifest>

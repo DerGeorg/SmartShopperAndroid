@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -241,13 +243,63 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = new Database();
 
+        Button register = (Button)findViewById(R.id.registrierenBtn);
+        register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, Register.class);
+                finish();
+                startActivity(intent);
+            }
+        });
 
 
-        Button loginEmailBtn = (Button) findViewById(R.id.loginEmailBtn);
+        final Button loginEmailBtn = (Button) findViewById(R.id.loginEmailBtn);
+        loginEmailBtn.setEnabled(false);
         final TextView email = (TextView) findViewById(R.id.email);
         final TextView passwort = (TextView) findViewById(R.id.password);
         button = (SignInButton) findViewById(R.id.loginGoogleBtn);
 
+        email.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(!email.getText().toString().isEmpty() && !passwort.getText().toString().isEmpty()){
+                    loginEmailBtn.setEnabled(true);
+                }else{
+                    loginEmailBtn.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        passwort.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(!email.getText().toString().isEmpty() && !passwort.getText().toString().isEmpty()){
+                    loginEmailBtn.setEnabled(true);
+                }else{
+                    loginEmailBtn.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         loginEmailBtn.setOnClickListener(new View.OnClickListener() {
             @Override
