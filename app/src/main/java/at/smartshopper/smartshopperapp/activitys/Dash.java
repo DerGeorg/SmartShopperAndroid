@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -96,7 +98,7 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             if (resultCode == RESULT_OK) {
                 int color = Integer.parseInt(data.getData().toString());
                 this.color = colorToHexString(color);
-                colorBtn.setBackgroundColor(Color.parseColor(this.color));
+                colorBtn.setBackgroundTintList(ColorStateList.valueOf(color));
             }
         }
     }

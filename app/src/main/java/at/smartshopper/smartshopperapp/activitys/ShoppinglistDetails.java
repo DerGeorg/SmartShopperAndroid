@@ -1,6 +1,7 @@
 package at.smartshopper.smartshopperapp.activitys;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -349,7 +350,7 @@ public class ShoppinglistDetails extends AppCompatActivity implements DetailsAda
                     colorstring = "#" + this.colorString;
                 }
                 int colorint = Color.parseColor(colorstring);
-                colorBtn.setBackgroundColor(colorint);
+                colorBtn.setBackgroundTintList(ColorStateList.valueOf(colorint));
             }
         }
     }
