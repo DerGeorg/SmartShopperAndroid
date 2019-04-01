@@ -85,10 +85,11 @@
 
             <Button
                 android:id="@+id/register"
-                android:layout_width="match_parent"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/colorAccent"
                 android:text="Jetzt Registrieren" />
+
         </TableRow>
 
         <TableRow
@@ -98,9 +99,11 @@
 
             <Button
                 android:id="@+id/backLogin"
+                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Zurück zum Login" />
+
         </TableRow>
 
         <TableRow
