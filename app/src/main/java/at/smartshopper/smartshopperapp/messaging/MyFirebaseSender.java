@@ -43,13 +43,6 @@ public class MyFirebaseSender {
         for (int i = 0; messageIds.size() > i; i++) {
 
             try {
-                /*
-                firebaseMessaging.send(new RemoteMessage.Builder(R.string.firebase_sender_id + "@fcm.googleapis.com/fcm/")
-                        .setMessageId(messageIds.get(i))
-                        .addData("my_message", message)
-                        .addData("LoginActivity", action)
-                        .build());
-                        */
 
                 // Create a new HttpClient and Post Header
                 HttpClient httpclient = new DefaultHttpClient();

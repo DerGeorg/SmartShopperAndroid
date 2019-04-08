@@ -2,9 +2,12 @@ package at.smartshopper.smartshopperapp.activitys;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.graphics.ColorUtils;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -83,7 +86,25 @@ public class ItemListActivity extends AppCompatActivity implements ItemAdapter.O
         } else {
             colorstring = "#" + colorToolbar;
         }
-        toolbar.setBackgroundColor(Color.parseColor(colorstring));
+        int backgroundcolor = Color.parseColor(colorstring);
+        toolbar.setBackgroundColor(backgroundcolor);
+        if(ColorUtils.calculateLuminance(backgroundcolor)>0.5){
+            toolbar.setTitleTextColor(Color.parseColor("#000000")); // It's a light color
+            Drawable drawable = toolbar.getOverflowIcon();
+            if(drawable != null) {
+                drawable = DrawableCompat.wrap(drawable);
+                DrawableCompat.setTint(drawable.mutate(), Color.parseColor("#000000"));
+                toolbar.setOverflowIcon(drawable);
+            }
+        }else{
+            toolbar.setTitleTextColor(Color.parseColor("#FFFFFF")); // It's a dark color
+            Drawable drawable = toolbar.getOverflowIcon();
+            if(drawable != null) {
+                drawable = DrawableCompat.wrap(drawable);
+                DrawableCompat.setTint(drawable.mutate(), Color.parseColor("#FFFFFF"));
+                toolbar.setOverflowIcon(drawable);
+            }
+        }
         setSupportActionBar(toolbar);
 
         this.groupName = (TextView) findViewById(R.id.groupViewName);

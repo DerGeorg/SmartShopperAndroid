@@ -2,7 +2,8 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    app:cardBackgroundColor="@color/colorPrimary">
 
     <TableLayout
         android:layout_width="match_parent"
@@ -35,13 +36,33 @@
             android:layout_height="match_parent"
             android:gravity="center">
 
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shared Link"
+                android:textAlignment="center"
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
             <EditText
                 android:id="@+id/linkausgabe"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/browser_actions_title_color"
                 android:editable="false"
                 android:ems="10"
+                android:hint="Shared Link"
                 android:inputType="textPersonName"
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textColorHint="@color/texthintcolor"
                 android:textIsSelectable="true" />
         </TableRow>
 
@@ -59,15 +80,15 @@
         </TableRow>
 
         <!--<TableRow-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:gravity="center">-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:gravity="center">-->
 
-            <!--<Button-->
-                <!--android:id="@+id/copyButton"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="in die zwischenablage kopieren" />-->
+        <!--<Button-->
+        <!--android:id="@+id/copyButton"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="in die zwischenablage kopieren" />-->
         <!--</TableRow>-->
 
         <TableRow
@@ -81,7 +102,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#00b7ff"
-                android:text="Listen Sharing beenden!" />
+                android:text="Listen Sharing beenden!"
+                android:textColor="@color/colorPrimary" />
         </TableRow>
 
     </TableLayout>

@@ -35,9 +35,12 @@
                 android:id="@+id/nameregister"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/browser_actions_title_color"
                 android:ems="10"
                 android:hint="Name"
                 android:inputType="textEmailAddress"
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textColorHint="@color/texthintcolor"
                 tools:layout_editor_absoluteX="33dp"
                 tools:layout_editor_absoluteY="33dp" />
         </TableRow>
@@ -51,9 +54,12 @@
                 android:id="@+id/emailregister"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/browser_actions_title_color"
                 android:ems="10"
                 android:hint="Email"
                 android:inputType="textEmailAddress"
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textColorHint="@color/texthintcolor"
                 tools:layout_editor_absoluteX="33dp"
                 tools:layout_editor_absoluteY="33dp" />
         </TableRow>
@@ -67,11 +73,12 @@
                 android:id="@+id/passwordregister"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
+                android:backgroundTint="@color/browser_actions_title_color"
                 android:ems="10"
                 android:hint="Passwort"
                 android:inputType="textPassword"
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textColorHint="@color/texthintcolor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 tools:layout_editor_absoluteY="232dp" />
@@ -88,7 +95,8 @@
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Jetzt Registrieren" />
+                android:text="Jetzt Registrieren"
+                android:textColor="@color/colorPrimary" />
 
         </TableRow>
 
@@ -102,14 +110,15 @@
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Zurück zum Login" />
+                android:text="Zurück zum Login"
+                android:textColor="@color/colorPrimary" />
 
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_horizontal"/>
+            android:gravity="center_horizontal" />
 
     </TableLayout>
 

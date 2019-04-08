@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -98,7 +98,13 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             if (resultCode == RESULT_OK) {
                 int color = Integer.parseInt(data.getData().toString());
                 this.color = colorToHexString(color);
-                colorBtn.setBackgroundTintList(ColorStateList.valueOf(color));
+                int colorint = Color.parseColor(this.color);
+                colorBtn.setBackgroundTintList(ColorStateList.valueOf(colorint));
+                if(ColorUtils.calculateLuminance(colorint)>0.5){
+                    colorBtn.setTextColor(Color.parseColor("#000000")); // It's a light color
+                }else{
+                    colorBtn.setTextColor(Color.parseColor("#FFFFFF")); // It's a dark color
+                }
             }
         }
     }
@@ -122,17 +128,9 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                             Log.w("SmartShopper", "getInstanceId failed", task.getException());
                             return;
                         }
-
                         // Get new Instance ID token
                         String token = task.getResult().getToken();
                         Log.d("SmartShopper MSG", token);
-
-                        /* Log and toast
-                        String msg = getString(R.string.msg_token_fmt, token);
-                        Log.d(TAG, msg);
-                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-
-                        */
                     }
                 });
     }
@@ -162,19 +160,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                 e.printStackTrace();
             }
 //           Damit werden die Shared Shoppinglists angezeigt
-
-
-//            try {
-//                TabHost tabhost = (TabHost) findViewById(R.id.tabHost1);
-//                tabhost.setCurrentTab(1);
-//                sharedswiperefresh.setRefreshing(true);
-//                showSharedShoppingList(FirebaseAuth.getInstance().getCurrentUser().getUid());
-//                sharedswiperefresh.setRefreshing(false);
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            } catch (SQLException e) {
-//                e.printStackTrace();
-//            }
             //Damit wird die hinzugefügte shoppinglist angezeigt
             onShoppinglistClickContainer(sl_idToGo);
         }
@@ -210,7 +195,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                     host.setCurrentTab(1);
                 }
             }
-
             try {
                 try {
                     showOwnShoppingList(uid);
@@ -221,7 +205,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
             sharedswiperefresh = (SwipeRefreshLayout) findViewById(R.id.sharedSwipe);
 
             sharedswiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -338,7 +321,13 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                 colorstring = "#" + dbShoppinglist.getcolor();
             }
             this.color = colorstring;
-            colorBtn.setBackgroundColor(Color.parseColor(colorstring));
+            int colorint = Color.parseColor(colorstring);
+            colorBtn.setBackgroundTintList(ColorStateList.valueOf(colorint));
+            if(ColorUtils.calculateLuminance(colorint)>0.5){
+                colorBtn.setTextColor(Color.parseColor("#000000")); // It's a light color
+            }else{
+                colorBtn.setTextColor(Color.parseColor("#FFFFFF")); // It's a dark color
+            }
             name.setText(dbShoppinglist.getname());
             description.setText(dbShoppinglist.getdescription());
         } else {
@@ -930,16 +919,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                         startActivity(Intent.createChooser(sharingIntent, "Teile mit"));
                     }
                 });
-
-//                final Button copyButton = (Button) popupContentView.findViewById(R.id.shareCopy);
-//                copyButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        copyText(linkausgabe.getText().toString());
-//                        popupShare.dismiss();
-//                    }
-//                });
-
                 Button delShare = (Button) popupContentView.findViewById(R.id.delShare);
 
                 final String finalLink = link;
@@ -1191,13 +1170,6 @@ public class Dash extends AppCompatActivity implements ShoppinglistAdapter.OnIte
                 popupEditShare.dismiss();
             }
         });
-//        copyBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                copyText(linkAusgabe.getText().toString());
-//                popupEditShare.dismiss();
-//            }
-//        });
         ImageButton shareIntentBtn = popupContentView.findViewById(R.id.shareIntentBtn);
         Picasso.get().load(R.drawable.share).into(shareIntentBtn);
         shareIntentBtn.setOnClickListener(new View.OnClickListener() {

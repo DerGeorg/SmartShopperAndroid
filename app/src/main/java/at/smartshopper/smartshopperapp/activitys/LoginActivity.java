@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
     //Für Double Back press to exit
     private boolean doubleBackToExitPressedOnce = false;
 
-    public void getDynamicLink(){
+    public void getDynamicLink() {
         FirebaseDynamicLinks.getInstance()
                 .getDynamicLink(getIntent())
                 .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
@@ -76,7 +76,6 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
 
-
                         // Handle the deep link. For example, open the linked
                         // content, or apply promotional credit to the user's
                         // account.
@@ -93,6 +92,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 });
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -170,7 +170,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
         Intent intent = new Intent(this, Dash.class);
-        if(sl_idToGo != null){
+        if (sl_idToGo != null) {
             intent.putExtra("sl_idToGo", sl_idToGo);
             intent.putExtra("inviteToAdd", inviteToAdd);
         }
@@ -243,7 +243,7 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = new Database();
 
-        Button register = (Button)findViewById(R.id.registrierenBtn);
+        Button register = (Button) findViewById(R.id.registrierenBtn);
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -268,9 +268,9 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(!email.getText().toString().isEmpty() && !passwort.getText().toString().isEmpty()){
+                if (!email.getText().toString().isEmpty() && !passwort.getText().toString().isEmpty()) {
                     loginEmailBtn.setEnabled(true);
-                }else{
+                } else {
                     loginEmailBtn.setEnabled(false);
                 }
             }
@@ -288,9 +288,9 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(!email.getText().toString().isEmpty() && !passwort.getText().toString().isEmpty()){
+                if (!email.getText().toString().isEmpty() && !passwort.getText().toString().isEmpty()) {
                     loginEmailBtn.setEnabled(true);
-                }else{
+                } else {
                     loginEmailBtn.setEnabled(false);
                 }
             }

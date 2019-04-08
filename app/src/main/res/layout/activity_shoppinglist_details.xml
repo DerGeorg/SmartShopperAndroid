@@ -58,8 +58,9 @@
         android:layout_marginBottom="8dp"
         android:clickable="true"
         android:src="@drawable/addoutline"
-        app:backgroundTint="@color/fui_linkColor"
+        app:backgroundTint="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:rippleColor="@color/colorPrimaryDark" />
 
 </android.support.constraint.ConstraintLayout>

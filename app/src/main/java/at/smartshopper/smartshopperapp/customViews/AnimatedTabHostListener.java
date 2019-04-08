@@ -9,8 +9,7 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.TabHost;
 
-public class AnimatedTabHostListener implements TabHost.OnTabChangeListener
-{
+public class AnimatedTabHostListener implements TabHost.OnTabChangeListener {
 
     private static final int ANIMATION_TIME = 240;
     private TabHost tabHost;
@@ -25,21 +24,15 @@ public class AnimatedTabHostListener implements TabHost.OnTabChangeListener
      * @param context
      * @param tabHost
      */
-    public AnimatedTabHostListener(Context context, TabHost tabHost)
-    {
+    public AnimatedTabHostListener(Context context, TabHost tabHost) {
         this.tabHost = tabHost;
         this.previousView = tabHost.getCurrentView();
         gestureDetector = new GestureDetector(context, new MyGestureDetector());
-        tabHost.setOnTouchListener(new View.OnTouchListener()
-        {
-            public boolean onTouch(View v, MotionEvent event)
-            {
-                if (gestureDetector.onTouchEvent(event))
-                {
+        tabHost.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if (gestureDetector.onTouchEvent(event)) {
                     return false;
-                }
-                else
-                {
+                } else {
                     return true;
                 }
             }
@@ -51,17 +44,13 @@ public class AnimatedTabHostListener implements TabHost.OnTabChangeListener
      * appropriate directions.
      */
     @Override
-    public void onTabChanged(String tabId)
-    {
+    public void onTabChanged(String tabId) {
 
         currentView = tabHost.getCurrentView();
-        if (tabHost.getCurrentTab() > currentTab)
-        {
+        if (tabHost.getCurrentTab() > currentTab) {
             previousView.setAnimation(outToLeftAnimation());
             currentView.setAnimation(inFromRightAnimation());
-        }
-        else
-        {
+        } else {
             previousView.setAnimation(outToRightAnimation());
             currentView.setAnimation(inFromLeftAnimation());
         }
@@ -75,8 +64,7 @@ public class AnimatedTabHostListener implements TabHost.OnTabChangeListener
      *
      * @return Animation the Animation object
      */
-    private Animation inFromRightAnimation()
-    {
+    private Animation inFromRightAnimation() {
         Animation inFromRight = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 1.0f,
                 Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT,
                 0.0f);
@@ -88,8 +76,7 @@ public class AnimatedTabHostListener implements TabHost.OnTabChangeListener
      *
      * @return Animation the Animation object
      */
-    private Animation outToRightAnimation()
-    {
+    private Animation outToRightAnimation() {
         Animation outToRight = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT,
                 1.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f);
         return setProperties(outToRight);
@@ -100,8 +87,7 @@ public class AnimatedTabHostListener implements TabHost.OnTabChangeListener
      *
      * @return Animation the Animation object
      */
-    private Animation inFromLeftAnimation()
-    {
+    private Animation inFromLeftAnimation() {
         Animation inFromLeft = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, -1.0f,
                 Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT,
                 0.0f);
@@ -113,8 +99,7 @@ public class AnimatedTabHostListener implements TabHost.OnTabChangeListener
      *
      * @return Animation the Animation object
      */
-    private Animation outToLeftAnimation()
-    {
+    private Animation outToLeftAnimation() {
         Animation outtoLeft = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT,
                 -1.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f);
         return setProperties(outtoLeft);
@@ -123,12 +108,10 @@ public class AnimatedTabHostListener implements TabHost.OnTabChangeListener
     /**
      * Helper method that sets some common properties
      *
-     * @param animation
-     *            the animation to give common properties
+     * @param animation the animation to give common properties
      * @return the animation with common properties
      */
-    private Animation setProperties(Animation animation)
-    {
+    private Animation setProperties(Animation animation) {
         animation.setDuration(ANIMATION_TIME);
         animation.setInterpolator(new AccelerateInterpolator());
         return animation;
@@ -139,10 +122,8 @@ public class AnimatedTabHostListener implements TabHost.OnTabChangeListener
      * uses an AnimatedTabHost listener.
      *
      * @author Daniel Kvist
-     *
      */
-    class MyGestureDetector extends GestureDetector.SimpleOnGestureListener
-    {
+    class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
         private static final int SWIPE_MIN_DISTANCE = 120;
         private static final int SWIPE_MAX_OFF_PATH = 250;
         private static final int SWIPE_THRESHOLD_VELOCITY = 200;
@@ -151,8 +132,7 @@ public class AnimatedTabHostListener implements TabHost.OnTabChangeListener
         /**
          * An empty constructor that uses the tabhosts content view to decide how many tabs there are.
          */
-        public MyGestureDetector()
-        {
+        public MyGestureDetector() {
             maxTabs = tabHost.getTabContentView().getChildCount();
         }
 
@@ -162,26 +142,20 @@ public class AnimatedTabHostListener implements TabHost.OnTabChangeListener
          * velocity to decide if it was a "true" swipe or just some random touching.
          */
         @Override
-        public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY)
-        {
+        public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
             int newTab = 0;
-            if (Math.abs(event1.getY() - event2.getY()) > SWIPE_MAX_OFF_PATH)
-            {
+            if (Math.abs(event1.getY() - event2.getY()) > SWIPE_MAX_OFF_PATH) {
                 return false;
             }
-            if (event1.getX() - event2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY)
-            {
+            if (event1.getX() - event2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
                 // Swipe right to left
                 newTab = currentTab + 1;
-            }
-            else if (event2.getX() - event1.getX() > SWIPE_MIN_DISTANCE
-                    && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY)
-            {
+            } else if (event2.getX() - event1.getX() > SWIPE_MIN_DISTANCE
+                    && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
                 // Swipe left to right
                 newTab = currentTab - 1;
             }
-            if (newTab < 0 || newTab > (maxTabs - 1))
-            {
+            if (newTab < 0 || newTab > (maxTabs - 1)) {
                 return false;
             }
             tabHost.setCurrentTab(newTab);

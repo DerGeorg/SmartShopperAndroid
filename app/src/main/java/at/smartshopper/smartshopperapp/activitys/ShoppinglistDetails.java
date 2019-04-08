@@ -3,9 +3,12 @@ package at.smartshopper.smartshopperapp.activitys;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.graphics.ColorUtils;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -129,7 +133,7 @@ public class ShoppinglistDetails extends AppCompatActivity implements DetailsAda
 
         Shoppinglist shoppinglist = null;
         try {
-             shoppinglist = db.getShoppinglist(sl_id);
+            shoppinglist = db.getShoppinglist(sl_id);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (JSONException e) {
@@ -143,7 +147,25 @@ public class ShoppinglistDetails extends AppCompatActivity implements DetailsAda
         } else {
             colorstring = "#" + shoppinglist.getcolor();
         }
-        toolbar.setBackgroundColor(Color.parseColor(colorstring));
+        int backgroundcolor = Color.parseColor(colorstring);
+        toolbar.setBackgroundColor(backgroundcolor);
+        if(ColorUtils.calculateLuminance(backgroundcolor)>0.5){
+            toolbar.setTitleTextColor(Color.parseColor("#000000")); // It's a light color
+            Drawable drawable = toolbar.getOverflowIcon();
+            if(drawable != null) {
+                drawable = DrawableCompat.wrap(drawable);
+                DrawableCompat.setTint(drawable.mutate(), Color.parseColor("#000000"));
+                toolbar.setOverflowIcon(drawable);
+            }
+        }else{
+            toolbar.setTitleTextColor(Color.parseColor("#FFFFFF")); // It's a dark color
+            Drawable drawable = toolbar.getOverflowIcon();
+            if(drawable != null) {
+                drawable = DrawableCompat.wrap(drawable);
+                DrawableCompat.setTint(drawable.mutate(), Color.parseColor("#FFFFFF"));
+                toolbar.setOverflowIcon(drawable);
+            }
+        }
         setSupportActionBar(toolbar);
 
         final String finalSl_id = sl_id;
@@ -222,7 +244,13 @@ public class ShoppinglistDetails extends AppCompatActivity implements DetailsAda
             } else {
                 colorstring = "#" + dbgroup.getColor();
             }
-            color.setBackgroundColor(Color.parseColor(colorstring));
+            int colorint = Color.parseColor(colorstring);
+            colorBtn.setBackgroundTintList(ColorStateList.valueOf(colorint));
+            if(ColorUtils.calculateLuminance(colorint)>0.5){
+                colorBtn.setTextColor(Color.parseColor("#000000")); // It's a light color
+            }else{
+                colorBtn.setTextColor(Color.parseColor("#FFFFFF")); // It's a dark color
+            }
             name.setText(dbgroup.getGroupName());
         } else {
             colorString = "ffffff";
@@ -351,6 +379,11 @@ public class ShoppinglistDetails extends AppCompatActivity implements DetailsAda
                 }
                 int colorint = Color.parseColor(colorstring);
                 colorBtn.setBackgroundTintList(ColorStateList.valueOf(colorint));
+                if(ColorUtils.calculateLuminance(colorint)>0.5){
+                    colorBtn.setTextColor(Color.parseColor("#000000")); // It's a light color
+                }else{
+                    colorBtn.setTextColor(Color.parseColor("#FFFFFF")); // It's a dark color
+                }
             }
         }
     }

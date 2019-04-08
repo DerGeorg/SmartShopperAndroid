@@ -21,10 +21,10 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.v4.widget.SwipeRefreshLayout
-        android:layout_margin="8dp"
         android:id="@+id/itemListRefresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_margin="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
@@ -144,8 +144,9 @@
         android:layout_marginBottom="8dp"
         android:clickable="true"
         android:src="@drawable/addoutline"
-        app:backgroundTint="@color/fui_linkColor"
+        app:backgroundTint="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:rippleColor="@color/colorPrimaryDark" />
 
 </android.support.constraint.ConstraintLayout>

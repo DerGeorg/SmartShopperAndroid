@@ -134,7 +134,6 @@ public class ShoppinglistAdapter extends RecyclerView.Adapter<ShoppinglistAdapte
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        // holder.imageView.setImageDrawable(Drawable.createFromPath("@drawable/common_google_signin_btn_icon_dark"));
 
         // Check if user's email is verified
 

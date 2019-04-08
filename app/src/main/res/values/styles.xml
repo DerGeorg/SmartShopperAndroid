@@ -11,6 +11,8 @@
         <item name="colorButtonNormal">@color/colorAccent</item>
         <item name="colorControlHighlight">@color/colorPrimaryDark</item>
         <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Colored</item>
+        <item name="android:popupBackground">@color/colorPrimary</item>
+        <item name="android:popupTheme">@style/AppTheme</item>
     </style>
 
     <style name="popup_window_animation_phone">
